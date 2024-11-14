@@ -1,0 +1,42 @@
+replicaCount: 1
+
+configsConfigMapName: path-config
+# TODO(@adshmh): add a key using a secret for the Gateway address, apps' private keys, etc.
+
+serviceMonitor:
+  enabled: false
+
+logs:
+  level: info
+  format: plain
+
+development:
+  delve:
+    enabled: false
+    laddr: :40004
+
+image:
+  repository: ghcr.io/buildwithgrove/path
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  rpcPort: 3000
+  timeout: 60000000000
+prod:
+  enabled: false
+  namespace: ""
+scripts:
+  enabled: true
+podSecurityContext: {}
+resources: {}
+# We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 8
+#   memory: 16Gi
+# requests:
+#   cpu: 4
+#   memory: 12Gi

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "path.fullname" . }}
+  labels:
+    app: {{ include "path.fullname" . }}
+spec:
+  selector:
+    app: {{ include "path.fullname" . }}
+  ports:
+    - name: rpc
+      protocol: TCP
+      port: 3000
+      targetPort: 3000
