@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  path:
+  - apiVersion: v2
+    appVersion: 0.0.16
+    created: "2024-11-16T16:57:59.509166281Z"
+    description: A Helm chart for Kubernetes
+    digest: a0bbdf4286c13b0c2161e4ee551faa86271b3dec55455a79a16c7f46cbfbfb20
+    name: path
+    type: application
+    urls:
+    - https://github.com/buildwithgrove/helm-charts/releases/download/path-0.0.1/path-0.0.1.tgz
+    version: 0.0.1
+generated: "2024-11-16T16:57:59.509175788Z"
