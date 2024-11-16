@@ -1,0 +1,35 @@
+# TODO_UPNEXT(@HebertCL): replace with PATH staging deployment chart.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "path.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ include "path.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "path.fullname" . }}
+    spec:
+      containers:
+        - name: path
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+{{ toYaml .Values.podSecurityContext | indent 12 }}
+          ports:
+            - containerPort: 3000
+              name: rpc
+          volumeMounts:
+            - name: configs-source-volume
+              mountPath: /app/config
+      volumes:
+        - name: configs-source-volume
+          configMap:
+            name: {{ .Values.configsConfigMapName }}
