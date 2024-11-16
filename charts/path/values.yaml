@@ -17,7 +17,8 @@ development:
 
 image:
   repository: ghcr.io/buildwithgrove/path
-  tag: latest
+  # TODO_MVP(@adshmh): change to "latest" once the PATH repo CI's docker image push job is updated to use the correct tag.
+  tag: main
   pullPolicy: IfNotPresent
 service:
   type: ClusterIP
