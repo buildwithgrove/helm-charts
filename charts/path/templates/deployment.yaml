@@ -1,35 +1,150 @@
+{{ $name := include "path.name" . }}
+{{- $volumeName := printf "%s-data" $name }}
+
 # TODO_UPNEXT(@HebertCL): replace with PATH staging deployment chart.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "path.fullname" . }}
+  labels:
+    {{- include "path.labels" $ | nindent 4 }}
+    {{- with .Values.path.additionalLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- with .Values.path.additionalAnnotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicas }}
   strategy:
-    type: Recreate
+    type: {{ default "Recreate" $.Values.strategy }}
   selector:
     matchLabels:
-      app: {{ include "path.fullname" . }}
+      deploymentname: {{ include "path.fullname" . }}
   template:
     metadata:
       labels:
-        app: {{ include "path.fullname" . }}
+        {{- include "path.labels" $ | nindent 8 }}
+        {{- with .Values.path.additionalLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        deploymentname: {{ include "path.fullname" . }}
+      annotations:
+        {{- with .Values.path.additionalAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
+      {{- with $.Values.path.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
+      {{- with $.Values.path.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.path.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.path.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.path.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.global.securityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.global.serviceAccount.name }}
+      serviceAccountName: {{ . }}
+      {{- end }}
+      {{- with $.Values.path.dnsPolicy }}
+      dnsPolicy: {{  . }}
+      {{- end }}
+      {{- with $.Values.path.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.path.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml . | nindent 8 }}
+      {{- end }}
+
       containers:
-        - name: path
+        - name: {{ include "path.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          securityContext:
-{{ toYaml .Values.podSecurityContext | indent 12 }}
+          imagePullPolicy: {{ default "IfNotPresent" $.Values.global.imagePullPolicy }}
+          {{- with $.Values.path.envFrom }}
+          envFrom: {{- toYaml . | nindent 12}}
+          {{- end }}
+          {{- with $.Values.path.env }}
+          env: {{- toYaml . | nindent 12}}
+          {{- end }}
+          {{- with $.Values.path.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+          {{- end }}
+
+          {{- range $kprt, $prt := $.Values.path.ports }}
           ports:
-            - containerPort: 3000
-              name: rpc
+            - name:  {{ $prt.name}}
+              protocol: {{ $prt.protocol }}
+              containerPort: {{ $prt.port }}
+          {{- end }}
+
           volumeMounts:
-            - name: configs-source-volume
-              mountPath: /app/config
+          {{- if $.Values.path.persistence }} {{ if $.Values.path.persistence.volumeClaimTemplates}} {{if $.Values.path.persistence.volumeClaimTemplates.volumeMountPath }}
+            - name: {{ $volumeName }}
+              mountPath: {{ $.Values.path.persistence.volumeClaimTemplates.volumeMountPath }}
+          {{- end }}{{end}}{{end}}
+
+          {{- range $cm := $.Values.path.mountConfigMaps }}{{/* # Volume mounts from mountConfigMaps */}}
+            - name: {{$cm.name}}
+              mountPath: {{ $cm.mountPath }}
+              subPath: {{ $cm.subPath }}
+          {{- end }}
+
+          {{- range $sec := $.Values.path.mountSecrets }}{{/* # Volume mounts from mountSecrets */}}
+            - name: {{$sec.name}}
+              mountPath: {{ $sec.mountPath }}
+              subPath: {{ $sec.subPath }}
+          {{- end }}
+
+          {{- with $.Values.path.lifecycle }}
+          lifecycle: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with (default (list ) $.Values.path.startupProbe) }}
+          startupProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with (default (list ) $.Values.path.livenessProbe) }}
+          livenessProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with (default (list ) $.Values.path.readinessProbe) }}
+          readinessProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
+
       volumes:
-        - name: configs-source-volume
+        {{- range $cm := $.Values.path.mountConfigMaps }}{{/* # Volume mounts from mountConfigMaps */}}
+        - name: {{$cm.name}}
           configMap:
-            name: {{ .Values.configsConfigMapName }}
+            name: {{$cm.name}}
+          {{- with $cm.items }}
+            items:
+              {{- toYaml . | nindent 14 }}
+          {{- end }}
+        {{- end }}
+
+        {{- range $sec := $.Values.path.mountSecrets }}{{/* # Volume mounts from mountSecrets */}}
+        - name: {{$sec.name}}
+          secret:
+            secretName: {{$sec.name}}
+            optional: false
+            defaultMode: {{$sec.defaultMode}}
+          {{- with $sec.items }}
+            items:
+              {{- toYaml . | nindent 14 }}
+          {{- end }}
+        {{- end }}
+
+        {{- if $.Values.path.persistence }} {{ if $.Values.path.persistence.volumeClaimTemplates}} {{if $.Values.path.persistence.volumeClaimTemplates.volumeMountPath }}
+        - name: {{ $volumeName }}
+          persistentVolumeClaim:
+              claimName: {{ $volumeName }}
+        {{- end }}{{end}}{{end}}
+
