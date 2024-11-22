@@ -1,0 +1,73 @@
+#* In case of multiple GKE deployed in the same project
+#* We don't need to setup GCP permissions for each cluster, only one is enough
+#* coz 1 project has only one GKE workloads authentication namespace
+#* So adding this flag, to allow disabling them
+{{- if not .Values.disableConfigConnectorCRDs }}
+
+# Secret level roles
+# This section provides access to secrets manager iterating over a number of secrets and binds
+# access to the designated SA created in the same section.
+{{- range $v := $.Values.iamPolicy.secretRoles }}
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: sec-role-{{ printf "%s-%s" $v.project $v.secret | lower | replace "_" "-" | trunc 63 | trimSuffix "-"}}
+spec:
+  member: "serviceAccount:{{ $.Values.iamPolicy.gke.serviceAccount }}@{{ $.Values.iamPolicy.gke.clusterProjectID }}.iam.gserviceaccount.com"
+  role: "{{ $v.role }}"            #Can be hardcoded In most cases it will be roles/secretmanager.secretAccessor
+  resourceRef:
+    apiVersion: secretmanager.cnrm.cloud.google.com/v1beta1
+    kind: SecretManagerSecret
+    external: "projects/{{ $v.project }}/secrets/{{ $v.secret }}"
+{{ end }}
+
+# Project level roles
+# Within this section additional permissions can be bound to the same SA using this section.
+{{- range $v := $.Values.iamPolicy.projectRoles }}
+---
+kind: IAMPolicyMember
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+metadata:
+  name: {{ printf "projrole-%s-%s" $v.project (replace "." "-" (replace "roles/" "" $v.role)) | lower | replace "_" "-" | trunc 63 | trimSuffix "-"}}
+spec:
+  role: "{{ $v.role }}"
+  member: "serviceAccount:{{ $.Values.iamPolicy.gke.serviceAccount }}@{{ $.Values.iamPolicy.gke.clusterProjectID }}.iam.gserviceaccount.com"
+  resourceRef:
+    kind: Project
+    external: projects/{{ $v.project }}
+{{- end }}
+
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: iampolicymember-service-account
+spec:
+  member: "serviceAccount:{{ $.Values.iamPolicy.gke.clusterProjectID }}.svc.id.goog[{{ $.Release.Namespace }}/{{ $.Values.iamPolicy.gke.serviceAccount }}]"
+  role: "roles/iam.serviceAccountTokenCreator"
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: {{ $.Values.iamPolicy.gke.serviceAccount }}
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: iampolicymember-workload-identity
+spec:
+  member: "serviceAccount:{{ $.Values.iamPolicy.gke.serviceAccount }}@{{ $.Values.iamPolicy.gke.clusterProjectID }}.iam.gserviceaccount.com"
+  role: "roles/iam.workloadIdentityUser"
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: {{ $.Values.iamPolicy.gke.serviceAccount }}
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccount
+metadata:
+  name: {{ $.Values.iamPolicy.gke.serviceAccount }}
+  annotations:
+    cnrm.cloud.google.com/project-id: "{{ $.Values.iamPolicy.gke.clusterProjectID }}"
+
+{{- end }} {{/* # not .Values.disableConfigConnectorCRDs */}}
