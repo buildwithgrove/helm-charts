@@ -21,4 +21,17 @@ entries:
     urls:
     - https://github.com/buildwithgrove/helm-charts/releases/download/path-0.0.1/path-0.0.1.tgz
     version: 0.0.1
-generated: "2024-11-23T04:37:19.143864418Z"
+  universal-helm:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2024-11-23T04:40:33.58745939Z"
+    description: A Universal Helm chart
+    digest: 2c33b1e1ea84bd5434fa780d6422a4ae6bf571c4697f0bc40c9dac278bbbc1c1
+    maintainers:
+    - name: HebertCL
+    name: universal-helm
+    type: application
+    urls:
+    - https://github.com/buildwithgrove/helm-charts/releases/download/universal-helm-0.1.0/universal-helm-0.1.0.tgz
+    version: 0.1.0
+generated: "2024-11-23T04:40:33.587467425Z"
