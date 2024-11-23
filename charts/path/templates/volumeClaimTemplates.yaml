@@ -1,0 +1,38 @@
+{{ $pvName := include "path.name" . }}
+{{- $volumeName := printf "%s-data" $pvName }}
+
+{{- if $.Values.path.persistence }}
+{{- if $.Values.path.persistence.volumeClaimTemplates }}
+{{with $.Values.path.persistence.volumeClaimTemplates}}
+{{- if and .storageClassName .size .volumeMountPath }}
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $volumeName }}
+  labels:
+    {{- include "path.labels" $ | nindent 4 }}
+    {{- with $.Values.path.additionalLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- with $.Values.path.additionalAnnotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  storageClassName: {{ .storageClassName }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .size | quote }}
+  {{- if .gcpVolumeSnapshot }}
+  dataSource:
+    name: {{ .gcpVolumeSnapshot | quote }}
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
