@@ -14,6 +14,7 @@
 
 - [1. Introduction](#1-introduction)
   - [1.1 Getting started](#11-getting-started)
+  - [1.2 Setup pre-commit hooks](#12-setup-pre-commit-hooks)
 
 ## 1. Introduction
 
@@ -31,4 +32,20 @@ Once you have the repository added, refresh the repositories added running:
 
 ```sh
 helm repo update
+```
+
+### 1.2 Setup pre-commit hooks
+
+Helm charts repo uses pre-commit hooks to check for local changes before they are pushed into any remote branch.
+
+To setup pre-commit, simply run the following command:
+
+```sh
+brew install pre-commit
+```
+
+If you prefer to install using `pip`, run the following command:
+
+```sh
+pip install pre-commit
 ```
