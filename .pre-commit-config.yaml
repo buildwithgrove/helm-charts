@@ -5,8 +5,8 @@ repos:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
     -   id: check-added-large-files
-- repo: https://github.com/pokt-foundation/charts
-  rev: docs-hook-0.1.2
+- repo: https://github.com/buildwithgrove/helm-charts
+  rev: docs-hook-0.1.0
   hooks:
     - id: helm-docs
       args: []
