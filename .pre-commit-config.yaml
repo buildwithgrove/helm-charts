@@ -6,7 +6,7 @@ repos:
     -   id: end-of-file-fixer
     -   id: check-added-large-files
 - repo: https://github.com/buildwithgrove/helm-charts
-  rev: docs-hook-0.1.1
+  rev: docs-hook-0.1.2
   hooks:
     - id: helm-docs
       args: []
