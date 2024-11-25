@@ -2,9 +2,9 @@ nameOverride: path
 fullnameOverride: path
 global:
   imagePullPolicy: Always
-  serviceAccount:
-    create: true
-    name: change-me
+  # serviceAccount:
+  #   create: true
+  #   name: change-me
   securityContext:
     fsGroup: 1001
     runAsUser: 1001
@@ -22,103 +22,102 @@ path:
   horizontalPodAutoscaler:
     enabled: false
   ## Path helm chart supports environment values both defined at chart or from sources like secrets
-  envFrom: some-secret
-  env:
-    - name: KEY1
-      value: VALUE1
-    - name: KEY2
-      value: VALUE2
-  
+  # envFrom: some-secret
+  # env:
+  #   - name: KEY1
+  #     value: VALUE1
+  #   - name: KEY2
+  #     value: VALUE2
+
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  resources: #{}
-    limits:
-      memory: 2G
-      cpu: 4
-    requests:
-      cpu: 1.8
-      memory: 800Mi
+  resources: {}
+    # limits:
+    #   memory: 2G
+    #   cpu: 4
+    # requests:
+    #   cpu: 1.8
+    #   memory: 800Mi
   ## Port supports the creation of Kubernetes services resources which are tied to the ports
   ## exposed in this configuration.
-  ports: #[]
-  - name: http
-    port: 3000
-    protocol: TCP
-    service:
-      type: ClusterIP
-      annotations: #{}
-        cloud.google.com/neg: '{"ingress": true}'
-    ingress:
-      annotations: #{}
-        kubernetes.io/ingress.class: "gce"
-        cert-manager.io/cluster-issuer: letscrypt-prod
-        cloud.google.com/backend-config: "health-check-config"
-      hosts:
-        - host: "path.example.org"
-          paths:
-            - path: /
-              pathType: Prefix
-      tls:
-        - secretName: my-ingress-secret
-          hosts:
-            - "path.example.org"
+  ports: []
+  # - name: http
+  #   port: 3000
+  #   protocol: TCP
+  #   service:
+  #     type: ClusterIP
+  #     annotations: #{}
+  #       cloud.google.com/neg: '{"ingress": true}'
+  #   ingress:
+  #     annotations: #{}
+  #       kubernetes.io/ingress.class: "gce"
+  #       cert-manager.io/cluster-issuer: letscrypt-prod
+  #       cloud.google.com/backend-config: "health-check-config"
+  #     hosts:
+  #       - host: "path.example.org"
+  #         paths:
+  #           - path: /
+  #             pathType: Prefix
+  #     tls:
+  #       - secretName: my-ingress-secret
+  #         hosts:
+  #           - "path.example.org"
   ## Container probes and lifecycle configurations
   # lifecycle: ""
   # startupProbe: {}
-  livenessProbe: #{}
-    failureThreshold: 6
-    httpGet:
-      path: /healthz
-      port: 3000
-      scheme: HTTP
-  readinessProbe: #{}
-    failureThreshold: 6
-    httpGet:
-      path: /healthz
-      port: 3000
-      scheme: HTTP
+  # livenessProbe:
+  #   failureThreshold: 6
+  #   httpGet:
+  #     path: /healthz
+  #     port: 3000
+  #     scheme: HTTP
+  # readinessProbe:
+  #   failureThreshold: 6
+  #   httpGet:
+  #     path: /healthz
+  #     port: 3000
+  #     scheme: HTTP
 
   ## Deployment specific configurations. Depending on the needs of your workload
   ## you can uncomment and setup the values below.
   # terminationGracePeriodSeconds: 10
-  affinity: #{}
-    nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-                - key: cloud.google.com/gke-nodepool
-                  operator: In
-                  values: 
-                    - gke-n2-standard-16
+  # affinity:
+  #   nodeAffinity:
+  #       requiredDuringSchedulingIgnoredDuringExecution:
+  #         nodeSelectorTerms:
+  #           - matchExpressions:
+  #               - key: cloud.google.com/gke-nodepool
+  #                 operator: In
+  #                 values:
+  #                   - gke-n2-standard-16
 
   # tolerations: []
   # nodeSelector: {}
   # topologySpreadConstraints: []
   # dnsPolicy: ""
   # dnsConfig: ""
-  imagePullSecrets:
-    - pull-secret1
-    - pull-secret2
+  # imagePullSecrets:
+  #   - pull-secret1
+  #   - pull-secret2
   ## Additional labels and annotations map values for labels and annotations
   ## for all the resources.
-  additionalLabels: #{}
-    applicationLabel: my-label
-  additionalAnnotations: #{}
-    kubernetes.io/annotation: some-annotation
+  additionalLabels: {}
+  # applicationLabel: my-label
+  additionalAnnotations: {}
+  # kubernetes.io/annotation: some-annotation
 
 ## Path supports mounting volumes, secrets and configmaps.
 ## Depending on the users' needs, any of the following can be used to mount Path's configuration
 ## within the container. Below can be found the 3 available options to be used.
-# volumes: #{}
-  mountSecrets:
-    - name: path-secret-mount
-      mountPath: /app/.config.yaml
-      subPath: .config.yaml
-      items:
-        - key: .config.yaml
-          path: .config.yaml
+  # mountSecrets:
+  #   - name: path-secret-mount
+  #     mountPath: /app/.config.yaml
+  #     subPath: .config.yaml
+  #     items:
+  #       - key: .config.yaml
+  #         path: .config.yaml
 # mountConfigMaps:
 #   name: my-name
 #   items:

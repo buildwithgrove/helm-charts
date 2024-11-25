@@ -1,6 +1,6 @@
 # path
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.16](https://img.shields.io/badge/AppVersion-0.0.16-informational?style=flat-square)
+![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.16](https://img.shields.io/badge/AppVersion-0.0.16-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -15,55 +15,15 @@ A Helm chart for Kubernetes
 | global.securityContext.fsGroup | int | `1001` |  |
 | global.securityContext.runAsGroup | int | `1001` |  |
 | global.securityContext.runAsUser | int | `1001` |  |
-| global.serviceAccount.create | bool | `true` |  |
-| global.serviceAccount.name | string | `"change-me"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/buildwithgrove/path"` |  |
 | image.tag | string | `"main"` |  |
 | nameOverride | string | `"path"` |  |
-| path.additionalAnnotations."kubernetes.io/annotation" | string | `"some-annotation"` |  |
-| path.additionalLabels.applicationLabel | string | `"my-label"` |  |
-| path.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"cloud.google.com/gke-nodepool"` |  |
-| path.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"In"` |  |
-| path.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"gke-n2-standard-16"` |  |
-| path.envFrom | string | `"some-secret"` |  |
-| path.env[0].name | string | `"KEY1"` |  |
-| path.env[0].value | string | `"VALUE1"` |  |
-| path.env[1].name | string | `"KEY2"` |  |
-| path.env[1].value | string | `"VALUE2"` |  |
+| path.additionalAnnotations | object | `{}` |  |
+| path.additionalLabels | object | `{}` |  |
 | path.horizontalPodAutoscaler.enabled | bool | `false` |  |
-| path.imagePullSecrets[0] | string | `"pull-secret1"` |  |
-| path.imagePullSecrets[1] | string | `"pull-secret2"` |  |
-| path.livenessProbe.failureThreshold | int | `6` |  |
-| path.livenessProbe.httpGet.path | string | `"/healthz"` |  |
-| path.livenessProbe.httpGet.port | int | `3000` |  |
-| path.livenessProbe.httpGet.scheme | string | `"HTTP"` |  |
-| path.mountSecrets[0].items[0].key | string | `".config.yaml"` |  |
-| path.mountSecrets[0].items[0].path | string | `".config.yaml"` |  |
-| path.mountSecrets[0].mountPath | string | `"/app/.config.yaml"` |  |
-| path.mountSecrets[0].name | string | `"path-secret-mount"` |  |
-| path.mountSecrets[0].subPath | string | `".config.yaml"` |  |
-| path.ports[0].ingress.annotations."cert-manager.io/cluster-issuer" | string | `"letscrypt-prod"` |  |
-| path.ports[0].ingress.annotations."cloud.google.com/backend-config" | string | `"health-check-config"` |  |
-| path.ports[0].ingress.annotations."kubernetes.io/ingress.class" | string | `"gce"` |  |
-| path.ports[0].ingress.hosts[0].host | string | `"path.example.org"` |  |
-| path.ports[0].ingress.hosts[0].paths[0].path | string | `"/"` |  |
-| path.ports[0].ingress.hosts[0].paths[0].pathType | string | `"Prefix"` |  |
-| path.ports[0].ingress.tls[0].hosts[0] | string | `"path.example.org"` |  |
-| path.ports[0].ingress.tls[0].secretName | string | `"my-ingress-secret"` |  |
-| path.ports[0].name | string | `"http"` |  |
-| path.ports[0].port | int | `3000` |  |
-| path.ports[0].protocol | string | `"TCP"` |  |
-| path.ports[0].service.annotations."cloud.google.com/neg" | string | `"{\"ingress\": true}"` |  |
-| path.ports[0].service.type | string | `"ClusterIP"` |  |
-| path.readinessProbe.failureThreshold | int | `6` |  |
-| path.readinessProbe.httpGet.path | string | `"/healthz"` |  |
-| path.readinessProbe.httpGet.port | int | `3000` |  |
-| path.readinessProbe.httpGet.scheme | string | `"HTTP"` |  |
-| path.resources.limits.cpu | int | `4` |  |
-| path.resources.limits.memory | string | `"2G"` |  |
-| path.resources.requests.cpu | float | `1.8` |  |
-| path.resources.requests.memory | string | `"800Mi"` |  |
+| path.ports | list | `[]` |  |
+| path.resources | object | `{}` |  |
 | replicas | int | `1` |  |
 
 ----------------------------------------------
