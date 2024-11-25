@@ -3,6 +3,16 @@ entries:
   path:
   - apiVersion: v2
     appVersion: 0.0.16
+    created: "2024-11-25T17:40:07.364855643Z"
+    description: A Helm chart for Kubernetes
+    digest: 8bf634f28d25e31548be027cbbce8536df90c663623fc005f6b20bc99ec09ecd
+    name: path
+    type: application
+    urls:
+    - https://github.com/buildwithgrove/helm-charts/releases/download/path-0.1.1/path-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.0.16
     created: "2024-11-23T04:37:19.143851363Z"
     description: A Helm chart for Kubernetes
     digest: 027385e2eb9767a37dafce0e20afc11c42fad60b5685a24bafe10236153cecea
@@ -34,4 +44,4 @@ entries:
     urls:
     - https://github.com/buildwithgrove/helm-charts/releases/download/universal-helm-0.1.0/universal-helm-0.1.0.tgz
     version: 0.1.0
-generated: "2024-11-23T04:40:33.587467425Z"
+generated: "2024-11-25T17:40:07.364869048Z"
