@@ -1,14 +1,19 @@
+{{ $name := include "path.name" . }}
+{{- range $kprt, $prt := $.Values.path.ports }}
+
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "path.fullname" . }}
+  name: {{$name}}-{{ $prt.name }}
   labels:
-    app: {{ include "path.fullname" . }}
+    app: {{$name}}
 spec:
   selector:
-    app: {{ include "path.fullname" . }}
+    app: {{$name}}
   ports:
-    - name: rpc
-      protocol: TCP
-      port: 3000
-      targetPort: 3000
+    - name: {{ $prt.name }}
+      protocol: {{ $prt.protocol }}
+      port: {{ $prt.port }}
+      targetPort: {{ $prt.port }}
+
+{{- end -}}
