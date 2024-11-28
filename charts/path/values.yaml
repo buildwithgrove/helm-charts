@@ -2,9 +2,9 @@ nameOverride: path
 fullnameOverride: path
 global:
   imagePullPolicy: Always
-  # serviceAccount:
-  #   create: true
-  #   name: change-me
+  serviceAccount:
+    create: false
+    name: change-me
   securityContext:
     fsGroup: 1001
     runAsUser: 1001

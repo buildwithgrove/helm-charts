@@ -15,6 +15,8 @@ A Helm chart for Kubernetes
 | global.securityContext.fsGroup | int | `1001` |  |
 | global.securityContext.runAsGroup | int | `1001` |  |
 | global.securityContext.runAsUser | int | `1001` |  |
+| global.serviceAccount.create | bool | `false` |  |
+| global.serviceAccount.name | string | `"change-me"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/buildwithgrove/path"` |  |
 | image.tag | string | `"main"` |  |
