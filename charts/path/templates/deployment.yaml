@@ -87,17 +87,14 @@ spec:
               protocol: {{ $prt.protocol }}
               containerPort: {{ $prt.port }}
           {{- end }}
-
           volumeMounts:
           {{- if $.Values.path.persistence }} {{ if $.Values.path.persistence.volumeClaimTemplates}} {{if $.Values.path.persistence.volumeClaimTemplates.volumeMountPath }}
             - name: {{ $volumeName }}
               mountPath: {{ $.Values.path.persistence.volumeClaimTemplates.volumeMountPath }}
           {{- end }}{{end}}{{end}}
-
-          {{- range $cm := $.Values.path.mountConfigMaps }}{{/* # Volume mounts from mountConfigMaps */}}
+          {{- range $cm := $.Values.path.mountConfigMaps }}
             - name: {{$cm.name}}
               mountPath: {{ $cm.mountPath }}
-              subPath: {{ $cm.subPath }}
           {{- end }}
 
           {{- range $sec := $.Values.path.mountSecrets }}{{/* # Volume mounts from mountSecrets */}}
@@ -118,18 +115,12 @@ spec:
           {{- with (default (list ) $.Values.path.readinessProbe) }}
           readinessProbe: {{- toYaml . | nindent 12 }}
           {{- end }}
-
       volumes:
-        {{- range $cm := $.Values.path.mountConfigMaps }}{{/* # Volume mounts from mountConfigMaps */}}
-        - name: {{$cm.name}}
+        {{- range $cm := $.Values.path.mountConfigMaps }}
+        - name: {{ $cm.name }}
           configMap:
-            name: {{$cm.name}}
-          {{- with $cm.items }}
-            items:
-              {{- toYaml . | nindent 14 }}
-          {{- end }}
+            name: {{ $cm.name }}
         {{- end }}
-
         {{- range $sec := $.Values.path.mountSecrets }}{{/* # Volume mounts from mountSecrets */}}
         - name: {{$sec.name}}
           secret:
