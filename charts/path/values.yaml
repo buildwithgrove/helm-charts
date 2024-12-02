@@ -3,8 +3,8 @@ fullnameOverride: path
 global:
   imagePullPolicy: Always
   serviceAccount:
-    create: false
-    name: change-me
+    create: true
+    name: path-sa
   securityContext:
     fsGroup: 1001
     runAsUser: 1001
@@ -118,8 +118,9 @@ path:
   #     items:
   #       - key: .config.yaml
   #         path: .config.yaml
-# mountConfigMaps:
-#   name: my-name
+  mountConfigMaps:
+    - name: path-config
+      mountPath: /app/config
 #   items:
 #     - item1
 #     - item2
