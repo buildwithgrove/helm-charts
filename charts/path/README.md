@@ -1,6 +1,6 @@
 # path
 
-![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.16](https://img.shields.io/badge/AppVersion-0.0.16-informational?style=flat-square)
+![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.16](https://img.shields.io/badge/AppVersion-0.0.16-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -15,8 +15,8 @@ A Helm chart for Kubernetes
 | global.securityContext.fsGroup | int | `1001` |  |
 | global.securityContext.runAsGroup | int | `1001` |  |
 | global.securityContext.runAsUser | int | `1001` |  |
-| global.serviceAccount.create | bool | `false` |  |
-| global.serviceAccount.name | string | `"change-me"` |  |
+| global.serviceAccount.create | bool | `true` |  |
+| global.serviceAccount.name | string | `"path-sa"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/buildwithgrove/path"` |  |
 | image.tag | string | `"main"` |  |
@@ -24,6 +24,8 @@ A Helm chart for Kubernetes
 | path.additionalAnnotations | object | `{}` |  |
 | path.additionalLabels | object | `{}` |  |
 | path.horizontalPodAutoscaler.enabled | bool | `false` |  |
+| path.mountConfigMaps[0].mountPath | string | `"/app/config"` |  |
+| path.mountConfigMaps[0].name | string | `"path-config"` |  |
 | path.ports | list | `[]` |  |
 | path.resources | object | `{}` |  |
 | replicas | int | `1` |  |
