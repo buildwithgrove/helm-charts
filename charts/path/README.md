@@ -24,8 +24,6 @@ A Helm chart for Kubernetes
 | path.additionalAnnotations | object | `{}` |  |
 | path.additionalLabels | object | `{}` |  |
 | path.horizontalPodAutoscaler.enabled | bool | `false` |  |
-| path.mountConfigMaps[0].mountPath | string | `"/app/config"` |  |
-| path.mountConfigMaps[0].name | string | `"path-config"` |  |
 | path.ports | list | `[]` |  |
 | path.resources | object | `{}` |  |
 | replicas | int | `1` |  |
