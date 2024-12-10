@@ -118,9 +118,9 @@ path:
   #     items:
   #       - key: .config.yaml
   #         path: .config.yaml
-  mountConfigMaps:
-    - name: path-config
-      mountPath: /app/config
+  # mountConfigMaps:
+  #   - name: path-config
+  #     mountPath: /app/config
 #   items:
 #     - item1
 #     - item2

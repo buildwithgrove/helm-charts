@@ -1,6 +1,6 @@
 # path
 
-![Version: 0.1.5](https://img.shields.io/badge/Version-0.1.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.16](https://img.shields.io/badge/AppVersion-0.0.16-informational?style=flat-square)
+![Version: 0.1.6](https://img.shields.io/badge/Version-0.1.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.16](https://img.shields.io/badge/AppVersion-0.0.16-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -24,8 +24,6 @@ A Helm chart for Kubernetes
 | path.additionalAnnotations | object | `{}` |  |
 | path.additionalLabels | object | `{}` |  |
 | path.horizontalPodAutoscaler.enabled | bool | `false` |  |
-| path.mountConfigMaps[0].mountPath | string | `"/app/config"` |  |
-| path.mountConfigMaps[0].name | string | `"path-config"` |  |
 | path.ports | list | `[]` |  |
 | path.resources | object | `{}` |  |
 | replicas | int | `1` |  |
