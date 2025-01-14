@@ -24,10 +24,7 @@ A Helm chart for Kubernetes
 | path.additionalAnnotations | object | `{}` |  |
 | path.additionalLabels | object | `{}` |  |
 | path.horizontalPodAutoscaler.enabled | bool | `false` |  |
-| path.ports[0].name | string | `"http"` |  |
-| path.ports[0].port | int | `3000` |  |
-| path.ports[0].protocol | string | `"TCP"` |  |
-| path.ports[0].service.type | string | `"LoadBalancer"` |  |
+| path.ports | list | `[]` |  |
 | path.resources | object | `{}` |  |
 | replicas | int | `1` |  |
 

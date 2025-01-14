@@ -42,12 +42,12 @@ path:
     #   memory: 800Mi
   ## Port supports the creation of Kubernetes services resources which are tied to the ports
   ## exposed in this configuration.
-  ports: ##[]
-    - name: http
-      port: 3000
-      protocol: TCP
-      service:
-        type: LoadBalancer
+  ports: []
+    # - name: http
+    #   port: 3000
+    #   protocol: TCP
+    #   service:
+    #     type: ClusterIP
   #     annotations: #{}
   #       cloud.google.com/neg: '{"ingress": true}'
   #   ingress:
