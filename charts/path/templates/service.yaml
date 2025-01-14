@@ -10,6 +10,7 @@ metadata:
 spec:
   selector:
     app.kubernetes.io/name: {{$name}}
+  type: {{ $prt.service.type }}
   ports:
     - name: {{ $prt.name }}
       protocol: {{ $prt.protocol }}
