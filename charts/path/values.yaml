@@ -43,11 +43,11 @@ path:
   ## Port supports the creation of Kubernetes services resources which are tied to the ports
   ## exposed in this configuration.
   ports: []
-  # - name: http
-  #   port: 3000
-  #   protocol: TCP
-  #   service:
-  #     type: ClusterIP
+    # - name: http
+    #   port: 3000
+    #   protocol: TCP
+    #   service:
+    #     type: ClusterIP
   #     annotations: #{}
   #       cloud.google.com/neg: '{"ingress": true}'
   #   ingress:
@@ -111,16 +111,16 @@ path:
 ## Path supports mounting volumes, secrets and configmaps.
 ## Depending on the users' needs, any of the following can be used to mount Path's configuration
 ## within the container. Below can be found the 3 available options to be used.
-  # mountSecrets:
-  #   - name: path-secret-mount
-  #     mountPath: /app/.config.yaml
-  #     subPath: .config.yaml
-  #     items:
-  #       - key: .config.yaml
-  #         path: .config.yaml
-  # mountConfigMaps:
-  #   - name: path-config
-  #     mountPath: /app/config
+# mountSecrets:
+#   - name: path-secret-mount
+#     mountPath: /app/.config.yaml
+#     subPath: .config.yaml
+#     items:
+#       - key: .config.yaml
+#         path: .config.yaml
+# mountConfigMaps:
+#   - name: path-config
+#     mountPath: /app/config
 #   items:
 #     - item1
 #     - item2
@@ -155,7 +155,8 @@ prod:
 scripts:
   enabled: true
 
-pathConfig: {}
+pathConfig:
+  {}
   # ## Change log level from chart so it gets reflected in an env variable
   # ## This value defaults to info
   # logs:
