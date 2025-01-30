@@ -17,6 +17,10 @@ image:
   pullPolicy: IfNotPresent
 replicas: 1
 
+service:
+  type: ClusterIP
+  port: 8545
+
 path:
   ## HPA cannot be enabled if replicas are declared in the values file. Either use one or the other depending on your needs!
   horizontalPodAutoscaler:
@@ -28,7 +32,6 @@ path:
   #     value: VALUE1
   #   - name: KEY2
   #     value: VALUE2
-
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -42,12 +45,17 @@ path:
     #   memory: 800Mi
   ## Port supports the creation of Kubernetes services resources which are tied to the ports
   ## exposed in this configuration.
-  ports: []
-    # - name: http
-    #   port: 3000
-    #   protocol: TCP
-    #   service:
-    #     type: ClusterIP
+  ports:
+    - name: http
+      port: 3069
+      protocol: TCP
+      service:
+        type: ClusterIP
+    - name: metrics
+      port: 9090
+      protocol: TCP
+      service:
+        type: ClusterIP
   #     annotations: #{}
   #       cloud.google.com/neg: '{"ingress": true}'
   #   ingress:
