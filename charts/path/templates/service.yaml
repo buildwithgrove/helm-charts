@@ -1,5 +1,5 @@
 {{ $name := include "path.name" . }}
-{{- range $kprt, $prt := $.Values.path.ports }}
+{{- range $prt := .Values.path.ports }}
 
 apiVersion: v1
 kind: Service
@@ -16,5 +16,5 @@ spec:
       protocol: {{ $prt.protocol }}
       port: {{ $prt.port }}
       targetPort: {{ $prt.port }}
-
-{{- end -}}
+---
+{{- end }}
