@@ -17,10 +17,6 @@ image:
   pullPolicy: IfNotPresent
 replicas: 1
 
-service:
-  type: ClusterIP
-  port: 8545
-
 path:
   ## HPA cannot be enabled if replicas are declared in the values file. Either use one or the other depending on your needs!
   horizontalPodAutoscaler:
