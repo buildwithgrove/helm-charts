@@ -16,11 +16,5 @@ spec:
       matches:
         # /healthz route returns the health of the PATH service.
         - path:
-            type: PathPrefix
+            type: Exact
             value: /healthz
-        # /v1 route handles all requests to the PATH service.
-        # All non-subdomain based service selection will go through this route.
-        # For example, when the service ID is specified as the `target-service-id` header.
-        - path:
-            type: PathPrefix
-            value: /v1
