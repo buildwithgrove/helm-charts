@@ -12,26 +12,19 @@
 #
 # The HTTPRoute resources are created based on the `services` list in the `values.yaml` file.
 {{- range .Values.services }}
+{{- $service := . }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 
 metadata:
-  name: {{ .serviceId | lower }}-subdomain-route
+  name: {{ $service.serviceId | lower }}-header-route
   namespace: {{ $.Values.namespace }}
 
 spec:
   parentRefs:
   - name: eg
     namespace: {{ $.Values.namespace }}
-
-  hostnames:
-  - "{{ .serviceId | lower }}.{{ $.Values.domain }}"
-  {{- if .aliases }}
-  {{- range .aliases }}
-  - "{{ . | lower }}.{{ $.Values.domain }}"
-  {{- end }}
-  {{- end }}
 
   rules:
   - backendRefs:
@@ -44,11 +37,52 @@ spec:
       requestHeaderModifier:
         set:
         - name: "target-service-id"
-          value: "{{ .serviceId }}"
-
+          value: "{{ $service.serviceId }}"
+          
     matches:
     - path:
         type: PathPrefix
         value: /v1
+      headers:
+      - name: target-service-id
+        value: "{{ $service.serviceId }}"
+
+{{- if $service.aliases }}
+{{- range $service.aliases }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+
+metadata:
+  name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-route
+  namespace: {{ $.Values.namespace }}
+
+spec:
+  parentRefs:
+  - name: eg
+    namespace: {{ $.Values.namespace }}
+
+  rules:
+  - backendRefs:
+    - name: {{ $.Values.serviceName }}
+      namespace: {{ $.Values.namespace }}
+      port: {{ $.Values.port }}
+
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+        - name: "target-service-id"
+          value: "{{ $service.serviceId }}"
+          
+    matches:
+      - path:
+          type: PathPrefix
+          value: /v1
+        headers:
+        - name: target-service-id
+          value: "{{ . | lower }}"
+{{- end }}
+{{- end }}
 
 {{- end }}

@@ -34,15 +34,21 @@ port: 3069
 # construct HTTPRoutes for each service. These HTTPRoutes
 # are used to assign the "target-service-id" header to the 
 # request based on the subdomain service alias.
+# - serviceId [REQUIRED]: The authorative service ID of the service.
+# - aliases [OPTIONAL]: A list of aliases for the service.
 #
 # For example:
-# - ethereum: eth.path.grove.city -> "target-service-id: F00C"
-# - polygon: polygon.path.grove.city -> "target-service-id: F021"
+# - F00C.path.grove.city -> "target-service-id: F00C"
+# - eth.path.grove.city -> "target-service-id: F00C"
+# - polygon.path.grove.city -> "target-service-id: F021"
 services:
-  - name: ethereum
-    alias: eth 
-    id: F00C
-  - name: polygon
-    alias: polygon 
-    id: F021
-# Add other service aliases here ...
+  - serviceId: F00C
+    aliases: 
+      - eth
+      - eth-mainnet
+  - serviceId: F021
+    aliases: 
+      - polygon
+      - polygon-mainnet
+
+# Add other services here ...
