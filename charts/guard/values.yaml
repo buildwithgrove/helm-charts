@@ -1,0 +1,48 @@
+# ---- Envoy Gateway ----
+gateway:
+  enabled: true
+  gatewayClassName: eg
+  listeners:
+    # Envoy Gateway will listen for HTTP requests on port 3070.
+    - name: http
+      protocol: HTTP
+      port: 3070
+
+# ---- Global settings ----
+# Domain is the base domain for subdomain matching.
+# For Example:  
+# - ethereum: eth.path.grove.city -> "target-service-id: F00C"
+# - polygon: polygon.path.grove.city -> "target-service-id: F021"
+
+# domain: path.grove.city  # TODO_IN_THIS_PR: Set back to this for deployment Base domain for subdomain matching
+domain: localhost # TODO_IN_THIS_PR: Remove this line
+
+# namespace is the namespace that both Envoy Gateway and the PATH service are deployed to.
+namespace: path-local # TODO_IN_THIS_PR: Set this to the final namespace we will use for deployment
+
+# serviceName is the name of the service that the PATH service is deployed to.
+serviceName: path-http # TODO_IN_THIS_PR: Set this to the final service name we will use for deployment
+
+# Port is the port that the PATH service runs on in the cluster.
+# This is the port that Envoy Gateway will forward requests to.
+port: 3069
+
+# ---- Service routing settings ----
+
+# List of services that will be routed by Envoy Gateway
+# to the PATH backend. These services will be used to 
+# construct HTTPRoutes for each service. These HTTPRoutes
+# are used to assign the "target-service-id" header to the 
+# request based on the subdomain service alias.
+#
+# For example:
+# - ethereum: eth.path.grove.city -> "target-service-id: F00C"
+# - polygon: polygon.path.grove.city -> "target-service-id: F021"
+services:
+  - name: ethereum
+    alias: eth 
+    id: F00C
+  - name: polygon
+    alias: polygon 
+    id: F021
+# Add other service aliases here ...
