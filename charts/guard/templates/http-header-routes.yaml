@@ -1,0 +1,91 @@
+# This template generates HTTPRoute resources for each service in the `services` list.
+# Each HTTPRoute is configured to route requests based on the subdomain of the request.
+#
+# For example:
+# -H "target-service-id: F00C" -> "target-service-id: F00C"
+# -H "target-service-id: eth" -> "target-service-id: F00C"
+# -H "target-service-id: polygon" -> "target-service-id: F021"
+#
+# For each service, multiple HTTPRoute resources are created:
+# - One HTTPRoute for the authoritative service ID 
+# - One additional HTTPRoute for EACH service alias
+#
+# The HTTPRoute resources are created based on the `services` list in the `values.yaml` file.
+
+# Create an HTTPRoute resource for each authoritative service ID.
+{{- range .Values.services }}
+{{- $service := . }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+
+metadata:
+  # eg. F00C-header-route
+  name: {{ $service.serviceId | lower }}-header-route
+  namespace: {{ $.Values.namespace }}
+
+spec:
+  parentRefs:
+  - name: eg
+    namespace: {{ $.Values.namespace }}
+
+  rules:
+  # Determine the backend service to route to.
+  - backendRefs:
+    - name: {{ $.Values.serviceName }}
+      namespace: {{ $.Values.namespace }}
+      port: {{ $.Values.port }}
+          
+    matches:
+    - path:
+        type: PathPrefix
+        value: /v1
+      headers:
+      - name: target-service-id
+        value: "{{ $service.serviceId }}"
+
+# If the service has aliases, create an HTTPRoute resource for each alias.
+{{- if $service.aliases }}
+{{- range $service.aliases }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+
+metadata:
+  # eg. F00C-eth-alias-header-route
+  name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-route
+  namespace: {{ $.Values.namespace }}
+
+spec:
+  parentRefs:
+  - name: eg
+    namespace: {{ $.Values.namespace }}
+
+  rules:
+  # Determine the backend service to route to.
+  - backendRefs:
+    - name: {{ $.Values.serviceName }}
+      namespace: {{ $.Values.namespace }}
+      port: {{ $.Values.port }}
+
+    filters:
+    # Ensure the request header "target-service-id" is set to the authoritative service ID.
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+        - name: "target-service-id"
+          value: "{{ $service.serviceId }}"
+          
+    matches:
+      # Match any path prefix that starts with "/v1"
+      - path:
+          type: PathPrefix
+          value: /v1
+        # Match any `target-service-id` header value that matches the alias.
+        headers:
+        - name: target-service-id
+          value: "{{ . | lower }}"
+{{- end }}
+{{- end }}
+
+{{- end }}
