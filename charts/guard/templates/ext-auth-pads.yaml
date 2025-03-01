@@ -1,0 +1,61 @@
+# PADS (PATH Auth Data Server) is a gRPC server that provides Gateway Endpoint
+# data from a data source to the Go External Authorization Server in order to enable
+# authorization for the PATH Gateway. The nature of the data source is configurable,
+# for example it could be a YAML file or a Postgres database.
+#
+# Github Repo: https://github.com/buildwithgrove/path-auth-data-server
+{{- if .Values.pads.enabled }}
+{{- $name:= include "guard-helm.fullname" . }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{$name}}-pads
+  labels:
+    {{- include "guard-helm.labels" $ | nindent 4 }}
+spec:
+  replicas: {{ .Values.pads.replicas }}
+  selector:
+    matchLabels:
+      app: {{$name}}-pads
+  template:
+    metadata:
+      labels:
+        {{- include "guard-helm.labels" $ | nindent 8 }}
+        app: ext-auth-pads
+    spec:
+      containers:
+      - name: path-auth-data-server
+        image: ghcr.io/buildwithgrove/path-auth-data-server:latest
+        imagePullPolicy: IfNotPresent
+        env: {{- toYaml .Values.pads.env | nindent 10 }}
+        ports:
+        - containerPort: {{ .Values.pads.port }}
+        volumeMounts: {{- toYaml .Values.pads.volumeMounts | nindent 10 }}
+      volumes:
+      - name: endpoint-data-volume
+        configMap:
+          name: endpoint-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$name}}-pads
+  labels:
+    {{- include "guard-helm.labels" $ | nindent 4 }}
+spec:
+  selector:
+    app: {{$name}}-pads
+  ports:
+  - port: {{ .Values.pads.port }}
+    targetPort: {{ .Values.pads.port }}
+    protocol: TCP
+    name: grpc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: endpoint-data
+data: {{- toYaml .Values.pads.configMap | nindent 2 }}
+
+{{- end }}

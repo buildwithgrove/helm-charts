@@ -4,14 +4,18 @@
 # For example, if a user makes a request to a service that is not configured in the
 # `values.yaml` files' `services` array or a `*-values.yaml` file that is applied to the
 # GUARD service, this route will return a 404 Not Found error.
----
+{{- if .Values.guard.gateway.enabled }}
+{{- $gwname:= default "guard" $.Values.fullnameOverride }}
+
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: resource-not-found
+  name: resource-not-found-route
 spec:
   parentRefs:
-  - name: eg
+  - kind: Gateway
+    name: {{$gwname}}-gw
+    namespace: {{ $.Values.global.namespace }}
   rules:
   - matches:
     - path:
@@ -35,3 +39,5 @@ spec:
     body:
       type: Inline
       inline: '{"error": "Resource not found"}'
+
+{{- end }}

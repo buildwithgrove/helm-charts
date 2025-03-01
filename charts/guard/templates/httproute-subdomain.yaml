@@ -18,7 +18,9 @@
 # Create an HTTPRoute resource for each authoritative service ID.
 # This HTTPRoute will also match requests to any of the service's aliases
 # through the use of the `hostnames` field.
-{{- range .Values.services }}
+{{- if and .Values.guard.services .Values.guard.gateway.enabled }}
+{{- $gwname:= default "guard" $.Values.fullnameOverride }}
+{{- range .Values.guard.services }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -26,12 +28,13 @@ kind: HTTPRoute
 metadata:
   # eg. F00C-subdomain-route
   name: {{ .serviceId | lower }}-subdomain-route
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ $.Values.global.namespace }}
 
-spec: 
+spec:
   parentRefs:
-  - name: eg
-    namespace: {{ $.Values.namespace }}
+  - kind: Gateway
+    name: {{$gwname}}-gw
+    namespace: {{ $.Values.global.namespace }}
 
   # Match requests based on their subdomain.
   hostnames:
@@ -46,7 +49,7 @@ spec:
   # Determine the backend service to route to.
   - backendRefs:
     - name: {{ $.Values.serviceName }}
-      namespace: {{ $.Values.namespace }}
+      namespace: {{ $.Values.global.namespace }}
       port: {{ $.Values.port }}
 
     filters:
@@ -63,4 +66,25 @@ spec:
         type: PathPrefix
         value: /v1
 
+# TODO_MVP(@commoddity): Modify this config to use TLS for
+# the connection to the external authorization server.
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ .serviceId | lower }}-subdomain-auth-policy
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      # eg. F00C-subdomain-route - matches the HTTPRoute resource created above
+      name: {{ .serviceId | lower }}-subdomain-route
+  extAuth:
+    grpc:
+      backendRefs:
+        - name: ext-auth-server
+          port: 10001
+
+{{- end }}
 {{- end }}

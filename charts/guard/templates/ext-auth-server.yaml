@@ -1,0 +1,50 @@
+{{- if .Values.authServer.enabled }}
+{{- $name:= include "guard-helm.fullname" . }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{$name}}-auth-server
+spec:
+  replicas: {{ .Values.authServer.replicas }}
+  selector:
+    matchLabels:
+      app: {{$name}}-auth-server
+  template:
+    metadata:
+      labels:
+        {{- include "guard-helm.labels" $ | nindent 8 }}
+        app: {{$name}}-auth-server
+    spec:
+      containers:
+      - name: ext-auth-server
+        image: ghcr.io/buildwithgrove/ext-auth-server:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: {{ .Values.authServer.port }}
+        volumeMounts: {{- toYaml .Values.authServer.volumeMounts | nindent 10 }}
+      volumes:
+      - name: config-volume
+        configMap:
+          name: auth-server-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$name}}-auth-server
+spec:
+  selector:
+    app: {{$name}}-auth-server
+  ports:
+  - port: {{ .Values.authServer.port }}
+    targetPort: {{ .Values.authServer.port }}
+    protocol: TCP
+    name: grpc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-server-config
+data: {{- toYaml .Values.pads.configMap | nindent 2 }}
+
+{{- end }}
