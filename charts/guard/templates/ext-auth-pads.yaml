@@ -1,0 +1,74 @@
+# PADS (PATH Auth Data Server) is a gRPC server that provides Gateway Endpoint 
+# data from a data source to the Go External Authorization Server in order to enable 
+# authorization for the PATH Gateway. The nature of the data source is configurable, 
+# for example it could be a YAML file or a Postgres database.
+#
+# Github Repo: https://github.com/buildwithgrove/path-auth-data-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ext-auth-pads
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ext-auth-pads
+  template:
+    metadata:
+      labels:
+        app: ext-auth-pads
+    spec:
+      containers:
+      - name: path-auth-data-server
+        image: ghcr.io/buildwithgrove/path-auth-data-server:latest
+        imagePullPolicy: IfNotPresent
+        env:
+          # IMPORTANT: Exactly one of the following variables below must be set:
+          # - YAML_FILEPATH
+          # - POSTGRES_CONNECTION_STRING
+          # An error will be thrown if neither or both are set.
+          - name: YAML_FILEPATH
+            value: ".gateway-endpoints.yaml"
+        ports:
+        - containerPort: 10002
+        volumeMounts:
+          - name: endpoint-data-volume
+            mountPath: /app/.gateway-endpoints.yaml
+            subPath: .gateway-endpoints.yaml
+      volumes:
+      - name: endpoint-data-volume
+        configMap:
+          name: endpoint-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ext-auth-pads
+spec:
+  selector:
+    app: ext-auth-pads
+  ports:
+  - port: 10002
+    targetPort: 10002
+    protocol: TCP
+    name: grpc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: endpoint-data
+data:
+  # Gateway endpoints define the allowed endpoints for a PATH instance.
+  # For a detailed breakdown of the possible format of this file, see:
+  # - https://path.grove.city/develop/envoy/envoy_config#4-gateway-endpoints-data---gateway-endpointsyaml
+  # - https://path.grove.city/develop/envoy/walkthrough#gateway-endpoint-authorization
+  #
+  # TODO_MVP(@commoddity): By default, this value is set to a simple test endpoint ID and
+  # API key, but for production use this should be overriden. Implement a mechanism to
+  # allow users to override this value.
+  .gateway-endpoints.yaml: |
+    endpoints:                
+      test_endpoint:                                               
+        auth:
+          api_key: "test_api_key"

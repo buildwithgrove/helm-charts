@@ -63,4 +63,24 @@ spec:
         type: PathPrefix
         value: /v1
 
+# TODO_MVP(@commoddity): Modify this config to use TLS for 
+# the connection to the external authorization server.
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ .serviceId | lower }}-subdomain-auth-policy
+  namespace: {{ $.Values.namespace }}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      # eg. F00C-subdomain-route - matches the HTTPRoute resource created above
+      name: {{ .serviceId | lower }}-subdomain-route
+  extAuth:
+    grpc:
+      backendRefs:
+        - name: ext-auth-server
+          port: 10001
+
 {{- end }}

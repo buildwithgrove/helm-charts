@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ext-auth-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ext-auth-server
+  template:
+    metadata:
+      labels:
+        app: ext-auth-server
+    spec:
+      containers:
+      - name: ext-auth-server
+        image: ghcr.io/buildwithgrove/ext-auth-server:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 10001
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config/.config.yaml
+          subPath: .config.yaml
+      volumes:
+      - name: config-volume
+        configMap:
+          name: auth-server-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ext-auth-server
+spec:
+  selector:
+    app: ext-auth-server
+  ports:
+  - port: 10001
+    targetPort: 10001
+    protocol: TCP
+    name: grpc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-server-config
+data:
+  # TODO_MVP(@commoddity): Modify this config to use TLS for 
+  # the gRPC connection to the PADS server.
+  .config.yaml: |
+    auth_server_config:
+      grpc_host_port: ext-auth-pads:10002
+      grpc_use_insecure_credentials: true
+      endpoint_id_extractor_type: header
