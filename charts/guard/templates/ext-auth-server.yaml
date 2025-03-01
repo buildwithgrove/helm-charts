@@ -50,6 +50,7 @@ data:
   # the gRPC connection to the PADS server.
   .config.yaml: |
     auth_server_config:
+      port: 10001
       grpc_host_port: ext-auth-pads:10002
       grpc_use_insecure_credentials: true
       endpoint_id_extractor_type: header
