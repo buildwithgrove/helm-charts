@@ -24,6 +24,8 @@ spec:
         image: ghcr.io/buildwithgrove/path-auth-data-server:latest
         imagePullPolicy: IfNotPresent
         env:
+          - name: PORT
+            value: "10002"
           # IMPORTANT: Exactly one of the following variables below must be set:
           # - YAML_FILEPATH
           # - POSTGRES_CONNECTION_STRING

@@ -5,7 +5,7 @@ metadata:
   name: healthz-route
 spec:
   parentRefs:
-    - name: eg
+    - name: envoy-gateway
   rules:
     - backendRefs:
         - group: ""

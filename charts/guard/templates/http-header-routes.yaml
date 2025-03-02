@@ -26,7 +26,7 @@ metadata:
 
 spec:
   parentRefs:
-  - name: eg
+  - name: envoy-gateway
     namespace: {{ $.Values.namespace }}
 
   rules:
@@ -76,7 +76,7 @@ metadata:
 
 spec:
   parentRefs:
-  - name: eg
+  - name: envoy-gateway
     namespace: {{ $.Values.namespace }}
 
   rules:

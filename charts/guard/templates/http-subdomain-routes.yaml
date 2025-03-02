@@ -30,7 +30,7 @@ metadata:
 
 spec: 
   parentRefs:
-  - name: eg
+  - name: envoy-gateway
     namespace: {{ $.Values.namespace }}
 
   # Match requests based on their subdomain.

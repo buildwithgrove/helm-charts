@@ -11,7 +11,7 @@ metadata:
   name: resource-not-found-route
 spec:
   parentRefs:
-  - name: eg
+  - name: envoy-gateway
   rules:
   - matches:
     - path:

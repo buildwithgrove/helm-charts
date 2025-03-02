@@ -1,7 +1,7 @@
 # ---- Envoy Gateway ----
 gateway:
   enabled: true
-  gatewayClassName: eg
+  gatewayClassName: envoy-gateway-class
   listeners:
     # Envoy Gateway will listen for HTTP requests on port 3070.
     - name: http
@@ -42,13 +42,14 @@ port: 3069
 # - eth.path.grove.city -> "target-service-id: F00C"
 # - polygon.path.grove.city -> "target-service-id: F021"
 services:
-  - serviceId: F00C
-    aliases: 
-      - eth
-      - eth-mainnet
-  - serviceId: F021
-    aliases: 
-      - polygon
-      - polygon-mainnet
+  - serviceId: anvil
+  # - serviceId: F00C
+  #   aliases: 
+  #     - eth
+  #     - eth-mainnet
+  # - serviceId: F021
+  #   aliases: 
+  #     - polygon
+  #     - polygon-mainnet
 
 # Add other services here ...
