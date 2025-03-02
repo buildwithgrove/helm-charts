@@ -9,6 +9,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ext-auth-pads
+  annotations:
+    # Restart the PADS server if the gateway endpoints data changes.
+    configChecksum: "{{ .Values.gatewayEndpointsData | sha256sum }}"
 spec:
   replicas: 1
   selector:
@@ -18,6 +21,9 @@ spec:
     metadata:
       labels:
         app: ext-auth-pads
+      # Restart the PADS server if the gateway endpoints data changes.
+      annotations:
+        configChecksum: "{{ .Values.gatewayEndpointsData | sha256sum }}"
     spec:
       containers:
       - name: path-auth-data-server
@@ -66,11 +72,10 @@ data:
   # - https://path.grove.city/develop/envoy/envoy_config#4-gateway-endpoints-data---gateway-endpointsyaml
   # - https://path.grove.city/develop/envoy/walkthrough#gateway-endpoint-authorization
   #
-  # TODO_MVP(@commoddity): By default, this value is set to a simple test endpoint ID and
-  # API key, but for production use this should be overriden. Implement a mechanism to
-  # allow users to override this value.
+  # IMPORTANT: The default configuration is defined in values.yaml under gatewayEndpointsData.
+  # This value can be overridden in a guard-values.yaml file for production use.
+  #
+  # If a database is used as the data source, the POSTGRES_CONNECTION_STRING variable
+  # must be set and this value will be ignored.
   .gateway-endpoints.yaml: |
-    endpoints:                
-      test_endpoint:                                               
-        auth:
-          api_key: "test_api_key"
+    {{ .Values.gatewayEndpointsData | nindent 4 }}
