@@ -86,7 +86,7 @@ pads:
 
   env:
   - name: YAML_FILEPATH
-    value: ".gateway-endpoints.yaml"
+    value: "/app/data/.gateway-endpoints.yaml"
   # Gateway endpoints define the allowed endpoints for a PATH instance.
   # For a detailed breakdown of the possible format of this file, see:
   # - https://path.grove.city/develop/envoy/envoy_config#4-gateway-endpoints-data---gateway-endpointsyaml
