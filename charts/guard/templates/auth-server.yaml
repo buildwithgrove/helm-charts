@@ -1,0 +1,58 @@
+# The External Authorization Server is an external authorization server that can be used
+# to authorize requests to the PATH Gateway. It uses gRPC and adheres to the spec expected by the
+# Envoy External Authorization HTTP Filter.
+# Reference: https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter
+#
+# Github Repo: https://github.com/buildwithgrove/path-external-auth-server
+{{- if .Values.authServer.enabled }}
+{{- $name:= include "guard-helm.fullname" . }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{$name}}-auth-server
+spec:
+  replicas: {{ .Values.authServer.replicas }}
+  selector:
+    matchLabels:
+      app: {{$name}}-auth-server
+  template:
+    metadata:
+      labels:
+        {{- include "guard-helm.labels" $ | nindent 8 }}
+        app: {{$name}}-auth-server
+    spec:
+      containers:
+      - name: ext-auth-server
+        image: ghcr.io/buildwithgrove/ext-auth-server:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: {{ .Values.authServer.port }}
+        volumeMounts:
+          - name: auth-server-config-volume
+            mountPath: /app/config
+      volumes:
+      - name: auth-server-config-volume
+        configMap:
+          name: auth-server-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$name}}-auth-server
+spec:
+  selector:
+    app: {{$name}}-auth-server
+  ports:
+  - port: {{ .Values.authServer.port }}
+    targetPort: {{ .Values.authServer.port }}
+    protocol: TCP
+    name: grpc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-server-config
+data: {{- toYaml .Values.authServer.configMap | nindent 4 }}
+
+{{- end }}

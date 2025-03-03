@@ -7,13 +7,17 @@
 # -H "target-service-id: polygon" -> "target-service-id: F021"
 #
 # For each service, multiple HTTPRoute resources are created:
-# - One HTTPRoute for the authoritative service ID 
+# - One HTTPRoute for the authoritative service ID
 # - One additional HTTPRoute for EACH service alias
 #
 # The HTTPRoute resources are created based on the `services` list in the `values.yaml` file.
 
 # Create an HTTPRoute resource for each authoritative service ID.
-{{- range .Values.services }}
+{{- if .Values.guard.gateway.enabled }}
+{{- $gwname:= default "guard" $.Values.fullnameOverride }}
+{{- $name:= include "guard-helm.fullname" . }}
+
+{{- range .Values.guard.services }}
 {{- $service := . }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -22,20 +26,21 @@ kind: HTTPRoute
 metadata:
   # eg. F00C-header-route
   name: {{ $service.serviceId | lower }}-header-route
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ $.Values.global.namespace }}
 
 spec:
   parentRefs:
-  - name: envoy-gateway
-    namespace: {{ $.Values.namespace }}
+  - kind: Gateway
+    name: {{$gwname}}-envoy-gateway
+    namespace: {{ $.Values.global.namespace }}
 
   rules:
   # Determine the backend service to route to.
   - backendRefs:
-    - name: {{ $.Values.serviceName }}
-      namespace: {{ $.Values.namespace }}
-      port: {{ $.Values.port }}
-          
+    - name: {{ $.Values.global.serviceName }}
+      namespace: {{ $.Values.global.namespace }}
+      port: {{ $.Values.global.port }}
+
     matches:
     - path:
         type: PathPrefix
@@ -49,7 +54,7 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: {{ $service.serviceId | lower }}-header-auth-policy
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ $.Values.global.namespace }}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
@@ -59,9 +64,8 @@ spec:
   extAuth:
     grpc:
       backendRefs:
-        - name: ext-auth-server
+        - name: {{$name}}-auth-server
           port: 10001
-
 # If the service has aliases, create an HTTPRoute resource for each alias.
 {{- if $service.aliases }}
 {{- range $service.aliases }}
@@ -72,19 +76,20 @@ kind: HTTPRoute
 metadata:
   # eg. F00C-eth-alias-header-route
   name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-route
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ $.Values.global.namespace }}
 
 spec:
   parentRefs:
-  - name: envoy-gateway
-    namespace: {{ $.Values.namespace }}
+  - kind: Gateway
+    name: {{$gwname}}-envoy-gateway
+    namespace: {{ $.Values.global.namespace }}
 
   rules:
   # Determine the backend service to route to.
   - backendRefs:
-    - name: {{ $.Values.serviceName }}
-      namespace: {{ $.Values.namespace }}
-      port: {{ $.Values.port }}
+    - name: {{ $.Values.global.serviceName }}
+      namespace: {{ $.Values.global.namespace }}
+      port: {{ $.Values.global.port }}
 
     filters:
     # Ensure the request header "target-service-id" is set to the authoritative service ID.
@@ -93,7 +98,7 @@ spec:
         set:
         - name: "target-service-id"
           value: "{{ $service.serviceId }}"
-          
+
     matches:
       # Match any path prefix that starts with "/v1"
       - path:
@@ -109,7 +114,7 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-auth-policy
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ $.Values.global.namespace }}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
@@ -119,9 +124,11 @@ spec:
   extAuth:
     grpc:
       backendRefs:
-        - name: ext-auth-server
+        - name: {{$name}}-auth-server
           port: 10001
 {{- end }}
+{{- end }}
+
 {{- end }}
 
 {{- end }}

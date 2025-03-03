@@ -1,20 +1,25 @@
----
+{{- if .Values.guard.gateway.enabled }}
+{{- $gwname:= default "guard" $.Values.fullnameOverride }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: healthz-route
 spec:
   parentRefs:
-    - name: envoy-gateway
+  - kind: Gateway
+    name: {{$gwname}}-envoy-gateway
+    namespace: {{ $.Values.global.namespace }}
   rules:
     - backendRefs:
         - group: ""
           kind: Service
-          name: path-http
-          port: 3069
+          name: {{ $.Values.global.serviceName }}
+          port: {{ $.Values.global.port }}
           weight: 1
       matches:
         # /healthz route returns the health of the PATH service.
         - path:
             type: Exact
             value: /healthz
+
+{{- end }}

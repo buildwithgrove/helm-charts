@@ -18,7 +18,11 @@
 # Create an HTTPRoute resource for each authoritative service ID.
 # This HTTPRoute will also match requests to any of the service's aliases
 # through the use of the `hostnames` field.
-{{- range .Values.services }}
+{{- if and .Values.guard.services .Values.guard.gateway.enabled }}
+{{- $gwname:= default "guard" $.Values.fullnameOverride }}
+{{- $name:= include "guard-helm.fullname" . }}
+
+{{- range .Values.guard.services }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -26,28 +30,29 @@ kind: HTTPRoute
 metadata:
   # eg. F00C-subdomain-route
   name: {{ .serviceId | lower }}-subdomain-route
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ $.Values.global.namespace }}
 
-spec: 
+spec:
   parentRefs:
-  - name: envoy-gateway
-    namespace: {{ $.Values.namespace }}
+  - kind: Gateway
+    name: {{$gwname}}-envoy-gateway
+    namespace: {{ $.Values.global.namespace }}
 
   # Match requests based on their subdomain.
   hostnames:
-  - "{{ .serviceId | lower }}.{{ $.Values.domain }}"
+  - "{{ .serviceId | lower }}.{{ $.Values.global.domain }}"
   {{- if .aliases }}
   {{- range .aliases }}
-  - "{{ . | lower }}.{{ $.Values.domain }}"
+  - "{{ . | lower }}.{{ $.Values.global.domain }}"
   {{- end }}
   {{- end }}
 
   rules:
   # Determine the backend service to route to.
   - backendRefs:
-    - name: {{ $.Values.serviceName }}
-      namespace: {{ $.Values.namespace }}
-      port: {{ $.Values.port }}
+    - name: {{ $.Values.global.serviceName }}
+      namespace: {{ $.Values.global.namespace }}
+      port: {{ $.Values.global.port }}
 
     filters:
     # Ensure the request header "target-service-id" is set to the authoritative service ID.
@@ -63,14 +68,14 @@ spec:
         type: PathPrefix
         value: /v1
 
-# TODO_MVP(@commoddity): Modify this config to use TLS for 
+# TODO_MVP(@commoddity): Modify this config to use TLS for
 # the connection to the external authorization server.
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: {{ .serviceId | lower }}-subdomain-auth-policy
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ $.Values.global.namespace }}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
@@ -80,7 +85,9 @@ spec:
   extAuth:
     grpc:
       backendRefs:
-        - name: ext-auth-server
+        - name: {{$name}}-auth-server
           port: 10001
+
+{{- end }}
 
 {{- end }}
