@@ -1,23 +1,13 @@
 {{- if .Values.guard.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 apiVersion: gateway.networking.k8s.io/v1
-kind: GatewayClass
-metadata:
-  name: {{$gwname}}-gwc
-  labels:
-    {{- include "guard-helm.labels" $ | nindent 4 }}
-spec:
-  controllerName: gateway.envoyproxy.io/gatewayclass-controller
----
-
-apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: {{$gwname}}-gw
+  name: {{$gwname}}-envoy-gateway
   labels:
     {{- include "guard-helm.labels" $ | nindent 4 }}
 spec:
-  gatewayClassName: eg
+  gatewayClassName: {{$gwname}}-envoy-gateway-class
   listeners:
     - name: http
       protocol: HTTP
@@ -25,5 +15,14 @@ spec:
       allowedRoutes:
         kinds:
         - kind: HTTPRoute
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: {{$gwname}}-envoy-gateway-class
+  labels:
+    {{- include "guard-helm.labels" $ | nindent 4 }}
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
 
 {{- end }}

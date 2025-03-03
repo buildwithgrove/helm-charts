@@ -5,22 +5,74 @@
 # gateway-helm:
 
 # ---- GUARD Global settings ----
-# Domain is the base domain for subdomain matching.
-# For Example:
-# - ethereum: eth.path.grove.city -> "target-service-id: F00C"
-# - polygon: polygon.path.grove.city -> "target-service-id: F021"
 fullnameOverride: guard
 global:
-  # domain: path.grove.city  # TODO_IN_THIS_PR: Set back to this for deployment Base domain for subdomain matching
-  domain: localhost # TODO_IN_THIS_PR: Remove this line
+  # domain is the 
+  domain: path.grove.city  
   # namespace is the namespace that both Envoy Gateway and the PATH service are deployed to.
-  namespace: path-local # TODO_IN_THIS_PR: Set this to the final namespace we will use for deployment
+  namespace: path-local 
   # serviceName is the name of the service that the PATH service is deployed to.
-  serviceName: path-http # TODO_IN_THIS_PR: Set this to the final service name we will use for deployment
+  serviceName: path-http 
 
   # Port is the port that the PATH service runs on in the cluster.
   # This is the port that Envoy Gateway will forward requests to.
   port: 3069
+
+# ---- GUARD configuration ----
+guard:
+  # Deploy K8s Gateway resource. Enabled by default
+  gateway:
+    enabled: true
+    port: 3070
+
+  # ---- Service routing settings ----
+
+  # List of services that will be routed by Envoy Gateway
+  # to the PATH backend. These services will be used to
+  # construct HTTPRoutes for each service. These HTTPRoutes
+  # are used to assign the "target-service-id" header to the
+  # request based on the subdomain service alias.
+  # - serviceId [REQUIRED]: The authorative service ID of the service.
+  # - aliases [OPTIONAL]: A list of aliases for the service.
+  #
+  # For example:
+  # - F00C.path.grove.city -> "target-service-id: F00C"
+  # - eth.path.grove.city -> "target-service-id: F00C"
+  # - polygon.path.grove.city -> "target-service-id: F021"
+  #
+  # IMPORTANT: For production deployments, the `services` field
+  # should be overridden with the actual services that will be
+  # routed to the PATH backend using a `guard-values.yaml` file.
+  services:
+    - serviceId: F00C
+      aliases:
+        - eth
+        - eth-mainnet
+    - serviceId: F021
+      aliases:
+        - polygon
+        - polygon-mainnet
+
+# ---- External Auth Server configuration ----
+authServer:
+  enabled: true
+  replicas: 1
+  port: 10001
+  # VolumeMounts are used to specify a configuration file for auth server.
+  # Configuration must be declared specifying mountPath and subPath.
+  volumeMounts:
+    - name: config-volume
+      mountPath: /app/config/.config.yaml
+      subPath: .config.yaml
+
+  # TODO_MVP(@commoddity): Modify this config to use TLS for
+  # the gRPC connection to the PADS server.
+  configMap:
+    .config.yaml: |
+      auth_server_config:
+        grpc_host_port: ext-auth-pads:10002
+        grpc_use_insecure_credentials: true
+        endpoint_id_extractor_type: header
 
 # ---- PADS configuration ----
 pads:
@@ -44,76 +96,9 @@ pads:
   # For a detailed breakdown of the possible format of this file, see:
   # - https://path.grove.city/develop/envoy/envoy_config#4-gateway-endpoints-data---gateway-endpointsyaml
   # - https://path.grove.city/develop/envoy/walkthrough#gateway-endpoint-authorization
-  #
-  # TODO_MVP(@commoddity): By default, this value is set to a simple test endpoint ID and
-  # API key, but for production use this should be overriden. Implement a mechanism to
-  # allow users to override this value.
   configMap:
     .gateway-endpoints.yaml: |
     endpoints:
       test_endpoint:
         auth:
           api_key: "test_api_key"
-
-# ---- Auth Server configuration ----
-authServer:
-  enabled: true
-  replicas: 1
-  port: 10001
-  # VolumeMounts are used to specify a configuration file for auth server.
-  # Configuration must be declared specifying mountPath and subPath.
-  volumeMounts:
-    - name: config-volume
-      mountPath: /app/config/.config.yaml
-      subPath: .config.yaml
-
-  # TODO_MVP(@commoddity): Modify this config to use TLS for
-  # the gRPC connection to the PADS server.
-  configMap:
-    .config.yaml: |
-      auth_server_config:
-        grpc_host_port: ext-auth-pads:10002
-        grpc_use_insecure_credentials: true
-        endpoint_id_extractor_type: header
-
-# ---- GUARD configuration ----
-guard:
-  # Deploy K8s Gateway resource. Enabled by default
-  gateway:
-    enabled: true
-    port: 3070
-
-  # ---- Service routing settings ----
-
-  # List of services that will be routed by Envoy Gateway
-  # to the PATH backend. These services will be used to
-  # construct HTTPRoutes for each service. These HTTPRoutes
-  # are used to assign the "target-service-id" header to the
-  # request based on the subdomain service alias.
-  # - serviceId [REQUIRED]: The authorative service ID of the service.
-  # - aliases [OPTIONAL]: A list of aliases for the service.
-  #
-  # For example:
-  # - F00C.path.grove.city -> "target-service-id: F00C"
-  # - eth.path.grove.city -> "target-service-id: F00C"
-  # - polygon.path.grove.city -> "target-service-id: F021"
-  services:
-    - serviceId: F00C
-      aliases:
-        - eth
-        - eth-mainnet
-    - serviceId: F021
-      aliases:
-        - polygon
-        - polygon-mainnet
-
-
-
-
-
-
-
-
-
-
-# Add other services here ...

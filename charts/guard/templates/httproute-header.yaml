@@ -15,6 +15,7 @@
 # Create an HTTPRoute resource for each authoritative service ID.
 {{- if .Values.guard.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
+
 {{- range .Values.guard.services }}
 {{- $service := . }}
 ---
@@ -29,7 +30,7 @@ metadata:
 spec:
   parentRefs:
   - kind: Gateway
-    name: {{$gwname}}-gw
+    name: {{$gwname}}-envoy-gateway
     namespace: {{ $.Values.global.namespace }}
 
   rules:
@@ -79,7 +80,7 @@ metadata:
 spec:
   parentRefs:
   - kind: Gateway
-    name: {{$gwname}}-gw
+    name: {{$gwname}}-envoy-gateway
     namespace: {{ $.Values.global.namespace }}
 
   rules:
@@ -126,6 +127,7 @@ spec:
           port: 10001
 {{- end }}
 {{- end }}
+
 {{- end }}
 
 {{- end }}

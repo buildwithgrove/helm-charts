@@ -33,7 +33,7 @@ metadata:
 spec:
   parentRefs:
   - kind: Gateway
-    name: {{$gwname}}-gw
+    name: {{$gwname}}-envoy-gateway
     namespace: {{ $.Values.global.namespace }}
 
   # Match requests based on their subdomain.
@@ -87,4 +87,5 @@ spec:
           port: 10001
 
 {{- end }}
+
 {{- end }}

@@ -6,7 +6,6 @@
 # GUARD service, this route will return a 404 Not Found error.
 {{- if .Values.guard.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
-
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -14,7 +13,7 @@ metadata:
 spec:
   parentRefs:
   - kind: Gateway
-    name: {{$gwname}}-gw
+    name: {{$gwname}}-envoy-gateway
     namespace: {{ $.Values.global.namespace }}
   rules:
   - matches:
