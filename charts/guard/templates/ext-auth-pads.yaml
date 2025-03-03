@@ -5,7 +5,7 @@
 #
 # Github Repo: https://github.com/buildwithgrove/path-auth-data-server
 {{- if .Values.pads.enabled }}
-{{- $name:= include "guard-helm.fullname" . }}
+{{- $name := include "guard-helm.fullname" . }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -31,19 +31,13 @@ spec:
         env: {{- toYaml .Values.pads.env | nindent 10 }}
         ports:
         - containerPort: {{ .Values.pads.port }}
-        # Only mount the volume if the volumeMounts section is set,
-        # meaning PADS is using a YAML file as the data source.
-        {{- if .Values.pads.volumeMounts }}
-        volumeMounts: {{ toYaml .Values.pads.volumeMounts | nindent 10 }}
-        {{- end }}
+        volumeMounts:
+          - name: pads-data-volume
+            mountPath: /app
       volumes:
-      # Only mount the configMap if the configMap section is set,
-      # meaning PADS is using a YAML file as the data source.
-      {{- if .Values.pads.configMap }}
-      - name: endpoint-data-volume
+      - name: pads-data-volume
         configMap:
-          name: endpoint-data
-      {{- end }}
+          name: pads-data
 ---
 apiVersion: v1
 kind: Service
@@ -59,17 +53,11 @@ spec:
     targetPort: {{ .Values.pads.port }}
     protocol: TCP
     name: grpc
-# Only create the ConfigMap if the configMap section is set,
-# meaning PADS is using a YAML file as the data source.
-{{- if .Values.pads.configMap }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: endpoint-data
-data:
-  .gateway-endpoints.yaml: |-
-    {{- index .Values.pads.configMap ".gateway-endpoints.yaml" | nindent 4 }}
-{{- end }}
+  name: pads-data
+data: {{- toYaml .Values.pads.configMap | nindent 4 }}
 
 {{- end }}

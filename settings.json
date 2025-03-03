@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "**/template/*.yaml": "plaintext",
+        "**/template/*.yml": "plaintext",
+        "*.yaml": "yaml",
+        "*.yml": "yaml",
+        ".config.yaml": "yaml",
+        "*.tpl": "plaintext"
+    }
+}

@@ -1,3 +1,9 @@
+# The External Authorization Server is an external authorization server that can be used
+# to authorize requests to the PATH Gateway. It uses gRPC and adheres to the spec expected by the
+# Envoy External Authorization HTTP Filter.
+# Reference: https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter
+#
+# Github Repo: https://github.com/buildwithgrove/path-external-auth-server
 {{- if .Values.authServer.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
 ---
@@ -22,9 +28,11 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: {{ .Values.authServer.port }}
-        volumeMounts: {{- toYaml .Values.authServer.volumeMounts | nindent 10 }}
+        volumeMounts:
+          - name: auth-server-config-volume
+            mountPath: /app/config
       volumes:
-      - name: config-volume
+      - name: auth-server-config-volume
         configMap:
           name: auth-server-config
 ---
@@ -45,8 +53,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: auth-server-config
-data:
-  .config.yaml: |-
-    {{- index .Values.authServer.configMap ".config.yaml" | nindent 4 }}
+data: {{- toYaml .Values.authServer.configMap | nindent 4 }}
 
 {{- end }}
