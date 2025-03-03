@@ -22,7 +22,7 @@ spec:
     metadata:
       labels:
         {{- include "guard-helm.labels" $ | nindent 8 }}
-        app: ext-auth-pads
+        app: {{$name}}-pads
     spec:
       containers:
       - name: path-auth-data-server
@@ -31,11 +31,19 @@ spec:
         env: {{- toYaml .Values.pads.env | nindent 10 }}
         ports:
         - containerPort: {{ .Values.pads.port }}
-        volumeMounts: {{- toYaml .Values.pads.volumeMounts | nindent 10 }}
+        # Only mount the volume if the volumeMounts section is set,
+        # meaning PADS is using a YAML file as the data source.
+        {{- if .Values.pads.volumeMounts }}
+        volumeMounts: {{ toYaml .Values.pads.volumeMounts | nindent 10 }}
+        {{- end }}
       volumes:
+      # Only mount the configMap if the configMap section is set,
+      # meaning PADS is using a YAML file as the data source.
+      {{- if .Values.pads.configMap }}
       - name: endpoint-data-volume
         configMap:
           name: endpoint-data
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -51,11 +59,17 @@ spec:
     targetPort: {{ .Values.pads.port }}
     protocol: TCP
     name: grpc
+# Only create the ConfigMap if the configMap section is set,
+# meaning PADS is using a YAML file as the data source.
+{{- if .Values.pads.configMap }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: endpoint-data
-data: {{- toYaml .Values.pads.configMap | nindent 2 }}
+data:
+  .gateway-endpoints.yaml: |-
+    {{- index .Values.pads.configMap ".gateway-endpoints.yaml" | nindent 4 }}
+{{- end }}
 
 {{- end }}

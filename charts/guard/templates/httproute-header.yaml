@@ -15,6 +15,7 @@
 # Create an HTTPRoute resource for each authoritative service ID.
 {{- if .Values.guard.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
+{{- $name:= include "guard-helm.fullname" . }}
 
 {{- range .Values.guard.services }}
 {{- $service := . }}
@@ -38,7 +39,7 @@ spec:
   - backendRefs:
     - name: {{ $.Values.global.serviceName }}
       namespace: {{ $.Values.global.namespace }}
-      port: {{ $.Values.port }}
+      port: {{ $.Values.global.port }}
 
     matches:
     - path:
@@ -63,7 +64,7 @@ spec:
   extAuth:
     grpc:
       backendRefs:
-        - name: ext-auth-server
+        - name: {{$name}}-auth-server
           port: 10001
 # If the service has aliases, create an HTTPRoute resource for each alias.
 {{- if $service.aliases }}
@@ -88,7 +89,7 @@ spec:
   - backendRefs:
     - name: {{ $.Values.global.serviceName }}
       namespace: {{ $.Values.global.namespace }}
-      port: {{ $.Values.port }}
+      port: {{ $.Values.global.port }}
 
     filters:
     # Ensure the request header "target-service-id" is set to the authoritative service ID.
@@ -123,7 +124,7 @@ spec:
   extAuth:
     grpc:
       backendRefs:
-        - name: ext-auth-server
+        - name: {{$name}}-auth-server
           port: 10001
 {{- end }}
 {{- end }}

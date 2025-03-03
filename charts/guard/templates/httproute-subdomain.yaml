@@ -20,6 +20,8 @@
 # through the use of the `hostnames` field.
 {{- if and .Values.guard.services .Values.guard.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
+{{- $name:= include "guard-helm.fullname" . }}
+
 {{- range .Values.guard.services }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -38,19 +40,19 @@ spec:
 
   # Match requests based on their subdomain.
   hostnames:
-  - "{{ .serviceId | lower }}.{{ $.Values.domain }}"
+  - "{{ .serviceId | lower }}.{{ $.Values.global.domain }}"
   {{- if .aliases }}
   {{- range .aliases }}
-  - "{{ . | lower }}.{{ $.Values.domain }}"
+  - "{{ . | lower }}.{{ $.Values.global.domain }}"
   {{- end }}
   {{- end }}
 
   rules:
   # Determine the backend service to route to.
   - backendRefs:
-    - name: {{ $.Values.serviceName }}
+    - name: {{ $.Values.global.serviceName }}
       namespace: {{ $.Values.global.namespace }}
-      port: {{ $.Values.port }}
+      port: {{ $.Values.global.port }}
 
     filters:
     # Ensure the request header "target-service-id" is set to the authoritative service ID.
@@ -83,7 +85,7 @@ spec:
   extAuth:
     grpc:
       backendRefs:
-        - name: ext-auth-server
+        - name: {{$name}}-auth-server
           port: 10001
 
 {{- end }}
