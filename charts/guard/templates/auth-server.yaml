@@ -22,9 +22,14 @@ spec:
         {{- include "guard-helm.labels" $ | nindent 8 }}
         app: {{$name}}-auth-server
     spec:
+      # Use an init container to wait for the PADS server to be ready.
+      initContainers:
+      - name: wait-for-pads
+        image: busybox
+        command: ['sh', '-c', 'until nc -z guard-pads 10002; do echo waiting for PADS; sleep 2; done']
       containers:
-      - name: ext-auth-server
-        image: ghcr.io/buildwithgrove/ext-auth-server:latest
+      - name: path-external-auth-server
+        image: ghcr.io/buildwithgrove/path-external-auth-server:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: {{ .Values.authServer.port }}

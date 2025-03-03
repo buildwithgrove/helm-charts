@@ -63,6 +63,7 @@ authServer:
   configMap:
     .config.yaml: |
       auth_server_config:
+        port: 10001
         grpc_host_port: guard-pads:10002
         grpc_use_insecure_credentials: true
         endpoint_id_extractor_type: header
@@ -85,6 +86,8 @@ pads:
   # PADS will use the file at the specified path as the data source.
 
   env:
+  - name: PORT
+    value: "10002"
   - name: YAML_FILEPATH
     value: "/app/data/.gateway-endpoints.yaml"
   # Gateway endpoints define the allowed endpoints for a PATH instance.
@@ -110,6 +113,8 @@ pads:
   # # For more details, see the documentation for the PADS Postgres data source:
   # # https://path.grove.city/develop/pads/postgres
   # env:
+  # - name: PORT
+  #   value: "10002"
   # - name: POSTGRES_CONNECTION_STRING
   #   value: "postgres://user:password@host:port/database" # Replace with your Postgres connection string
 
