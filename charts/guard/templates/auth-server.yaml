@@ -31,15 +31,9 @@ spec:
       - name: path-external-auth-server
         image: ghcr.io/buildwithgrove/path-external-auth-server:latest
         imagePullPolicy: IfNotPresent
+        env: {{- toYaml .Values.authServer.env | nindent 10 }}
         ports:
         - containerPort: {{ .Values.authServer.port }}
-        volumeMounts:
-          - name: auth-server-config-volume
-            mountPath: /app/config
-      volumes:
-      - name: auth-server-config-volume
-        configMap:
-          name: auth-server-config
 ---
 apiVersion: v1
 kind: Service
@@ -53,11 +47,5 @@ spec:
     targetPort: {{ .Values.authServer.port }}
     protocol: TCP
     name: grpc
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: auth-server-config
-data: {{- toYaml .Values.authServer.configMap | nindent 4 }}
 
 {{- end }}

@@ -58,15 +58,13 @@ authServer:
   enabled: true
   replicas: 1
   port: 10001
-  # TODO_MVP(@commoddity): Modify this config to use TLS for the gRPC connection to the PADS server.
-  # TODO_IMPROVE(@commoddity): Update to use simple env vars for auth server instead of a YAML
-  configMap:
-    .config.yaml: |
-      auth_server_config:
-        port: 10001
-        grpc_host_port: guard-pads:10002
-        grpc_use_insecure_credentials: true
-        endpoint_id_extractor_type: header
+  env:
+    - name: PORT
+      value: "10001"
+    - name: GRPC_HOST_PORT
+      value: guard-pads:10002
+    - name: GRPC_USE_INSECURE_CREDENTIALS
+      value: "true"
 
 # ---- PADS configuration ----
 pads:
