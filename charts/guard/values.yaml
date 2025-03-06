@@ -1,16 +1,33 @@
+# The global settings for the GUARD Helm chart.
+#
+# These values will be used if the values are not overridden 
+# by applying an additional `values.yaml` file when installing.
+
 # ---- Envoy Gateway ----
-# This section can be used to configure gateway-helm dependency
-# https://artifacthub.io/packages/helm/envoy-gateway/gateway-helm
-# Uncomment the block below to specify a gateway-helm configuration
+# This section can be used to configure gateway-helm dependency.
+# Uncomment `gateway-helm` below to specify a gateway-helm configuration.
+# Any values from the below `gateway-helm` reference will override the default values.
+#
+# References:
+# - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
+# - https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
 # gateway-helm:
+#   # For example, the default log level may be overridden to `warn` as follows:
+#   config:
+#     envoyGateway:
+#       logging:
+#         level:
+#           default: warn
+
 
 # ---- GUARD Global settings ----
 fullnameOverride: guard
 global:
-  # domain is the 
+  # domain will be used for matching subdomains in the HTTPRoutes.
+  # For example, hostnames will be created for `<SERVICE_ID>.path.grove.city`.
   domain: path.grove.city  
   # namespace is the namespace that both Envoy Gateway and the PATH service are deployed to.
-  namespace: path-local 
+  namespace: path
   # serviceName is the name of the service that the PATH service is deployed to.
   serviceName: path-http 
 
@@ -20,7 +37,7 @@ global:
 
 # ---- GUARD configuration ----
 guard:
-  # Deploy K8s Gateway resource. Enabled by default
+  # Deploy K8s Gateway resource.
   gateway:
     enabled: true
     port: 3070
@@ -53,7 +70,7 @@ guard:
         - polygon
         - polygon-mainnet
 
-# ---- External Auth Server configuration ----
+# ---- PATH External Auth Server (PEAS) configuration ----
 authServer:
   enabled: true
   replicas: 1
@@ -61,12 +78,17 @@ authServer:
   env:
     - name: PORT
       value: "10001"
+    # GRPC_HOST_PORT=guard-pads:10002 is the value to point to the default 
+    # PADS server in the cluster created by the GUARD Helm Chart.
     - name: GRPC_HOST_PORT
       value: guard-pads:10002
+    # GRPC_USE_INSECURE_CREDENTIALS=true is required to run PEAS in the 
+    # cluster created by the GUARD Helm Chart, as PADS does not have TLS
+    # enabled by default.
     - name: GRPC_USE_INSECURE_CREDENTIALS
       value: "true"
 
-# ---- PADS configuration ----
+# ---- PATH Auth Data Server (PADS) configuration ----
 pads:
   enabled: true
   replicas: 1
@@ -86,6 +108,7 @@ pads:
   env:
   - name: PORT
     value: "10002"
+  # The local path to the .yaml file containing the Gateway Endpoints.
   - name: YAML_FILEPATH
     value: "/app/data/.gateway-endpoints.yaml"
   # Gateway endpoints define the allowed endpoints for a PATH instance.
@@ -113,6 +136,6 @@ pads:
   # env:
   # - name: PORT
   #   value: "10002"
+  # # The connection string for the Postgres database.
   # - name: POSTGRES_CONNECTION_STRING
   #   value: "postgres://user:password@host:port/database" # Replace with your Postgres connection string
-
