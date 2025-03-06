@@ -1,9 +1,13 @@
-# The External Authorization Server is an external authorization server that can be used
-# to authorize requests to the PATH Gateway. It uses gRPC and adheres to the spec expected by the
-# Envoy External Authorization HTTP Filter.
-# Reference: https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter
+# External Authorization Server Helm Chart
 #
+# An external authorization server designed to authorize requests to the PATH Gateway.
+# 
+# Key characteristics:
+#   - Uses gRPC for communication
+#   - Adheres to the specification expected by the Envoy External Authorization HTTP Filter
+# Reference: https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter
 # Github Repo: https://github.com/buildwithgrove/path-external-auth-server
+#
 {{- if .Values.authServer.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
 ---
