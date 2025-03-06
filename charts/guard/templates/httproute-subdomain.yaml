@@ -1,23 +1,25 @@
-# This template generates an HTTPRoute resource for each service in the `services` list.
-# Each HTTPRoute is configured to route requests based on the subdomain of the request,
-# which can be either the service ID or any of its aliases.
+# HTTPRoute Generator for Services
 #
-# The `hostnames` field specifies the subdomains that will be matched against the request.
+# Generates an HTTPRoute resource for each service in the `services` list, configuring routing 
+# based on subdomain patterns (service ID or aliases).
 #
-# For example, if a service has the following configuration:
-#   serviceId: F00C
-#   aliases:
-#     - eth
-#     - eth-mainnet
-# The generated HTTPRoute will match requests to:
+# Routing behavior:
+#   - The `hostnames` field specifies which subdomains will match the request
+#   - All matched requests receive a "target-service-id: [SERVICE_ID]" header
+#
+# Example configuration:
+# services:
+#   - serviceId: F00C
+#     aliases:
+#       - eth
+#       - eth-mainnet
+#
+# This configuration would match requests to:
 #   - F00C.path.grove.city
 #   - eth.path.grove.city
 #   - eth-mainnet.path.grove.city
-# All matched requests will have the header "target-service-id: F00C" added.
-
-# Create an HTTPRoute resource for each authoritative service ID.
-# This HTTPRoute will also match requests to any of the service's aliases
-# through the use of the `hostnames` field.
+#
+# All these requests would receive the header "target-service-id: F00C"
 {{- if and .Values.guard.services .Values.guard.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 {{- $name:= include "guard-helm.fullname" . }}

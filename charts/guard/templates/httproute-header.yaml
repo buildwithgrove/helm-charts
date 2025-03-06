@@ -1,16 +1,34 @@
-# This template generates HTTPRoute resources for each service in the `services` list.
-# Each HTTPRoute is configured to route requests based on the subdomain of the request.
+# HTTPRoute Generator for Services
 #
-# For example:
-# -H "target-service-id: F00C" -> "target-service-id: F00C"
-# -H "target-service-id: eth" -> "target-service-id: F00C"
-# -H "target-service-id: polygon" -> "target-service-id: F021"
+# Generates HTTPRoute resources for each service in the `services` list, configuring routing
+# based on the subdomain of the request.
+#
+# Routing behavior:
+#   - Creates an HTTPRoute for each authoritative service ID
+#   - Creates additional HTTPRoutes for each service alias
+#   - Routes requests based on the `target-service-id` header
+#
+# Example configuration:
+# services:
+#   - serviceId: F00C
+#     aliases:
+#       - eth
+#   - serviceId: F021
+#     aliases:
+#       - polygon
+#
+# This configuration would match requests to:
+#   -H "target-service-id: F00C" -> "target-service-id: F00C"
+#   -H "target-service-id: eth" -> "target-service-id: F00C"
+#   -H "target-service-id: F021" -> "target-service-id: F021"
+#   -H "target-service-id: polygon" -> "target-service-id: F021"
+#
+# In the case of a match based on an alias, the header 
+# will be set to the authoritative service ID.
 #
 # For each service, multiple HTTPRoute resources are created:
-# - One HTTPRoute for the authoritative service ID
-# - One additional HTTPRoute for EACH service alias
-#
-# The HTTPRoute resources are created based on the `services` list in the `values.yaml` file.
+#   - One HTTPRoute for the authoritative service ID
+#   - One additional HTTPRoute for EACH service alias
 
 # Create an HTTPRoute resource for each authoritative service ID.
 {{- if .Values.guard.gateway.enabled }}

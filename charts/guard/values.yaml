@@ -44,11 +44,12 @@ guard:
 
   # ---- Service routing settings ----
 
-  # List of services that will be routed by Envoy Gateway
-  # to the PATH backend. These services will be used to
-  # construct HTTPRoutes for each service. These HTTPRoutes
-  # are used to assign the "target-service-id" header to the
+  # List of services that will be routed by Envoy Gateway to the PATH backend.
+  # These services will be used to construct HTTPRoutes for each service.
+  # These HTTPRoutes are used to assign the "target-service-id" header to the
   # request based on the subdomain service alias.
+  #
+  # Configurations:
   # - serviceId [REQUIRED]: The authorative service ID of the service.
   # - aliases [OPTIONAL]: A list of aliases for the service.
   #
@@ -113,8 +114,8 @@ pads:
     value: "/app/data/.gateway-endpoints.yaml"
   # Gateway endpoints define the allowed endpoints for a PATH instance.
   # For a detailed breakdown of the possible format of this file, see:
-  # - https://path.grove.city/develop/envoy/envoy_config#4-gateway-endpoints-data---gateway-endpointsyaml
-  # - https://path.grove.city/develop/envoy/walkthrough#gateway-endpoint-authorization
+  # - See gateway endpoints yamla at https://path.grove.city/develop/envoy/envoy_config 
+  # - See endpoint authorization at https://path.grove.city/develop/envoy/walkthrough
   #
   # IMPORTANT: For a production deployment, if using a YAML file as the PADS data source,
   # the `pads.configMap` field should be overridden with the actual gateway endpoints configuration.
@@ -125,14 +126,14 @@ pads:
           auth:
             api_key: "test_api_key"
 
-  # # -- 2. POSTGRES_CONNECTION_STRING --
-  # # IMPORTANT: To use a Postgres database as the PADS data source,
-  # # uncomment the env variable below and set the value to the connection string.
-  # #
-  # # If the POSTGRES_CONNECTION_STRING environment variable is set,
-  # # PADS will use the specified connection string to connect to a Postgres database as the data source.
-  # # For more details, see the documentation for the PADS Postgres data source:
-  # # https://path.grove.city/develop/pads/postgres
+  # -- 2. POSTGRES_CONNECTION_STRING --
+  # IMPORTANT: To use a Postgres database as the PADS data source,
+  # uncomment the env variable below and set the value to the connection string.
+  #
+  # If the POSTGRES_CONNECTION_STRING environment variable is set,
+  # PADS will use the specified connection string to connect to a Postgres database as the data source.
+  # For more details, see the documentation for the PADS Postgres data source:
+  # https://path.grove.city/develop/pads/postgres
   # env:
   # - name: PORT
   #   value: "10002"
