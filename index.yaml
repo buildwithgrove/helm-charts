@@ -13,7 +13,32 @@ entries:
     urls:
     - https://github.com/buildwithgrove/helm-charts/releases/download/gcp-iam-externalsecrets-0.1.1/gcp-iam-externalsecrets-0.1.1.tgz
     version: 0.1.1
+  guard:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2025-03-07T21:03:53.658284327Z"
+    dependencies:
+    - name: gateway-helm
+      repository: oci://docker.io/envoyproxy
+      version: v1.3.0
+    description: A Helm chart for deploying GUARD (Gateway Utilities for Authentication,
+      Routing & Defense) in production or development environments
+    digest: 843cd6ae5e501972868db4c4689d7cad3a30ee5f723f4ddb58edce3e15bc7524
+    name: guard
+    urls:
+    - https://github.com/buildwithgrove/helm-charts/releases/download/guard-0.1.1/guard-0.1.1.tgz
+    version: 0.1.1
   path:
+  - apiVersion: v2
+    appVersion: 0.0.16
+    created: "2025-03-07T21:03:53.768445185Z"
+    description: A Helm chart for Kubernetes
+    digest: 3a3a829c5e82c6834243a660d64f37b5898e481f296b4b171497498305478752
+    name: path
+    type: application
+    urls:
+    - https://github.com/buildwithgrove/helm-charts/releases/download/path-0.1.9/path-0.1.9.tgz
+    version: 0.1.9
   - apiVersion: v2
     appVersion: 0.0.16
     created: "2025-02-11T15:17:53.991321911Z"
@@ -127,4 +152,4 @@ entries:
     urls:
     - https://github.com/buildwithgrove/helm-charts/releases/download/universal-helm-0.1.0/universal-helm-0.1.0.tgz
     version: 0.1.0
-generated: "2025-02-11T15:17:53.991360804Z"
+generated: "2025-03-07T21:03:53.768495709Z"
