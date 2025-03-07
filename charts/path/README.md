@@ -4,6 +4,12 @@
 
 A Helm chart for Kubernetes
 
+## Requirements
+
+| Repository | Name | Version |
+|------------|------|---------|
+| https://buildwithgrove.github.io/helm-charts/ | guard | 0.1.1 |
+
 ## Values
 
 | Key | Type | Default | Description |
