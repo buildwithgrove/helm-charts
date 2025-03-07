@@ -3,7 +3,7 @@ appVersion: 0.0.16
 description: A Helm chart for Kubernetes
 name: path
 type: application
-version: 0.1.8
+version: 0.1.9
 # TODO_MVP(@commoddity,@adshmh): Update PATH to implement Issue #26, which
 # makes GUARD & WATCH dependencies of this PATH helm chart.
 # https://github.com/buildwithgrove/helm-charts/issues/26
