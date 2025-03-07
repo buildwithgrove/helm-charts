@@ -1,0 +1,132 @@
+# Global settings
+global:
+  namespace: monitoring  # Default namespace for all resources
+  labels:
+    app: watch
+
+# kube-prometheus-stack configuration
+# Set enabled: false if you already have kube-prometheus-stack installed
+kube-prometheus-stack:
+  enabled: true
+  # Use monitoring namespace by default
+  namespaceOverride: "monitoring"
+  
+  # Prometheus configuration
+  prometheus:
+    prometheusSpec:
+      retention: 15d
+      resources:
+        limits:
+          cpu: 1
+          memory: 1Gi
+        requests:
+          cpu: 200m
+          memory: 512Mi
+
+  # Grafana configuration
+  grafana:
+    adminPassword: "admin"
+    persistence:
+      enabled: true
+      size: 5Gi
+    # Authentication configuration
+    grafana.ini:
+      security:
+        allow_sign_up: false
+      auth:
+        disable_login_form: false
+      auth.anonymous:
+        enabled: false
+        org_role: Viewer
+    # Environment variables for user management
+    env:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_AUTH_BASIC_ENABLED: "true"
+      GF_USERS_VIEWERS_CAN_EDIT: "false"
+      GF_USERS_EDITORS_CAN_ADMIN: "false"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+
+    # Uncomment to create a viewer user
+    # extraInitContainers:
+    #   - name: setup-viewer-user
+    #     image: "curlimages/curl:7.73.0"
+    #     command: ["/bin/sh", "-c"]
+    #     args:
+    #       - |
+    #         # Wait for Grafana to start
+    #         sleep 30
+    #         # Create API key for admin operations
+    #         ADMIN_KEY=$(curl -s -X POST -H "Content-Type: application/json" -d '{"name":"admin-key","role":"Admin"}' http://admin:${GF_SECURITY_ADMIN_PASSWORD}@localhost:3000/api/auth/keys | jq -r '.key')
+    #         # Create viewer user
+    #         curl -s -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${ADMIN_KEY}" -d '{"name":"viewer","email":"viewer@example.com","login":"viewer","password":"viewer-password","OrgId":1,"role":"Viewer"}' http://localhost:3000/api/admin/users
+
+    # Sidecar to load dashboards automatically from ConfigMaps
+    sidecar:
+      dashboards:
+        enabled: true
+        label: grafana_dashboard
+        searchNamespace: ALL
+        folderAnnotation: grafana_folder
+        provider:
+          foldersFromFilesStructure: true
+      datasources:
+        enabled: true
+
+# Dashboard Configuration
+dashboards:
+  enabled: true  # Will create dashboard ConfigMaps even if Grafana is disabled
+  label: grafana_dashboard
+  namespace: monitoring  # Explicitly set namespace for dashboard ConfigMaps
+  
+  # PATH Dashboard Configuration
+  path:
+    enabled: true
+    folderName: "PATH API"
+    
+  # GUARD Dashboard Configuration
+  guard:
+    enabled: true
+    folderName: "GUARD API"
+  
+  # Custom Dashboards - can be provided through values
+  custom:
+    enabled: false
+    dashboards: {}
+    # example:
+    #   my-dashboard:
+    #     folderName: "Custom"
+    #     json: |
+    #       {
+    #         "title": "My Dashboard",
+    #         "panels": []
+    #       }
+  
+# External monitoring configuration (used when kube-prometheus-stack.enabled=false)
+externalMonitoring:
+  grafanaNamespace: "monitoring"  # Default to monitoring namespace
+  prometheusSelectorLabels:
+    app.kubernetes.io/part-of: watch-monitoring
+  dashboardsConfigMapLabel: "grafana_dashboard"
+
+# Monitoring target configuration
+serviceMonitors:
+  namespace: monitoring  # Default namespace for ServiceMonitors
+  path:
+    enabled: true
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: path
+    endpoints:
+      - port: metrics
+        interval: 15s
+        path: /metrics
+  
+  guard:
+    enabled: true
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: guard
+    endpoints:
+      - port: metrics
+        interval: 15s
+        path: /metrics

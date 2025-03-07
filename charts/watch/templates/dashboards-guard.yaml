@@ -1,0 +1,18 @@
+{{- if and .Values.dashboards.enabled .Values.dashboards.guard.enabled }}
+{{- range $path, $bytes := .Files.Glob "dashboards/guard/*.json" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "watch.fullname" $ }}-dashboard-guard-{{ base $path | trimSuffix ".json" | lower | replace "_" "-" }}
+  namespace: {{ include "watch.namespace" (list "dashboard" $) }}
+  labels:
+    {{- include "watch.labels" $ | nindent 4 }}
+    {{ $.Values.dashboards.label }}: "1"
+  annotations:
+    grafana_folder: {{ $.Values.dashboards.guard.folderName | default "GUARD API" | quote }}
+data:
+  {{ base $path }}: |-
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}
+{{- end }}
