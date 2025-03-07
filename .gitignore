@@ -1,3 +1,11 @@
+# System files
+.DS_Store
 .idea
 .vscode
+
+# Helm
 Chart.lock
+*.tgz
+
+# Temporary files
+tmp/*
