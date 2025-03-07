@@ -1,6 +1,6 @@
 # path
 
-![Version: 0.1.7](https://img.shields.io/badge/Version-0.1.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.16](https://img.shields.io/badge/AppVersion-0.0.16-informational?style=flat-square)
+![Version: 0.1.8](https://img.shields.io/badge/Version-0.1.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.16](https://img.shields.io/badge/AppVersion-0.0.16-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -24,7 +24,14 @@ A Helm chart for Kubernetes
 | path.additionalAnnotations | object | `{}` |  |
 | path.additionalLabels | object | `{}` |  |
 | path.horizontalPodAutoscaler.enabled | bool | `false` |  |
-| path.ports | list | `[]` |  |
+| path.ports[0].name | string | `"http"` |  |
+| path.ports[0].port | int | `3069` |  |
+| path.ports[0].protocol | string | `"TCP"` |  |
+| path.ports[0].service.type | string | `"ClusterIP"` |  |
+| path.ports[1].name | string | `"metrics"` |  |
+| path.ports[1].port | int | `9090` |  |
+| path.ports[1].protocol | string | `"TCP"` |  |
+| path.ports[1].service.type | string | `"ClusterIP"` |  |
 | path.resources | object | `{}` |  |
 | replicas | int | `1` |  |
 

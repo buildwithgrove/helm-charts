@@ -19,6 +19,10 @@
 #         level:
 #           default: warn
 
+# TODO_MVP(@commoddity): Update GUARD to implement Issue #27, which
+# make GUARD's auth components configurable by `values.yaml`.
+# https://github.com/buildwithgrove/helm-charts/issues/27
+
 
 # ---- GUARD Global settings ----
 fullnameOverride: guard
