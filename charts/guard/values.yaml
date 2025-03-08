@@ -95,13 +95,20 @@ guard:
   # TODO_IMPROVE(@commoddity): Add support for additional authorization flows.
   # For example, JWT, OIDC, Basic Auth, etc.
   auth:
-    # ---- API Key authorization flow configuration ----
-    # apiKey:
-    #   enabled: true
+    # ---- API Key authorization flow configuration (DEFAULT) ----
+    apiKey:
+      enabled: true
+      headerKey: authorization
+      # A map of API keys authorized to access the PATH service.
+      # A default API key is provided below for testing purposes.
+      # IMPORTANT: For production deployments, the `apiKeys` field should be
+      # overridden with the actual API keys for the PATH service.
+      apiKeys:
+        test_client: test_api_key
 
     # ---- Grove legacy authorization flow configuration ----
     groveLegacy:
-      enabled: true
+      enabled: false
       # ---- PATH External Auth Server (PEAS) configuration ----
       peas:
         replicas: 1

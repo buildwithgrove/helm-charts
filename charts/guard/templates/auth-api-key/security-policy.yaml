@@ -1,16 +1,16 @@
-{{- if and .Values.guard.services .Values.guard.gateway.enabled .Values.guard.auth.groveLegacy.enabled }}
+{{- if and .Values.guard.services .Values.guard.gateway.enabled .Values.guard.auth.apiKey.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
+{{- $apiKeyConfig:= .Values.guard.auth.apiKey }}
 
 {{- range .Values.guard.services }}
 {{- $service := . }}
 
-# Security Policies for PATH External Authorization Server (PEAS)
-# Used as part of the Grove legacy authorization flow.
+# Security Policies for API Key authorization flow.
 #
 # Creates a security policy for each service in the `services` list.
 #
 # The security policies ensure that requests to the service are authorized
-# through the PATH External Authorization Server (PEAS).
+# through the API Key authorization flow.
 
 # Create a security policy for the subdomain route.
 # eg. F00C-subdomain-auth-policy
@@ -25,11 +25,14 @@ spec:
       kind: HTTPRoute
       # eg. F00C-subdomain-route - matches the HTTPRoute resource created above
       name: {{ $service.serviceId | lower }}-subdomain-route
-  extAuth:
-    grpc:
-      backendRefs:
-        - name: {{$name}}-peas
-          port: 10001
+  apiKeyAuth:
+    credentialRefs:
+    - group: ""
+      kind: Secret
+      name: api-keys-secret
+    extractFrom:
+    - headers:
+      - {{ $apiKeyConfig.headerKey }}
 
 # Create a security policy for the header route.
 # eg. F00C-header-auth-policy
@@ -44,11 +47,14 @@ spec:
       kind: HTTPRoute
       # eg. F00C-header-route - matches the HTTPRoute resource created above
       name: {{ $service.serviceId | lower }}-header-route
-  extAuth:
-    grpc:
-      backendRefs:
-        - name: {{$name}}-peas
-          port: 10001
+  apiKeyAuth:
+    credentialRefs:
+    - group: ""
+      kind: Secret
+      name: api-keys-secret
+    extractFrom:
+    - headers:
+      - {{ $apiKeyConfig.headerKey }}
 
 # If the service has aliases, create a SecurityPolicy resource for each alias.
 {{- if $service.aliases }}
@@ -68,11 +74,15 @@ spec:
       kind: HTTPRoute
       # eg. F00C-eth-alias-header-route - matches the HTTPRoute resource created above
       name: {{ $service.serviceId | lower }}-{{ $alias | lower }}-alias-header-route
-  extAuth:
-    grpc:
-      backendRefs:
-        - name: {{$name}}-peas
-          port: 10001
+  apiKeyAuth:
+    credentialRefs:
+    - group: ""
+      kind: Secret
+      name: api-keys-secret
+    extractFrom:
+    - headers:
+      - {{ $apiKeyConfig.headerKey }}
+
 {{- end }}
 {{- end }}
 

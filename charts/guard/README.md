@@ -17,7 +17,10 @@ A Helm chart for deploying GUARD (Gateway Utilities for Authentication, Routing 
 | fullnameOverride | string | `"guard"` |  |
 | global.port | int | `3069` |  |
 | global.serviceName | string | `"path-http"` |  |
-| guard.auth.groveLegacy.enabled | bool | `true` |  |
+| guard.auth.apiKey.apiKeys.test_client | string | `"test_api_key"` |  |
+| guard.auth.apiKey.enabled | bool | `true` |  |
+| guard.auth.apiKey.headerKey | string | `"authorization"` |  |
+| guard.auth.groveLegacy.enabled | bool | `false` |  |
 | guard.auth.groveLegacy.pads.configMap.".gateway-endpoints.yaml" | string | `"endpoints:\n  test_endpoint_1_api_key:\n    auth:\n      api_key: \"test_api_key\"\n  test_endpoint_2_no_auth: {}\n"` |  |
 | guard.auth.groveLegacy.pads.env[0].name | string | `"PORT"` |  |
 | guard.auth.groveLegacy.pads.env[0].value | string | `"10002"` |  |
