@@ -31,11 +31,11 @@
 #   - One additional HTTPRoute for EACH service alias
 
 # Create an HTTPRoute resource for each authoritative service ID.
-{{- if .Values.guard.gateway.enabled }}
+{{- if .Values.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 {{- $name:= include "guard-helm.fullname" . }}
 
-{{- range .Values.guard.services }}
+{{- range .Values.services }}
 {{- $service := . }}
 ---
 apiVersion: gateway.networking.k8s.io/v1

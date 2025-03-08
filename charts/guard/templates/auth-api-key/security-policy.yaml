@@ -1,8 +1,8 @@
-{{- if and .Values.guard.services .Values.guard.gateway.enabled .Values.guard.auth.apiKey.enabled }}
+{{- if and .Values.services .Values.gateway.enabled .Values.auth.apiKey.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
-{{- $apiKeyConfig:= .Values.guard.auth.apiKey }}
+{{- $apiKeyConfig:= .Values.auth.apiKey }}
 
-{{- range .Values.guard.services }}
+{{- range .Values.services }}
 {{- $service := . }}
 
 # Security Policies for API Key authorization flow.

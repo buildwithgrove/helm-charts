@@ -20,11 +20,11 @@
 #   - eth-mainnet.path.grove.city
 #
 # All these requests would receive the header "target-service-id: F00C"
-{{- if and .Values.guard.services .Values.guard.gateway.enabled }}
+{{- if and .Values.services .Values.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 {{- $name:= include "guard-helm.fullname" . }}
 
-{{- range .Values.guard.services }}
+{{- range .Values.services }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -40,10 +40,10 @@ spec:
 
   # Match requests based on their subdomain.
   hostnames:
-  - "{{ .serviceId | lower }}.{{ $.Values.guard.domain }}"
+  - "{{ .serviceId | lower }}.{{ $.Values.domain }}"
   {{- if .aliases }}
   {{- range .aliases }}
-  - "{{ . | lower }}.{{ $.Values.guard.domain }}"
+  - "{{ . | lower }}.{{ $.Values.domain }}"
   {{- end }}
   {{- end }}
 

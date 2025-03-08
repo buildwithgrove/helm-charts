@@ -1,7 +1,7 @@
-{{- if and .Values.guard.services .Values.guard.gateway.enabled .Values.guard.auth.groveLegacy.enabled }}
+{{- if and .Values.services .Values.gateway.enabled .Values.auth.groveLegacy.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
 
-{{- range .Values.guard.services }}
+{{- range .Values.services }}
 {{- $service := . }}
 
 # Security Policies for PATH External Authorization Server (PEAS)

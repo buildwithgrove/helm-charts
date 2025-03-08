@@ -9,9 +9,9 @@
 # Reference: https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter
 # Github Repo: https://github.com/buildwithgrove/path-external-auth-server
 #
-{{- if .Values.guard.auth.groveLegacy.enabled }}
+{{- if .Values.auth.groveLegacy.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
-{{- $peasConfig:= .Values.guard.auth.groveLegacy.peas }}
+{{- $peasConfig:= .Values.auth.groveLegacy.peas }}
 ---
 apiVersion: apps/v1
 kind: Deployment

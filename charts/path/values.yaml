@@ -150,6 +150,102 @@ path:
 additionalManifests: []
 additionalYamlManifests: ""
 
+###########################################################################
+# -------------------- GUARD Specific Configurations -------------------- #
+###########################################################################
+guard:
+  # TODO_DOCUMENT(@commoddity): Embed the `gateway-helm` values.yaml fields
+  # referenced below into the `guard` section of the Docusaurus docs.
+
+  # ---- Envoy Gateway ----
+  # This section can be used to configure gateway-helm dependency.
+  # Uncomment `gateway-helm` below to specify a gateway-helm configuration.
+  # Any values from the below `gateway-helm` reference will override the default values.
+  #
+  # References:
+  # - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
+  # - https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
+  # gateway-helm:
+  #   # For example, the default log level may be overridden to `warn` as follows:
+  #   config:
+  #     envoyGateway:
+  #       logging:
+  #         level:
+  #           default: warn
+
+  fullnameOverride: guard
+  global:
+    # -- serviceName is the name of the service that the PATH service is deployed to.
+    serviceName: path-http
+    # -- port is the port that the PATH service runs on in the cluster.
+    # This is the port that Envoy Gateway will forward requests to.
+    port: 3069
+  gateway:
+    # -- enabled: Whether to deploy the Envoy Gateway resource (should always be true)
+    enabled: true
+    # -- port: The port that Envoy Gateway will listen on.
+    port: 3070
+
+  # ---- Service routing settings ----
+  # -- domain will be used for matching HTTPRoutes by subdomain,
+  # as defined in the `httproute-subdomain.yaml` template.
+  # For example, hostnames will be created for `<SERVICE_ID>.localhost`.
+  #
+  # IMPORTANT: For production deployments, the `domain` field should be
+  # overridden with the actual domain name for the PATH service.
+  domain: localhost
+
+  # -- List of services that will be routed by Envoy Gateway to the PATH backend.
+  # These services will be used to construct HTTPRoutes for each service.
+  # These HTTPRoutes are used to assign the "target-service-id" header to the
+  # request based on the subdomain service alias.
+  #
+  # Configurations:
+  # - serviceId [REQUIRED]: The authorative service ID of the service.
+  # - aliases [OPTIONAL]: A list of aliases for the service.
+  #
+  # For example:
+  # - anvil.localhost -> "target-service-id: anvil"
+  # - F00C.path.grove.city -> "target-service-id: F00C"
+  # - eth.path.grove.city -> "target-service-id: F00C"
+  # - polygon.path.grove.city -> "target-service-id: F021"
+  services:
+    # Shannon Example Service ID (with no aliases)
+    # @ignored
+    - serviceId: anvil
+    # Morse Example Service IDs (with aliases)
+    # @ignored
+    - serviceId: F00C
+      aliases:
+        - eth
+        - eth-mainnet
+    # @ignored
+    - serviceId: F021
+      aliases:
+        - polygon
+        - polygon-mainnet
+
+  # GUARD may be configured to use one or more authorization flows.
+  # The following authorization flows are supported:
+  # - API Key
+  # - Grove Legacy (not shown in the below config)
+  # TODO_IMPROVE(@commoddity): Add support for additional authorization flows.
+  # For example, JWT, OIDC, Basic Auth, etc.
+  auth:
+    # -- enabled: Whether to enable API key authentication (default: true).
+    apiKey:
+      enabled: true
+      # -- headerKey: The header key to use for API key authentication.
+      headerKey: authorization
+      # -- apiKeys: A map of API keys authorized to access the PATH service.
+      # A default API key is provided below for testing purposes.
+      #
+      # IMPORTANT: For production deployments, the `apiKeys` field should be
+      # overridden with the actual API keys for the PATH service.
+      apiKeys:
+        # @ignored
+        test_client: test_api_key
+
 ####################################################################
 # ------------ TODO: Review below chart configuration ------------ #
 ####################################################################

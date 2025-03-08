@@ -9,9 +9,9 @@
 #   - Postgres databases
 #
 # Github Repo: https://github.com/buildwithgrove/path-auth-data-server
-{{- if .Values.guard.auth.groveLegacy.enabled }}
+{{- if .Values.auth.groveLegacy.enabled }}
 {{- $name := include "guard-helm.fullname" . }}
-{{- $padsConfig:= .Values.guard.auth.groveLegacy.pads }}
+{{- $padsConfig:= .Values.auth.groveLegacy.pads }}
 ---
 apiVersion: apps/v1
 kind: Deployment
