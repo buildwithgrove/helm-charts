@@ -231,8 +231,11 @@ guard:
   # - Grove Legacy (not shown in the below config)
   # TODO_IMPROVE(@commoddity): Add support for additional authorization flows.
   # For example, JWT, OIDC, Basic Auth, etc.
+
+  # -- The type of authorization flow to use. Currently supports `apiKey` and `groveLegacy`.
+  # `apiKey` is enabled by default.
   auth:
-    # @ignored
+    # -- Configuration for the API key authorization flow.
     apiKey:
       # -- Whether to enable API key authentication.
       enabled: true
@@ -240,10 +243,9 @@ guard:
       headerKey: authorization
       # -- A map of API keys authorized to access the PATH service.
       apiKeys:
+        # -- A default API key provided for local development.
         # IMPORTANT: For production deployments, the `apiKeys` field should be
         # overridden with the actual API keys for the PATH service.
-        # @ignored
-        # A default API key is provided for testing purposes.
         test_client: test_api_key
 
 ####################################################################
