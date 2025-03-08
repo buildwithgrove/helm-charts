@@ -28,7 +28,6 @@
 # all defaults set inside the PATH Helm Chart's `values.yaml` file.
 # See: https://github.com/buildwithgrove/helm-charts/issues/27
 
-
 # ---- GUARD Global settings ----
 fullnameOverride: guard
 global:
