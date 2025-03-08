@@ -16,3 +16,9 @@ auth:
     enabled: true
     headerKey: ""
     apiKeys: []
+  groveLegacy:
+    enabled: false
+    peas:
+      enabled: false
+    pads:
+      enabled: false

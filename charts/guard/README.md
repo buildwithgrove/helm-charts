@@ -17,6 +17,9 @@ A Helm chart for deploying GUARD (Gateway Utilities for Authentication, Routing 
 | auth.apiKey.apiKeys | list | `[]` |  |
 | auth.apiKey.enabled | bool | `true` |  |
 | auth.apiKey.headerKey | string | `""` |  |
+| auth.groveLegacy.enabled | bool | `false` |  |
+| auth.groveLegacy.pads.enabled | bool | `false` |  |
+| auth.groveLegacy.peas.enabled | bool | `false` |  |
 | domain | string | `""` |  |
 | fullnameOverride | string | `"guard"` |  |
 | gateway.enabled | bool | `true` |  |
