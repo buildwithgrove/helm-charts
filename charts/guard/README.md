@@ -24,19 +24,19 @@ A Helm chart for deploying GUARD (Gateway Utilities for Authentication, Routing 
 | authServer.port | int | `10001` |  |
 | authServer.replicas | int | `1` |  |
 | fullnameOverride | string | `"guard"` |  |
-| global.domain | string | `"path.grove.city"` |  |
-| global.namespace | string | `"path"` |  |
 | global.port | int | `3069` |  |
 | global.serviceName | string | `"path-http"` |  |
+| guard.domain | string | `"localhost"` |  |
 | guard.gateway.enabled | bool | `true` |  |
 | guard.gateway.port | int | `3070` |  |
-| guard.services[0].aliases[0] | string | `"eth"` |  |
-| guard.services[0].aliases[1] | string | `"eth-mainnet"` |  |
-| guard.services[0].serviceId | string | `"F00C"` |  |
-| guard.services[1].aliases[0] | string | `"polygon"` |  |
-| guard.services[1].aliases[1] | string | `"polygon-mainnet"` |  |
-| guard.services[1].serviceId | string | `"F021"` |  |
-| pads.configMap.".gateway-endpoints.yaml" | string | `"endpoints:\n  test_endpoint:\n    auth:\n      api_key: \"test_api_key\"\n"` |  |
+| guard.services[0].serviceId | string | `"anvil"` |  |
+| guard.services[1].aliases[0] | string | `"eth"` |  |
+| guard.services[1].aliases[1] | string | `"eth-mainnet"` |  |
+| guard.services[1].serviceId | string | `"F00C"` |  |
+| guard.services[2].aliases[0] | string | `"polygon"` |  |
+| guard.services[2].aliases[1] | string | `"polygon-mainnet"` |  |
+| guard.services[2].serviceId | string | `"F021"` |  |
+| pads.configMap.".gateway-endpoints.yaml" | string | `"endpoints:\n  test_endpoint_1_api_key:\n    auth:\n      api_key: \"test_api_key\"\n  test_endpoint_2_no_auth: {}\n"` |  |
 | pads.enabled | bool | `true` |  |
 | pads.env[0].name | string | `"PORT"` |  |
 | pads.env[0].value | string | `"10002"` |  |
