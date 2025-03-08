@@ -1,22 +1,24 @@
-# External Authorization Server Helm Chart
+# PATH External Authorization Server (PEAS) Helm Chart
+# Used as part of the Grove legacy authorization flow.
 #
 # An external authorization server designed to authorize requests to the PATH Gateway.
-# 
+#
 # Key characteristics:
 #   - Uses gRPC for communication
 #   - Adheres to the specification expected by the Envoy External Authorization HTTP Filter
 # Reference: https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter
 # Github Repo: https://github.com/buildwithgrove/path-external-auth-server
 #
-{{- if .Values.authServer.enabled }}
+{{- if .Values.guard.auth.groveLegacy.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
+{{- $peasConfig:= .Values.guard.auth.groveLegacy.peas }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{$name}}-auth-server
 spec:
-  replicas: {{ .Values.authServer.replicas }}
+  replicas: {{ $peasConfig.replicas }}
   selector:
     matchLabels:
       app: {{$name}}-auth-server
@@ -35,9 +37,9 @@ spec:
       - name: path-external-auth-server
         image: ghcr.io/buildwithgrove/path-external-auth-server:latest
         imagePullPolicy: IfNotPresent
-        env: {{- toYaml .Values.authServer.env | nindent 10 }}
+        env: {{- toYaml $peasConfig.env | nindent 10 }}
         ports:
-        - containerPort: {{ .Values.authServer.port }}
+        - containerPort: {{ $peasConfig.port }}
 ---
 apiVersion: v1
 kind: Service
@@ -47,8 +49,8 @@ spec:
   selector:
     app: {{$name}}-auth-server
   ports:
-  - port: {{ .Values.authServer.port }}
-    targetPort: {{ .Values.authServer.port }}
+  - port: {{ $peasConfig.port }}
+    targetPort: {{ $peasConfig.port }}
     protocol: TCP
     name: grpc
 

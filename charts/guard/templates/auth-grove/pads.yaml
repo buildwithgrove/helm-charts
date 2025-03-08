@@ -1,15 +1,17 @@
-# PADS (PATH Auth Data Server) Helm Chart
+# PATH Auth Data Server (PADS) Helm Chart
+# Used as part of the Grove legacy authorization flow.
 #
-# A gRPC server that provides Gateway Endpoint data from a configurable data source 
+# A gRPC server that provides Gateway Endpoint data from a configurable data source
 # to the Go External Authorization Server, enabling authorization for the PATH Gateway.
-# 
+#
 # Data sources can include:
 #   - YAML files
 #   - Postgres databases
 #
 # Github Repo: https://github.com/buildwithgrove/path-auth-data-server
-{{- if .Values.pads.enabled }}
+{{- if .Values.guard.auth.groveLegacy.enabled }}
 {{- $name := include "guard-helm.fullname" . }}
+{{- $padsConfig:= .Values.guard.auth.groveLegacy.pads }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -18,7 +20,7 @@ metadata:
   labels:
     {{- include "guard-helm.labels" $ | nindent 4 }}
 spec:
-  replicas: {{ .Values.pads.replicas }}
+  replicas: {{ $padsConfig.replicas }}
   selector:
     matchLabels:
       app: {{$name}}-pads
@@ -32,9 +34,9 @@ spec:
       - name: path-auth-data-server
         image: ghcr.io/buildwithgrove/path-auth-data-server:latest
         imagePullPolicy: IfNotPresent
-        env: {{- toYaml .Values.pads.env | nindent 10 }}
+        env: {{- toYaml $padsConfig.env | nindent 10 }}
         ports:
-        - containerPort: {{ .Values.pads.port }}
+        - containerPort: {{ $padsConfig.port }}
         volumeMounts:
           - name: pads-data-volume
             mountPath: /app/data
@@ -53,8 +55,8 @@ spec:
   selector:
     app: {{$name}}-pads
   ports:
-  - port: {{ .Values.pads.port }}
-    targetPort: {{ .Values.pads.port }}
+  - port: {{ $padsConfig.port }}
+    targetPort: {{ $padsConfig.port }}
     protocol: TCP
     name: grpc
 ---
@@ -62,6 +64,6 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: pads-data
-data: {{- toYaml .Values.pads.configMap | nindent 4 }}
+data: {{- toYaml $padsConfig.configMap | nindent 4 }}
 
 {{- end }}

@@ -8,7 +8,7 @@ A Helm chart for deploying PATH (PATH API & Toolkit Harness) in production or de
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://buildwithgrove.github.io/helm-charts/ | guard | 0.1.1 |
+| file://../guard | guard | 0.1.1 |
 
 ## Values
 
