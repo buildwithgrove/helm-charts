@@ -246,7 +246,6 @@ guard:
       # IMPORTANT: For production deployments, the `apiKeys` field should be
       # overridden with the actual API keys authorized to access the PATH service.
       apiKeys:
-        # @ignored
         - test_api_key
 
 ####################################################################
