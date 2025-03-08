@@ -1,4 +1,4 @@
-{{- if .Values.guard.gateway.enabled }}
+{{- if .Values.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
