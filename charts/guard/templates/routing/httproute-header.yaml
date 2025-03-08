@@ -64,22 +64,6 @@ spec:
       - name: target-service-id
         value: "{{ $service.serviceId }}"
 
----
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: SecurityPolicy
-metadata:
-  name: {{ $service.serviceId | lower }}-header-auth-policy
-spec:
-  targetRefs:
-    - group: gateway.networking.k8s.io
-      kind: HTTPRoute
-      # eg. F00C-header-route - matches the HTTPRoute resource created above
-      name: {{ $service.serviceId | lower }}-header-route
-  extAuth:
-    grpc:
-      backendRefs:
-        - name: {{$name}}-auth-server
-          port: 10001
 # If the service has aliases, create an HTTPRoute resource for each alias.
 {{- if $service.aliases }}
 {{- range $service.aliases }}
@@ -120,22 +104,6 @@ spec:
         - name: target-service-id
           value: "{{ . | lower }}"
 
----
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: SecurityPolicy
-metadata:
-  name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-auth-policy
-spec:
-  targetRefs:
-    - group: gateway.networking.k8s.io
-      kind: HTTPRoute
-      # eg. F00C-eth-alias-header-route - matches the HTTPRoute resource created above
-      name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-route
-  extAuth:
-    grpc:
-      backendRefs:
-        - name: {{$name}}-auth-server
-          port: 10001
 {{- end }}
 {{- end }}
 

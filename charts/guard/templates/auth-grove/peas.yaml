@@ -16,17 +16,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{$name}}-auth-server
+  name: {{$name}}-peas
 spec:
   replicas: {{ $peasConfig.replicas }}
   selector:
     matchLabels:
-      app: {{$name}}-auth-server
+      app: {{$name}}-peas
   template:
     metadata:
       labels:
         {{- include "guard-helm.labels" $ | nindent 8 }}
-        app: {{$name}}-auth-server
+        app: {{$name}}-peas
     spec:
       # Use an init container to wait for the PADS server to be ready.
       initContainers:
@@ -44,10 +44,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{$name}}-auth-server
+  name: {{$name}}-peas
 spec:
   selector:
-    app: {{$name}}-auth-server
+    app: {{$name}}-peas
   ports:
   - port: {{ $peasConfig.port }}
     targetPort: {{ $peasConfig.port }}
