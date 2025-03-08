@@ -26,10 +26,10 @@ A Helm chart for deploying PATH (PATH API & Toolkit Harness) in production or de
 | guard.auth | object | `{}` |  |
 | guard.domain | string | `"localhost"` | domain will be used for matching HTTPRoutes by subdomain, as defined in the `httproute-subdomain.yaml` template. For example, hostnames will be created for `<SERVICE_ID>.localhost`. |
 | guard.fullnameOverride | string | `"guard"` |  |
-| guard.gateway.enabled | bool | `true` | enabled: Whether to deploy the Envoy Gateway resource (should always be true) |
-| guard.gateway.port | int | `3070` | port: The port that Envoy Gateway will listen on. |
-| guard.global.port | int | `3069` | port is the port that the PATH service runs on in the cluster. This is the port that Envoy Gateway will forward requests to. |
-| guard.global.serviceName | string | `"path-http"` | serviceName is the name of the service that the PATH service is deployed to. |
+| guard.gateway.enabled | bool | `true` | Whether to deploy the Envoy Gateway resource (should always be true) |
+| guard.gateway.port | int | `3070` | The port that Envoy Gateway will listen on. |
+| guard.global.port | int | `3069` | The port that the PATH service runs on in the cluster. This is the port that Envoy Gateway will forward requests to. |
+| guard.global.serviceName | string | `"path-http"` | The name of the service that the PATH service is deployed to. |
 | guard.services | list | `[]` | List of services that will be routed by Envoy Gateway to the PATH backend. These services will be used to construct HTTPRoutes for each service. All services enabled for a PATH deployment must be listed here. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/buildwithgrove/path"` |  |

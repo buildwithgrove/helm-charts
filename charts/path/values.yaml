@@ -175,15 +175,15 @@ guard:
 
   fullnameOverride: guard
   global:
-    # -- serviceName is the name of the service that the PATH service is deployed to.
+    # -- The name of the service that the PATH service is deployed to.
     serviceName: path-http
-    # -- port is the port that the PATH service runs on in the cluster.
+    # -- The port that the PATH service runs on in the cluster.
     # This is the port that Envoy Gateway will forward requests to.
     port: 3069
   gateway:
-    # -- enabled: Whether to deploy the Envoy Gateway resource (should always be true)
+    # -- Whether to deploy the Envoy Gateway resource (should always be true)
     enabled: true
-    # -- port: The port that Envoy Gateway will listen on.
+    # -- The port that Envoy Gateway will listen on.
     port: 3070
 
   # ---- Service routing settings ----
@@ -234,11 +234,11 @@ guard:
   auth:
     # @ignored
     apiKey:
-      # -- enabled: Whether to enable API key authentication.
+      # -- Whether to enable API key authentication.
       enabled: true
-      # -- headerKey: The header key to use for API key authentication.
+      # -- The header key to use for API key authentication.
       headerKey: authorization
-      # -- apiKeys: A map of API keys authorized to access the PATH service.
+      # -- A map of API keys authorized to access the PATH service.
       apiKeys:
         # IMPORTANT: For production deployments, the `apiKeys` field should be
         # overridden with the actual API keys for the PATH service.
