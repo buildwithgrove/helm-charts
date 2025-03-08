@@ -1,6 +1,12 @@
 apiVersion: v2
 appVersion: 0.0.16
-description: A Helm chart for Kubernetes
+description: A Helm chart for PATH API and Tooling Harness
 name: path
 type: application
-version: 0.1.8
+version: 0.1.10
+dependencies:
+  - name: watch
+    version: 0.1.1
+    repository: https://buildwithgrove.github.io/helm-charts/
+    namespace: monitoring
+    condition: observability.enabled

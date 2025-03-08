@@ -1,7 +1,6 @@
 {{ $name := include "path.name" . }}
 {{- $volumeName := printf "%s-data" $name }}
 
-# TODO_UPNEXT(@HebertCL): replace with PATH staging deployment chart.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -88,21 +87,11 @@ spec:
               containerPort: {{ $prt.port }}
           {{- end }}
           volumeMounts:
-          {{- if $.Values.path.persistence }} {{ if $.Values.path.persistence.volumeClaimTemplates}} {{if $.Values.path.persistence.volumeClaimTemplates.volumeMountPath }}
-            - name: {{ $volumeName }}
-              mountPath: {{ $.Values.path.persistence.volumeClaimTemplates.volumeMountPath }}
-          {{- end }}{{end}}{{end}}
-          {{- range $cm := $.Values.path.mountConfigMaps }}
-            - name: {{$cm.name}}
-              mountPath: {{ $cm.mountPath }}
+          {{- if or $.Values.config.fromConfigMap.enabled $.Values.config.fromSecret.enabled }}
+            - name: path-config-volume
+              mountPath: /app/config/.config.yaml
+              subPath: .config.yaml
           {{- end }}
-
-          {{- range $sec := $.Values.path.mountSecrets }}{{/* # Volume mounts from mountSecrets */}}
-            - name: {{$sec.name}}
-              mountPath: {{ $sec.mountPath }}
-              subPath: {{ $sec.subPath }}
-          {{- end }}
-
           {{- with $.Values.path.lifecycle }}
           lifecycle: {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -116,26 +105,18 @@ spec:
           readinessProbe: {{- toYaml . | nindent 12 }}
           {{- end }}
       volumes:
-        {{- range $cm := $.Values.path.mountConfigMaps }}
-        - name: {{ $cm.name }}
+      {{- if $.Values.config.fromConfigMap.enabled }}
+        - name: path-config-volume
           configMap:
-            name: {{ $cm.name }}
-        {{- end }}
-        {{- range $sec := $.Values.path.mountSecrets }}{{/* # Volume mounts from mountSecrets */}}
-        - name: {{$sec.name}}
-          secret:
-            secretName: {{$sec.name}}
-            optional: false
-            defaultMode: {{$sec.defaultMode}}
-          {{- with $sec.items }}
+            name: {{ $.Values.config.fromConfigMap.name }}
             items:
-              {{- toYaml . | nindent 14 }}
-          {{- end }}
-        {{- end }}
-
-        {{- if $.Values.path.persistence }} {{ if $.Values.path.persistence.volumeClaimTemplates}} {{if $.Values.path.persistence.volumeClaimTemplates.volumeMountPath }}
-        - name: {{ $volumeName }}
-          persistentVolumeClaim:
-              claimName: {{ $volumeName }}
-        {{- end }}{{end}}{{end}}
-
+              - key: {{ $.Values.config.fromConfigMap.key | default ".config.yaml" }}
+                path: .config.yaml
+      {{- else if $.Values.config.fromSecret.enabled }}
+        - name: path-config-volume
+          secret:
+            secretName: {{ $.Values.config.fromSecret.name }}
+            items:
+              - key: {{ $.Values.config.fromSecret.key | default ".config.yaml" }}
+                path: .config.yaml
+      {{- end }}
