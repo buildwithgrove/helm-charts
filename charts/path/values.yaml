@@ -1,10 +1,13 @@
+##########################################################################
+# -------------------- PATH Specific Configurations -------------------- #
+##########################################################################
 nameOverride: path
 fullnameOverride: path
 global:
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   serviceAccount:
     create: true
-    name: path-sa
+    name: "path-sa"
   securityContext:
     fsGroup: 1001
     runAsUser: 1001
@@ -18,27 +21,25 @@ image:
 replicas: 1
 
 path:
-  ## HPA cannot be enabled if replicas are declared in the values file. Either use one or the other depending on your needs!
-  horizontalPodAutoscaler:
-    enabled: false
-  ## Path helm chart supports environment values both defined at chart or from sources like secrets
-  # envFrom: some-secret
-  # env:
-  #   - name: KEY1
-  #     value: VALUE1
-  #   - name: KEY2
-  #     value: VALUE2
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  resources: {}
-    # limits:
-    #   memory: 2G
-    #   cpu: 4
-    # requests:
-    #   cpu: 1.8
-    #   memory: 800Mi
+  # Only one of the following can be enabled at a time:
+  # - horizontalPodAutoscaler
+  # - replicas
+  # Either use one or the other depending on your needs!
+  # horizontalPodAutoscaler:
+  #   enabled: false
+  replicas: 1
+  # Default resources for PATH are provided here as a baseline for local development.
+  #
+  # IMPORTANT: For production deployments, it is recommended to set the resources to the
+  # appropriate values for the target environment using a `values.yaml` file.
+  # The default values provided here are LOW and are not recommended for production deployments.
+  resources:
+    limits:
+      memory: 2G
+      cpu: 4
+    requests:
+      cpu: 1.8
+      memory: 800Mi
   ## Port supports the creation of Kubernetes services resources which are tied to the ports
   ## exposed in this configuration.
   ports:
@@ -71,18 +72,26 @@ path:
   ## Container probes and lifecycle configurations
   # lifecycle: ""
   # startupProbe: {}
-  # livenessProbe:
-  #   failureThreshold: 6
-  #   httpGet:
-  #     path: /healthz
-  #     port: 3000
-  #     scheme: HTTP
-  # readinessProbe:
-  #   failureThreshold: 6
-  #   httpGet:
-  #     path: /healthz
-  #     port: 3000
-  #     scheme: HTTP
+
+  # The PATH service uses the `/healthz` endpoint to check if the service is ready,
+  # which uses the response from the QoS service to determine whether to send a
+  # 503 (Service Unavailable) or 200 (OK) status code.
+  #
+  # When using PATH with large numbers of services enabled, the QoS service
+  # may take a long time to return a healthy response. Therefore, it is expected
+  # that the readinessProbe may take a large number of attempts to succeed.
+  readinessProbe:
+    failureThreshold: 600 # Set to high value to account for the potential long response time of the QoS service.
+    httpGet:
+      path: /healthz
+      port: 3069
+      scheme: HTTP
+  livenessProbe:
+    failureThreshold: 600 # Set to high value to account for the potential long response time of the QoS service.
+    httpGet:
+      path: /healthz
+      port: 3069
+      scheme: HTTP
 
   ## Deployment specific configurations. Depending on the needs of your workload
   ## you can uncomment and setup the values below.
@@ -112,16 +121,19 @@ path:
   additionalAnnotations: {}
   # kubernetes.io/annotation: some-annotation
 
-## Path supports mounting volumes, secrets and configmaps.
-## Depending on the users' needs, any of the following can be used to mount Path's configuration
-## within the container. Below can be found the 3 available options to be used.
-# mountSecrets:
-#   - name: path-secret-mount
-#     mountPath: /app/.config.yaml
-#     subPath: .config.yaml
-#     items:
-#       - key: .config.yaml
-#         path: .config.yaml
+  ## Path supports mounting volumes, secrets and configmaps.
+  ## Depending on the users' needs, any of the following can be used to mount Path's configuration
+  ## within the container. Below can be found the 3 available options to be used.
+  #
+  # Whatever option you choose, the config fileby default must be mounted at `/app/config/.config.yaml`.
+  # This may optionally be overridden with the `--config` flag when starting the PATH service.
+  mountSecrets:
+    - name: path-config
+      mountPath: /app/config/.config.yaml
+      subPath: .config.yaml
+      items:
+        - key: .config.yaml
+          path: .config.yaml
 # mountConfigMaps:
 #   - name: path-config
 #     mountPath: /app/config
@@ -137,6 +149,10 @@ path:
 ## resources within the chart itself.
 additionalManifests: []
 additionalYamlManifests: ""
+
+####################################################################
+# ------------ TODO: Review below chart configuration ------------ #
+####################################################################
 ---
 # TODO_MVP(@HebertCL @adshmh): Review below chart configuration and decide they are needed
 # and where to place it within the chart with its respective description.

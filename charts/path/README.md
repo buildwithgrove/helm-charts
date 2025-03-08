@@ -2,7 +2,7 @@
 
 ![Version: 0.1.9](https://img.shields.io/badge/Version-0.1.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.16](https://img.shields.io/badge/AppVersion-0.0.16-informational?style=flat-square)
 
-A Helm chart for Kubernetes
+A Helm chart for deploying PATH (PATH API & Toolkit Harness) in production or development environments
 
 ## Requirements
 
@@ -17,7 +17,7 @@ A Helm chart for Kubernetes
 | additionalManifests | list | `[]` |  |
 | additionalYamlManifests | string | `""` |  |
 | fullnameOverride | string | `"path"` |  |
-| global.imagePullPolicy | string | `"Always"` |  |
+| global.imagePullPolicy | string | `"IfNotPresent"` |  |
 | global.securityContext.fsGroup | int | `1001` |  |
 | global.securityContext.runAsGroup | int | `1001` |  |
 | global.securityContext.runAsUser | int | `1001` |  |
@@ -29,7 +29,15 @@ A Helm chart for Kubernetes
 | nameOverride | string | `"path"` |  |
 | path.additionalAnnotations | object | `{}` |  |
 | path.additionalLabels | object | `{}` |  |
-| path.horizontalPodAutoscaler.enabled | bool | `false` |  |
+| path.livenessProbe.failureThreshold | int | `600` |  |
+| path.livenessProbe.httpGet.path | string | `"/healthz"` |  |
+| path.livenessProbe.httpGet.port | int | `3069` |  |
+| path.livenessProbe.httpGet.scheme | string | `"HTTP"` |  |
+| path.mountSecrets[0].items[0].key | string | `".config.yaml"` |  |
+| path.mountSecrets[0].items[0].path | string | `".config.yaml"` |  |
+| path.mountSecrets[0].mountPath | string | `"/app/config/.config.yaml"` |  |
+| path.mountSecrets[0].name | string | `"path-config"` |  |
+| path.mountSecrets[0].subPath | string | `".config.yaml"` |  |
 | path.ports[0].name | string | `"http"` |  |
 | path.ports[0].port | int | `3069` |  |
 | path.ports[0].protocol | string | `"TCP"` |  |
@@ -38,7 +46,15 @@ A Helm chart for Kubernetes
 | path.ports[1].port | int | `9090` |  |
 | path.ports[1].protocol | string | `"TCP"` |  |
 | path.ports[1].service.type | string | `"ClusterIP"` |  |
-| path.resources | object | `{}` |  |
+| path.readinessProbe.failureThreshold | int | `600` |  |
+| path.readinessProbe.httpGet.path | string | `"/healthz"` |  |
+| path.readinessProbe.httpGet.port | int | `3069` |  |
+| path.readinessProbe.httpGet.scheme | string | `"HTTP"` |  |
+| path.replicas | int | `1` |  |
+| path.resources.limits.cpu | int | `4` |  |
+| path.resources.limits.memory | string | `"2G"` |  |
+| path.resources.requests.cpu | float | `1.8` |  |
+| path.resources.requests.memory | string | `"800Mi"` |  |
 | replicas | int | `1` |  |
 
 ----------------------------------------------
