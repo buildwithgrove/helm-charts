@@ -241,12 +241,12 @@ guard:
       enabled: true
       # -- The header key to use for API key authentication.
       headerKey: authorization
-      # -- A map of API keys authorized to access the PATH service.
+      # -- An array of API keys authorized to access the PATH service.
+      # IMPORTANT: For production deployments, the `apiKeys` field should be
+      # overridden with the actual API keys authorized to access the PATH service.
       apiKeys:
         # -- A default API key provided for local development.
-        # IMPORTANT: For production deployments, the `apiKeys` field should be
-        # overridden with the actual API keys for the PATH service.
-        test_client: test_api_key
+        - test_api_key
 
 ####################################################################
 # ------------ TODO: Review below chart configuration ------------ #
