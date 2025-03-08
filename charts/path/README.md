@@ -23,10 +23,9 @@ A Helm chart for deploying PATH (PATH API & Toolkit Harness) in production or de
 | global.securityContext.runAsUser | int | `1001` |  |
 | global.serviceAccount.create | bool | `true` |  |
 | global.serviceAccount.name | string | `"path-sa"` |  |
-| guard.auth | object | `{"apiKey":{"apiKeys":["test_api_key"],"enabled":true,"headerKey":"authorization"}}` | The type of authorization flow to use. Currently supports `apiKey` and `groveLegacy`. `apiKey` is enabled by default. |
-| guard.auth.apiKey | object | `{"apiKeys":["test_api_key"],"enabled":true,"headerKey":"authorization"}` | Configuration for the API key authorization flow. |
-| guard.auth.apiKey.apiKeys | list | `["test_api_key"]` | An array of API keys authorized to access the PATH service. IMPORTANT: For production deployments, the `apiKeys` field should be overridden with the actual API keys authorized to access the PATH service. |
-| guard.auth.apiKey.apiKeys[0] | string | `"test_api_key"` | A default API key provided for local development. |
+| guard.auth | object | `{"apiKey":{"apiKeys":[],"enabled":true,"headerKey":"authorization"}}` | The type of authorization flow to use. Currently supports `apiKey` and `groveLegacy`. `apiKey` is enabled by default. |
+| guard.auth.apiKey | object | `{"apiKeys":[],"enabled":true,"headerKey":"authorization"}` | Configuration for the API key authorization flow. |
+| guard.auth.apiKey.apiKeys | list | `[]` | An array of API keys authorized to access the PATH service. A default API key is provided for local development. IMPORTANT: For production deployments, the `apiKeys` field should be overridden with the actual API keys authorized to access the PATH service. |
 | guard.auth.apiKey.enabled | bool | `true` | Whether to enable API key authentication. |
 | guard.auth.apiKey.headerKey | string | `"authorization"` | The header key to use for API key authentication. |
 | guard.domain | string | `"localhost"` | domain will be used for matching HTTPRoutes by subdomain, as defined in the `httproute-subdomain.yaml` template. For example, hostnames will be created for `<SERVICE_ID>.localhost`. |

@@ -242,10 +242,11 @@ guard:
       # -- The header key to use for API key authentication.
       headerKey: authorization
       # -- An array of API keys authorized to access the PATH service.
+      # A default API key is provided for local development.
       # IMPORTANT: For production deployments, the `apiKeys` field should be
       # overridden with the actual API keys authorized to access the PATH service.
       apiKeys:
-        # -- A default API key provided for local development.
+        # @ignored
         - test_api_key
 
 ####################################################################
