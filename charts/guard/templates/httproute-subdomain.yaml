@@ -1,6 +1,6 @@
 # HTTPRoute Generator for Services
 #
-# Generates an HTTPRoute resource for each service in the `services` list, configuring routing 
+# Generates an HTTPRoute resource for each service in the `services` list, configuring routing
 # based on subdomain patterns (service ID or aliases).
 #
 # Routing behavior:
@@ -32,20 +32,18 @@ kind: HTTPRoute
 metadata:
   # eg. F00C-subdomain-route
   name: {{ .serviceId | lower }}-subdomain-route
-  namespace: {{ $.Values.global.namespace }}
 
 spec:
   parentRefs:
   - kind: Gateway
     name: {{$gwname}}-envoy-gateway
-    namespace: {{ $.Values.global.namespace }}
 
   # Match requests based on their subdomain.
   hostnames:
-  - "{{ .serviceId | lower }}.{{ $.Values.global.domain }}"
+  - "{{ .serviceId | lower }}.{{ $.Values.guard.domain }}"
   {{- if .aliases }}
   {{- range .aliases }}
-  - "{{ . | lower }}.{{ $.Values.global.domain }}"
+  - "{{ . | lower }}.{{ $.Values.guard.domain }}"
   {{- end }}
   {{- end }}
 
@@ -53,7 +51,6 @@ spec:
   # Determine the backend service to route to.
   - backendRefs:
     - name: {{ $.Values.global.serviceName }}
-      namespace: {{ $.Values.global.namespace }}
       port: {{ $.Values.global.port }}
 
     filters:
@@ -77,7 +74,6 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: {{ .serviceId | lower }}-subdomain-auth-policy
-  namespace: {{ $.Values.global.namespace }}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io

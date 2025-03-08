@@ -23,7 +23,7 @@
 #   -H "target-service-id: F021" -> "target-service-id: F021"
 #   -H "target-service-id: polygon" -> "target-service-id: F021"
 #
-# In the case of a match based on an alias, the header 
+# In the case of a match based on an alias, the header
 # will be set to the authoritative service ID.
 #
 # For each service, multiple HTTPRoute resources are created:
@@ -44,19 +44,16 @@ kind: HTTPRoute
 metadata:
   # eg. F00C-header-route
   name: {{ $service.serviceId | lower }}-header-route
-  namespace: {{ $.Values.global.namespace }}
 
 spec:
   parentRefs:
   - kind: Gateway
     name: {{$gwname}}-envoy-gateway
-    namespace: {{ $.Values.global.namespace }}
 
   rules:
   # Determine the backend service to route to.
   - backendRefs:
     - name: {{ $.Values.global.serviceName }}
-      namespace: {{ $.Values.global.namespace }}
       port: {{ $.Values.global.port }}
 
     matches:
@@ -72,7 +69,6 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: {{ $service.serviceId | lower }}-header-auth-policy
-  namespace: {{ $.Values.global.namespace }}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
@@ -94,19 +90,16 @@ kind: HTTPRoute
 metadata:
   # eg. F00C-eth-alias-header-route
   name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-route
-  namespace: {{ $.Values.global.namespace }}
 
 spec:
   parentRefs:
   - kind: Gateway
     name: {{$gwname}}-envoy-gateway
-    namespace: {{ $.Values.global.namespace }}
 
   rules:
   # Determine the backend service to route to.
   - backendRefs:
     - name: {{ $.Values.global.serviceName }}
-      namespace: {{ $.Values.global.namespace }}
       port: {{ $.Values.global.port }}
 
     filters:
@@ -132,7 +125,6 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-auth-policy
-  namespace: {{ $.Values.global.namespace }}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io

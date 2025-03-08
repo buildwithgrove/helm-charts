@@ -15,7 +15,6 @@ spec:
   parentRefs:
   - kind: Gateway
     name: {{$gwname}}-envoy-gateway
-    namespace: {{ $.Values.global.namespace }}
   rules:
   - matches:
     - path:

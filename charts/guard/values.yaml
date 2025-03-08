@@ -3,6 +3,9 @@
 # These values will be used if the values are not overridden
 # by applying an additional `values.yaml` file when installing.
 
+# TODO_DOCUMENT(@commoddity): Embed the `gateway-helm` values.yaml fields
+# referenced below into the `guard` section of the Docusaurus docs.
+
 # ---- Envoy Gateway ----
 # This section can be used to configure gateway-helm dependency.
 # Uncomment `gateway-helm` below to specify a gateway-helm configuration.
@@ -21,20 +24,16 @@
 
 # TODO_MVP(@commoddity): Update GUARD to implement Issue #27, which
 # make GUARD's auth components configurable by `values.yaml`.
-# https://github.com/buildwithgrove/helm-charts/issues/27
+# This should update this file to provide only the field names, with
+# all defaults set inside the PATH Helm Chart's `values.yaml` file.
+# See: https://github.com/buildwithgrove/helm-charts/issues/27
 
 
 # ---- GUARD Global settings ----
 fullnameOverride: guard
 global:
-  # domain will be used for matching subdomains in the HTTPRoutes.
-  # For example, hostnames will be created for `<SERVICE_ID>.path.grove.city`.
-  domain: path.grove.city
-  # namespace is the namespace that both Envoy Gateway and the PATH service are deployed to.
-  namespace: path
   # serviceName is the name of the service that the PATH service is deployed to.
   serviceName: path-http
-
   # Port is the port that the PATH service runs on in the cluster.
   # This is the port that Envoy Gateway will forward requests to.
   port: 3069
@@ -48,6 +47,14 @@ guard:
 
   # ---- Service routing settings ----
 
+  # domain will be used for matching HTTPRoutes by subdomain,
+  # as defined in the `httproute-subdomain.yaml` template.
+  # For example, hostnames will be created for `<SERVICE_ID>.localhost`.
+  #
+  # IMPORTANT: For production deployments, the `domain` field should be
+  # overridden with the actual domain name for the PATH service.
+  domain: localhost
+
   # List of services that will be routed by Envoy Gateway to the PATH backend.
   # These services will be used to construct HTTPRoutes for each service.
   # These HTTPRoutes are used to assign the "target-service-id" header to the
@@ -58,6 +65,7 @@ guard:
   # - aliases [OPTIONAL]: A list of aliases for the service.
   #
   # For example:
+  # - anvil.localhost -> "target-service-id: anvil"
   # - F00C.path.grove.city -> "target-service-id: F00C"
   # - eth.path.grove.city -> "target-service-id: F00C"
   # - polygon.path.grove.city -> "target-service-id: F021"
@@ -66,6 +74,9 @@ guard:
   # should be overridden with the actual services that will be
   # routed to the PATH backend using a `values.yaml` file.
   services:
+    # Shannon Example Service ID (with no aliases)
+    - serviceId: anvil
+    # Morse Example Service IDs (with aliases)
     - serviceId: F00C
       aliases:
         - eth
@@ -94,6 +105,10 @@ authServer:
       value: "true"
 
 # ---- PATH Auth Data Server (PADS) configuration ----
+# TODO_MVP(@commoddity): Remove this once Helm Charts Issue #27 is implemented.
+# This will create a simplified default API key implementation for GUARD and remove
+# any dependency on the PADS or PEAS services.
+# See: https://github.com/buildwithgrove/helm-charts/issues/27
 pads:
   enabled: true
   replicas: 1
@@ -124,11 +139,14 @@ pads:
   # IMPORTANT: For a production deployment, if using a YAML file as the PADS data source,
   # the `pads.configMap` field should be overridden with the actual gateway endpoints configuration.
   configMap:
+    # These endpoints correspond to the test requests
+    # defined in PATH's `makefiles/test_requests.mk` file.
     .gateway-endpoints.yaml: |
       endpoints:
-        test_endpoint:
+        test_endpoint_1_api_key:
           auth:
             api_key: "test_api_key"
+        test_endpoint_2_no_auth: {}
 
   # -- 2. POSTGRES_CONNECTION_STRING --
   # IMPORTANT: To use a Postgres database as the PADS data source,
