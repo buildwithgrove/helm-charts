@@ -187,32 +187,32 @@ guard:
     port: 3070
 
   # ---- Service routing settings ----
+
   # -- domain will be used for matching HTTPRoutes by subdomain,
   # as defined in the `httproute-subdomain.yaml` template.
   # For example, hostnames will be created for `<SERVICE_ID>.localhost`.
-  #
+  domain: localhost
   # IMPORTANT: For production deployments, the `domain` field should be
   # overridden with the actual domain name for the PATH service.
-  domain: localhost
 
   # -- List of services that will be routed by Envoy Gateway to the PATH backend.
-  # These services will be used to construct HTTPRoutes for each service.
-  # These HTTPRoutes are used to assign the "target-service-id" header to the
-  # request based on the subdomain service alias.
-  #
-  # Configurations:
-  # - serviceId [REQUIRED]: The authorative service ID of the service.
-  # - aliases [OPTIONAL]: A list of aliases for the service.
-  #
-  # For example:
-  # - anvil.localhost -> "target-service-id: anvil"
-  # - F00C.path.grove.city -> "target-service-id: F00C"
-  # - eth.path.grove.city -> "target-service-id: F00C"
-  # - polygon.path.grove.city -> "target-service-id: F021"
+  # These services will be used to construct HTTPRoutes for each service. All
+  # services enabled for a PATH deployment must be listed here.
   services:
+    # Configurations:
+    # - serviceId [REQUIRED]: The authorative service ID of the service.
+    # - aliases [OPTIONAL]: A list of aliases for the service.
+    #
+    # For example:
+    # - anvil.localhost -> "target-service-id: anvil"
+    # - F00C.path.grove.city -> "target-service-id: F00C"
+    # - eth.path.grove.city -> "target-service-id: F00C"
+    # - polygon.path.grove.city -> "target-service-id: F021"
+
     # Shannon Example Service ID (with no aliases)
     # @ignored
     - serviceId: anvil
+
     # Morse Example Service IDs (with aliases)
     # @ignored
     - serviceId: F00C
@@ -232,18 +232,18 @@ guard:
   # TODO_IMPROVE(@commoddity): Add support for additional authorization flows.
   # For example, JWT, OIDC, Basic Auth, etc.
   auth:
-    # -- enabled: Whether to enable API key authentication (default: true).
+    # @ignored
     apiKey:
+      # -- enabled: Whether to enable API key authentication.
       enabled: true
       # -- headerKey: The header key to use for API key authentication.
       headerKey: authorization
       # -- apiKeys: A map of API keys authorized to access the PATH service.
-      # A default API key is provided below for testing purposes.
-      #
-      # IMPORTANT: For production deployments, the `apiKeys` field should be
-      # overridden with the actual API keys for the PATH service.
       apiKeys:
+        # IMPORTANT: For production deployments, the `apiKeys` field should be
+        # overridden with the actual API keys for the PATH service.
         # @ignored
+        # A default API key is provided for testing purposes.
         test_client: test_api_key
 
 ####################################################################
