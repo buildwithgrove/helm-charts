@@ -1,0 +1,55 @@
+# External Authorization Server Helm Chart
+#
+# An external authorization server designed to authorize requests to the PATH Gateway.
+# 
+# Key characteristics:
+#   - Uses gRPC for communication
+#   - Adheres to the specification expected by the Envoy External Authorization HTTP Filter
+# Reference: https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter
+# Github Repo: https://github.com/buildwithgrove/path-external-auth-server
+#
+{{- if .Values.authServer.enabled }}
+{{- $name:= include "guard-helm.fullname" . }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{$name}}-auth-server
+spec:
+  replicas: {{ .Values.authServer.replicas }}
+  selector:
+    matchLabels:
+      app: {{$name}}-auth-server
+  template:
+    metadata:
+      labels:
+        {{- include "guard-helm.labels" $ | nindent 8 }}
+        app: {{$name}}-auth-server
+    spec:
+      # Use an init container to wait for the PADS server to be ready.
+      initContainers:
+      - name: wait-for-pads
+        image: busybox
+        command: ['sh', '-c', 'until nc -z guard-pads 10002; do echo waiting for PADS; sleep 2; done']
+      containers:
+      - name: path-external-auth-server
+        image: ghcr.io/buildwithgrove/path-external-auth-server:latest
+        imagePullPolicy: IfNotPresent
+        env: {{- toYaml .Values.authServer.env | nindent 10 }}
+        ports:
+        - containerPort: {{ .Values.authServer.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$name}}-auth-server
+spec:
+  selector:
+    app: {{$name}}-auth-server
+  ports:
+  - port: {{ .Values.authServer.port }}
+    targetPort: {{ .Values.authServer.port }}
+    protocol: TCP
+    name: grpc
+
+{{- end }}
