@@ -127,6 +127,13 @@ guard:
     # -- The port that the PATH service runs on in the cluster.
     # This is the port that Envoy Gateway will forward requests to.
     port: 3069
+    # -- CONTROLLED TRAFFIC SHIFTING --
+    # -- The name of the service that the Middleware service is deployed to.
+    middlewareServiceName: middleware-http
+    # -- CONTROLLED TRAFFIC SHIFTING --
+    # -- The port that the Middleware service runs on in the cluster.
+    # This is the port that Envoy Gateway will forward requests to.
+    middlewarePort: 3000
   gateway:
     # -- Whether to deploy the Envoy Gateway resource (should always be true)
     enabled: true
@@ -166,11 +173,27 @@ guard:
       aliases:
         - eth
         - eth-mainnet
+      # -- CONTROLLED TRAFFIC SHIFTING --
+      # Provide configuration for splitting traffic between
+      # the PATH and Middleware backends.
+      trafficSplitting:
+        enabled: true
+        weights:
+          path: 50
+          middleware: 50
     # @ignored
     - serviceId: F021
       aliases:
         - polygon
         - polygon-mainnet
+      # -- CONTROLLED TRAFFIC SHIFTING --
+      # Provide configuration for splitting traffic between
+      # the PATH and Middleware backends.
+      trafficSplitting:
+        enabled: true
+        weights:
+          path: 50
+          middleware: 50
 
   # GUARD may be configured to use one or more authorization flows.
   # The following authorization flows are supported:
@@ -200,7 +223,7 @@ guard:
 ###########################################################################
 
 observability:
-  enabled: true  # Set to false to disable the WATCH chart
+  enabled: false  # Set to false to disable the WATCH chart
 
   # Configuration passed to the WATCH subchart
   watch:

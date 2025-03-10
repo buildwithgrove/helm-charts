@@ -8,8 +8,8 @@ A Helm chart for PATH (PATH API & Toolkit Harness)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://buildwithgrove.github.io/helm-charts/ | guard | 0.1.1 |
-| https://buildwithgrove.github.io/helm-charts/ | watch | 0.1.1 |
+| file://../guard | guard | 0.1.1 |
+| file://../watch | watch | 0.1.0 |
 
 ## Values
 
@@ -35,6 +35,8 @@ A Helm chart for PATH (PATH API & Toolkit Harness)
 | guard.fullnameOverride | string | `"guard"` |  |
 | guard.gateway.enabled | bool | `true` | Whether to deploy the Envoy Gateway resource (should always be true) |
 | guard.gateway.port | int | `3070` | The port that Envoy Gateway will listen on. |
+| guard.global.middlewarePort | int | `3000` | The port that the Middleware service runs on in the cluster. This is the port that Envoy Gateway will forward requests to. |
+| guard.global.middlewareServiceName | string | `"middleware-http"` | The name of the service that the Middleware service is deployed to. |
 | guard.global.port | int | `3069` | The port that the PATH service runs on in the cluster. This is the port that Envoy Gateway will forward requests to. |
 | guard.global.serviceName | string | `"path-http"` | The name of the service that the PATH service is deployed to. |
 | guard.services | list | `[]` | List of services that will be routed by Envoy Gateway to the PATH backend. These services will be used to construct HTTPRoutes for each service. All services enabled for a PATH deployment must be listed here. |
@@ -44,7 +46,7 @@ A Helm chart for PATH (PATH API & Toolkit Harness)
 | logs.format | string | `"plain"` |  |
 | logs.level | string | `"info"` |  |
 | nameOverride | string | `"path"` |  |
-| observability.enabled | bool | `true` |  |
+| observability.enabled | bool | `false` |  |
 | observability.watch.appServiceDetails.name | string | `"{{ .Release.Name }}-metrics"` |  |
 | observability.watch.appServiceDetails.namespace | string | `"{{ .Release.Namespace }}"` |  |
 | observability.watch.appServiceDetails.port | string | `"metrics"` |  |
