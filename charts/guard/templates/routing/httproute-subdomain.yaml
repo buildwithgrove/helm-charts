@@ -48,24 +48,36 @@ spec:
   {{- end }}
 
   rules:
-  # Determine the backend service to route to.
-  - backendRefs:
-    - name: {{ $.Values.global.serviceName }}
-      port: {{ $.Values.global.port }}
-
-    filters:
-    # Ensure the request header "target-service-id" is set to the authoritative service ID.
-    - type: RequestHeaderModifier
-      requestHeaderModifier:
-        set:
-        - name: "target-service-id"
-          value: "{{ .serviceId }}"
-
-    matches:
-    # Match any path prefix that starts with "/v1"
-    - path:
-        type: PathPrefix
-        value: /v1
+    # -- CONTROLLED TRAFFIC SHIFTING --
+    # Define a default dict for the traffic splitting configuration.
+    # This is to prevent nil pointer errors when the traffic splitting
+    # configuration is not set for a service.
+    {{- $ts := default dict .trafficSplitting }}
+    - backendRefs:
+        - name: {{ $.Values.global.serviceName }}
+          port: {{ $.Values.global.port }}
+          # -- CONTROLLED TRAFFIC SHIFTING --
+          # If traffic splitting is enabled, set the weight for the PATH backend.
+          {{- if eq $ts.enabled true }}
+          weight: {{ $ts.weights.path }}
+          {{- end }}
+        # -- CONTROLLED TRAFFIC SHIFTING --
+        # If traffic splitting is enabled, set a second backendRef for the Middleware backend.
+        {{- if eq $ts.enabled true }}
+        - name: {{ $.Values.global.middlewareServiceName }}
+          port: {{ $.Values.global.middlewarePort }}
+          weight: {{ $ts.weights.middleware }}
+        {{- end }}
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: "target-service-id"
+                value: "{{ .serviceId }}"
+      matches:
+        - path:
+            type: PathPrefix
+            value: /v1
 
 {{- end }}
 

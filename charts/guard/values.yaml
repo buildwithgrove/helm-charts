@@ -6,6 +6,8 @@ fullnameOverride: guard
 global:
   serviceName: path-http
   port: 3069
+  middlewareServiceName: middleware-http
+  middlewarePort: 3000
 gateway:
   enabled: true
   port: 3070
