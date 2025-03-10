@@ -15,6 +15,8 @@ A Helm chart for PATH (PATH API & Toolkit Harness)
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| additionalManifests | list | `[]` |  |
+| additionalYamlManifests | string | `""` |  |
 | config.fromConfigMap.enabled | bool | `false` |  |
 | config.fromSecret.enabled | bool | `false` |  |
 | fullnameOverride | string | `"path"` |  |
@@ -24,6 +26,18 @@ A Helm chart for PATH (PATH API & Toolkit Harness)
 | global.securityContext.runAsUser | int | `1001` |  |
 | global.serviceAccount.create | bool | `true` |  |
 | global.serviceAccount.name | string | `"path-sa"` |  |
+| guard.auth | object | `{"apiKey":{"apiKeys":["test_api_key"],"enabled":true,"headerKey":"authorization"}}` | The type of authorization flow to use. Currently supports `apiKey` and `groveLegacy`. `apiKey` is enabled by default. |
+| guard.auth.apiKey | object | `{"apiKeys":["test_api_key"],"enabled":true,"headerKey":"authorization"}` | Configuration for the API key authorization flow. |
+| guard.auth.apiKey.apiKeys | list | `["test_api_key"]` | An array of API keys authorized to access the PATH service. A default API key is provided for local development. IMPORTANT: For production deployments, the `apiKeys` field should be overridden with the actual API keys authorized to access the PATH service. |
+| guard.auth.apiKey.enabled | bool | `true` | Whether to enable API key authentication. |
+| guard.auth.apiKey.headerKey | string | `"authorization"` | The header key to use for API key authentication. |
+| guard.domain | string | `"localhost"` | domain will be used for matching HTTPRoutes by subdomain, as defined in the `httproute-subdomain.yaml` template. For example, hostnames will be created for `<SERVICE_ID>.localhost`. |
+| guard.fullnameOverride | string | `"guard"` |  |
+| guard.gateway.enabled | bool | `true` | Whether to deploy the Envoy Gateway resource (should always be true) |
+| guard.gateway.port | int | `3070` | The port that Envoy Gateway will listen on. |
+| guard.global.port | int | `3069` | The port that the PATH service runs on in the cluster. This is the port that Envoy Gateway will forward requests to. |
+| guard.global.serviceName | string | `"path-http"` | The name of the service that the PATH service is deployed to. |
+| guard.services | list | `[]` | List of services that will be routed by Envoy Gateway to the PATH backend. These services will be used to construct HTTPRoutes for each service. All services enabled for a PATH deployment must be listed here. |
 | image.pullPolicy | string | `"Always"` |  |
 | image.repository | string | `"ghcr.io/buildwithgrove/path"` |  |
 | image.tag | string | `"main"` |  |

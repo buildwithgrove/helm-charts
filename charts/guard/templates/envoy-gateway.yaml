@@ -1,4 +1,4 @@
-{{- if .Values.guard.gateway.enabled }}
+{{- if .Values.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
@@ -11,7 +11,7 @@ spec:
   listeners:
     - name: http
       protocol: HTTP
-      port: {{ $.Values.guard.gateway.port }}
+      port: {{ $.Values.gateway.port }}
       allowedRoutes:
         kinds:
         - kind: HTTPRoute
