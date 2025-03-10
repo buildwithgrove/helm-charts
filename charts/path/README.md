@@ -46,7 +46,7 @@ A Helm chart for PATH (PATH API & Toolkit Harness)
 | logs.format | string | `"plain"` |  |
 | logs.level | string | `"info"` |  |
 | nameOverride | string | `"path"` |  |
-| observability.enabled | bool | `false` |  |
+| observability.enabled | bool | `true` |  |
 | observability.watch.appServiceDetails.name | string | `"{{ .Release.Name }}-metrics"` |  |
 | observability.watch.appServiceDetails.namespace | string | `"{{ .Release.Namespace }}"` |  |
 | observability.watch.appServiceDetails.port | string | `"metrics"` |  |
