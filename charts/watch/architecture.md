@@ -1,14 +1,32 @@
-# WATCH Architecture
+# WATCH Architecture <!-- omit in toc -->
 
-WATCH is the observability component of the PATH ecosystem, designed to provide comprehensive monitoring, alerting, and visualization capabilities for both PATH and GUARD services.
+**WATCH** stands for Workload Analytics and Telemetry for Comprehensive Health.
+
+**WATCH** is the observability component of the PATH ecosystem, designed to provide
+comprehensive monitoring, alerting, and visualization capabilities for both **PATH** and **GUARD** services.
+
+- [Architecture Components](#architecture-components)
+  - [1. Prometheus Operator](#1-prometheus-operator)
+  - [2. Prometheus](#2-prometheus)
+  - [3. Grafana](#3-grafana)
+  - [4. AlertManager](#4-alertmanager)
+  - [5. Service Discovery \& Metrics Collection](#5-service-discovery--metrics-collection)
+- [Directory Structure](#directory-structure)
+- [Integration with PATH and GUARD](#integration-with-path-and-guard)
+- [Metrics Flow](#metrics-flow)
+- [Deployment Configurations](#deployment-configurations)
+  - [When to Use Each Configuration](#when-to-use-each-configuration)
+- [Dashboard Organization](#dashboard-organization)
+- [Security Architecture](#security-architecture)
+- [Scalability Considerations](#scalability-considerations)
 
 ## Architecture Components
 
-WATCH follows the modern observability pattern with the industry-standard kube-prometheus-stack:
+**WATCH** follows the modern observability pattern with the industry-standard [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack):
 
 ### 1. Prometheus Operator
 
-The core component of kube-prometheus-stack that manages Prometheus deployments using Kubernetes custom resources:
+The core component of [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) that manages Prometheus deployments using Kubernetes custom resources:
 
 - Manages Prometheus, AlertManager, and Grafana instances
 - Handles ServiceMonitor resources for service discovery
@@ -52,7 +70,7 @@ Handles alerts sent by Prometheus:
 
 The WATCH chart organizes dashboards by component:
 
-```
+```bash
 watch/
 ├── dashboards/                 # JSON dashboard files
 │   ├── path/                   # PATH-specific dashboard JSON
@@ -75,85 +93,76 @@ watch/
 
 ## Integration with PATH and GUARD
 
-```
-                 ┌─────────────────────────────────┐
-                 │       kube-prometheus-stack     │
-                 │   ┌────────────┐ ┌───────────┐  │
-                 │   │ Prometheus │ │  Grafana  │  │
-                 │   └─────┬──────┘ └─────┬─────┘  │
-                 └─────────┼──────────────┼─────────┘
-                           │              │
-                           ▼              ▼
-             ┌─────────────────────┬─────────────────────┐
-             │   ServiceMonitors   │     Dashboards      │
-             └──────────┬──────────┴──────────┬──────────┘
-                        │                     │
-                ┌───────┴────────┐    ┌───────┴────────┐
-                ▼                ▼    ▼                ▼
-         ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐
-         │    PATH     │  │    GUARD    │  │  Other Services │
-         │  Metrics    │  │   Metrics   │  │     Metrics     │
-         └─────────────┘  └─────────────┘  └─────────────────┘
-```
-
-WATCH completes the ecosystem by providing visibility into both PATH and GUARD components:
-
-```
-                 ┌─────────────────────────────────┐
-                 │          WATCH                  │
-                 │   (kube-prometheus-stack)       │
-                 │                                 │
-                 └─────┬─────────────────────┬─────┘
-                       │                     │
-                 monitors                monitors
-                       │                     │
-                       ▼                     ▼
-┌───────────┐     guards    ┌───────────┐
-│           │◀──────────────│           │
-│   PATH    │               │   GUARD   │
-│  (Service)│               │ (Security)│
-│           │               │           │
-└───────────┘               └───────────┘
-```
+Terminology:
 
 - **PATH** provides the core API and tooling capabilities
-- **GUARD** ensures secure access and protection of PATH
-- **WATCH** monitors the health and performance of both PATH and GUARD independently
+- **GUARD** acts as the security gateway for PATH, protecting it from unauthorized access
+- **WATCH** monitors the health and performance of both **PATH** and **GUARD** independently
 
-In this architecture:
-- GUARD acts as the security gateway for PATH, protecting it from unauthorized access
-- WATCH provides direct observability over both components, monitoring PATH and GUARD separately
-- Each component has its own distinct role in the platform ecosystem
+With **GUARD** and **PATH**, `kube-prometheus-stack` provides monitoring and observability for both components:
 
-Together, these components form a complete, secure, and observable service platform.
+```mermaid
+flowchart TD
+    subgraph KPS["kube-prometheus-stack"]
+        PROM["Prometheus"]
+        GRAF["Grafana"]
+    end
+
+    PROM --> SM["ServiceMonitors"]
+    GRAF --> DASH["Dashboards"]
+
+    SM --> PATH_M["PATH<br>Metrics"]
+    SM --> GUARD_M["GUARD<br>Metrics"]
+    SM --> OTHER_M["Other Services<br>Metrics"]
+
+    DASH --> PATH_M
+    DASH --> GUARD_M
+    DASH --> OTHER_M
+```
+
+**WATCH** completes the ecosystem by providing visibility into both PATH and GUARD components:
+
+```mermaid
+flowchart TD
+    WATCH["WATCH <br> (kube-prometheus-stack)"]
+    PATH["PATH <br> (Service)"]
+    GUARD["GUARD <br> (Security)"]
+
+    WATCH -->|monitors| PATH
+    WATCH -->|monitors| GUARD
+    GUARD -->|guards| PATH
+```
 
 ## Metrics Flow
 
-1. Both PATH and GUARD services expose Prometheus-compatible metrics endpoints independently
-2. WATCH's ServiceMonitors discover and scrape these endpoints directly based on label selectors
+1. Both **PATH** and **GUARD** services expose Prometheus-compatible metrics endpoints independently
+2. **WATCH**'s ServiceMonitors discover and scrape these endpoints directly based on label selectors
 3. Prometheus stores the collected metrics from both sources
 4. Grafana dashboards query Prometheus to visualize the data from both PATH and GUARD
 
-```
-┌─────────┐                  ┌──────────────────┐              ┌─────────┐
-│  PATH   │───┐              │                  │              │         │
-└─────────┘   │    scrape    │    Prometheus    │    query     │ Grafana │
-              ├─────────────▶│                  │◀─────────────┤         │
-┌─────────┐   │              │                  │              │         │
-│  GUARD  │───┘              └──────────────────┘              └─────────┘
-└─────────┘                          │
-                                     │ sends
-                                     ▼
-                            ┌──────────────────┐
-                            │   AlertManager   │
-                            │                  │
-                            └──────────────────┘
+```mermaid
+flowchart LR
+    PATH["PATH"]
+    GUARD["GUARD"]
+    PROM["Prometheus"]
+    GRAF["Grafana"]
+    ALERT["AlertManager"]
+
+    PATH -->|scrape| PROM
+    GUARD -->|scrape| PROM
+    PROM -->|query| GRAF
+    PROM -->|sends| ALERT
 ```
 
 ## Deployment Configurations
-# TODO_UPNEXT(@HebertCL): Adjust and document WATCH deployed as part of
-# an already existing monitoring solution & deploying separate components
-WATCH can be deployed in several configurations:
+
+:::warning TODO
+
+TODO_UPNEXT(@HebertCL): Adjust and document WATCH deployed as part of an already existing monitoring solution & deploying separate components
+
+:::
+
+**WATCH** can be deployed in several configurations:
 
 1. **Standalone** - Complete observability stack with kube-prometheus-stack
 2. **Integration** - Dashboards and configurations for existing monitoring infrastructure
@@ -179,7 +188,7 @@ This organization makes it easy to find the right dashboard for a specific monit
 
 ## Security Architecture
 
-WATCH incorporates security best practices:
+**WATCH** incorporates security best practices:
 
 1. **ServiceAccount**: Dedicated service account with minimal permissions
 2. **RBAC**: Role-based access control for metrics collection
