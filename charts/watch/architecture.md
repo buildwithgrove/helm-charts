@@ -151,7 +151,8 @@ Together, these components form a complete, secure, and observable service platf
 ```
 
 ## Deployment Configurations
-
+# TODO_UPNEXT(@HebertCL): Adjust and document WATCH deployed as part of
+# an already existing monitoring solution & deploying separate components
 WATCH can be deployed in several configurations:
 
 1. **Standalone** - Complete observability stack with kube-prometheus-stack
