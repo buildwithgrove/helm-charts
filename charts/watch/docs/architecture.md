@@ -159,6 +159,9 @@ WATCH can be deployed in several configurations:
 3. **Hybrid** - Mix and match components as needed for your environment
 
 ### When to Use Each Configuration
+<!---
+TODO_DOCUMENT(@adshmh): add guides on Integration and Hybrid modes below.
+-->
 
 - **Standalone**: Best for new deployments without existing monitoring
 - **Integration**: Use when you already have a monitoring stack but want PATH and GUARD dashboards

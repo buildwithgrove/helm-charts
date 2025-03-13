@@ -31,6 +31,9 @@ First, create your dashboard in Grafana and export it as JSON:
 
 1. Design and save your dashboard in Grafana
 2. Click the Share icon in the dashboard top menu
+
+![Adding a new Grafana dashboard](./img/grafana-add-custom-dashboard.png)
+
 3. Select the "Export" tab
 4. Choose "Save to file" (ensure "Export for sharing externally" is NOT checked)
 

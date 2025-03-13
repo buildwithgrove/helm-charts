@@ -4,6 +4,8 @@ global:
   labels:
     app: watch
 
+# TODO_DOCUMENT(@adshmh): Add helm-doc compatible comments to the minimum viable set of values required for running WATCH.
+#
 # kube-prometheus-stack configuration
 # Set enabled: false if you already have kube-prometheus-stack installed
 kube-prometheus-stack:
