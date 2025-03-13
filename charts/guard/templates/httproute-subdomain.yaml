@@ -3,6 +3,8 @@
 # Generates an HTTPRoute resource for each service in the `services` list, configuring routing
 # based on subdomain patterns (service ID or aliases).
 #
+# Ref: https://gateway.envoyproxy.io/latest/api/gateway_api/httproute/
+#
 # Routing behavior:
 #   - The `hostnames` field specifies which subdomains will match the request
 #   - All matched requests receive a "target-service-id: [SERVICE_ID]" header
@@ -15,9 +17,11 @@
 #       - eth-mainnet
 #
 # This configuration would match requests to:
-#   - F00C.path.grove.city
-#   - eth.path.grove.city
-#   - eth-mainnet.path.grove.city
+#   - https://<ALIAS OR SERVICE_ID>.path.grove.city/v1
+# For example:
+#   - https://F00C.path.grove.city/v1
+#   - https://eth.path.grove.city/v1
+#   - https://eth-mainnet.path.grove.city/v1
 #
 # All these requests would receive the header "target-service-id: F00C"
 {{- if and .Values.guard.services .Values.guard.gateway.enabled }}
