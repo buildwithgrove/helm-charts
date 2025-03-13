@@ -126,57 +126,23 @@ graph TD
     class PathMetrics,GuardMetrics,OtherMetrics metrics;
 ```
 
-WATCH completes the ecosystem by providing visibility into both PATH and GUARD components:
-
-```mermaid
-graph TD
-    WATCH["WATCH (kube-prometheus-stack)"]
-    PATH["PATH (Service)"]
-    GUARD["GUARD (Security)"]
-    
-    GUARD -->|guards| PATH
-    WATCH -->|monitors| PATH
-    WATCH -->|monitors| GUARD
-```
-
 Terminology:
 
 - **PATH** provides the core API and tooling capabilities
 - **GUARD** acts as the security gateway for PATH, protecting it from unauthorized access
 - **WATCH** monitors the health and performance of both **PATH** and **GUARD** independently
 
-With **GUARD** and **PATH**, `kube-prometheus-stack` provides monitoring and observability for both components:
+**WATCH** completes the ecosystem by providing visibility into both **PATH** and **GUARD** components:
 
 ```mermaid
-flowchart TD
-    subgraph KPS["kube-prometheus-stack"]
-        PROM["Prometheus"]
-        GRAF["Grafana"]
-    end
+graph TD
+    WATCH["WATCH (kube-prometheus-stack)"]
+    PATH["PATH (Service)"]
+    GUARD["GUARD (Security)"]
 
-    PROM --> SM["ServiceMonitors"]
-    GRAF --> DASH["Dashboards"]
-
-    SM --> PATH_M["PATH<br>Metrics"]
-    SM --> GUARD_M["GUARD<br>Metrics"]
-    SM --> OTHER_M["Other Services<br>Metrics"]
-
-    DASH --> PATH_M
-    DASH --> GUARD_M
-    DASH --> OTHER_M
-```
-
-**WATCH** completes the ecosystem by providing visibility into both PATH and GUARD components:
-
-```mermaid
-flowchart TD
-    WATCH["WATCH <br> (kube-prometheus-stack)"]
-    PATH["PATH <br> (Service)"]
-    GUARD["GUARD <br> (Security)"]
-
+    GUARD -->|guards| PATH
     WATCH -->|monitors| PATH
     WATCH -->|monitors| GUARD
-    GUARD -->|guards| PATH
 ```
 
 ## Metrics Flow
