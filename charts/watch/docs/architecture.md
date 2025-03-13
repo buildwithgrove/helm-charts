@@ -75,45 +75,50 @@ watch/
 
 ## Integration with PATH and GUARD
 
-```
-                 ┌─────────────────────────────────┐
-                 │       kube-prometheus-stack     │
-                 │   ┌────────────┐ ┌───────────┐  │
-                 │   │ Prometheus │ │  Grafana  │  │
-                 │   └─────┬──────┘ └─────┬─────┘  │
-                 └─────────┼──────────────┼─────────┘
-                           │              │
-                           ▼              ▼
-             ┌─────────────────────┬─────────────────────┐
-             │   ServiceMonitors   │     Dashboards      │
-             └──────────┬──────────┴──────────┬──────────┘
-                        │                     │
-                ┌───────┴────────┐    ┌───────┴────────┐
-                ▼                ▼    ▼                ▼
-         ┌─────────────┐  ┌─────────────┐  ┌─────────────────┐
-         │    PATH     │  │    GUARD    │  │  Other Services │
-         │  Metrics    │  │   Metrics   │  │     Metrics     │
-         └─────────────┘  └─────────────┘  └─────────────────┘
+```mermaid
+graph TD
+    subgraph kube-prometheus-stack
+    Prometheus["Prometheus"]
+    Grafana["Grafana"]
+    end
+    
+    ServiceMonitors["ServiceMonitors"]
+    Dashboards["Dashboards"]
+    
+    PathMetrics["PATH\nMetrics"]
+    GuardMetrics["GUARD\nMetrics"]
+    OtherMetrics["Other Services\nMetrics"]
+    
+    Prometheus --> ServiceMonitors
+    Grafana --> Dashboards
+    
+    ServiceMonitors --> PathMetrics
+    ServiceMonitors --> GuardMetrics
+    ServiceMonitors --> OtherMetrics
+    
+    Dashboards --> PathMetrics
+    Dashboards --> GuardMetrics
+    Dashboards --> OtherMetrics
+    
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef stack fill:#e1f5fe,stroke:#333,stroke-width:1px;
+    classDef metrics fill:#e8f5e9,stroke:#333,stroke-width:1px;
+    
+    class kube-prometheus-stack,Prometheus,Grafana stack;
+    class PathMetrics,GuardMetrics,OtherMetrics metrics;
 ```
 
 WATCH completes the ecosystem by providing visibility into both PATH and GUARD components:
 
-```
-                 ┌─────────────────────────────────┐
-                 │          WATCH                  │
-                 │   (kube-prometheus-stack)       │
-                 │                                 │
-                 └─────┬─────────────────────┬─────┘
-                       │                     │
-                 monitors                monitors
-                       │                     │
-                       ▼                     ▼
-┌───────────┐     guards    ┌───────────┐
-│           │◀──────────────│           │
-│   PATH    │               │   GUARD   │
-│  (Service)│               │ (Security)│
-│           │               │           │
-└───────────┘               └───────────┘
+```mermaid
+graph TD
+    WATCH["WATCH (kube-prometheus-stack)"]
+    PATH["PATH (Service)"]
+    GUARD["GUARD (Security)"]
+    
+    GUARD -->|guards| PATH
+    WATCH -->|monitors| PATH
+    WATCH -->|monitors| GUARD
 ```
 
 - **PATH** provides the core API and tooling capabilities
@@ -134,20 +139,34 @@ Together, these components form a complete, secure, and observable service platf
 3. Prometheus stores the collected metrics from both sources
 4. Grafana dashboards query Prometheus to visualize the data from both PATH and GUARD
 
-```
-┌─────────┐                  ┌──────────────────┐              ┌─────────┐
-│  PATH   │───┐              │                  │              │         │
-└─────────┘   │    scrape    │    Prometheus    │    query     │ Grafana │
-              ├─────────────▶│                  │◀─────────────┤         │
-┌─────────┐   │              │                  │              │         │
-│  GUARD  │───┘              └──────────────────┘              └─────────┘
-└─────────┘                          │
-                                     │ sends
-                                     ▼
-                            ┌──────────────────┐
-                            │   AlertManager   │
-                            │                  │
-                            └──────────────────┘
+```mermaid
+graph LR
+    PATH["PATH"]
+    GUARD["GUARD"]
+    Prometheus["Prometheus"]
+    Grafana["Grafana"]
+    AlertManager["AlertManager"]
+    
+    PATH --> |scrape| Prometheus
+    GUARD --> |scrape| Prometheus
+    Prometheus --> |sends| AlertManager
+    Prometheus --> |query| Grafana
+    
+    subgraph Input
+        PATH
+        GUARD
+    end
+    
+    subgraph Processing
+        Prometheus
+    end
+    
+    subgraph Output
+        AlertManager
+        Grafana
+    end
+    
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
 ```
 
 ## Deployment Configurations

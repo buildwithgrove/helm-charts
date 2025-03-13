@@ -13,23 +13,15 @@ WATCH directly monitors both PATH and GUARD, providing comprehensive visibility 
 
 Together, these components form a complete, secure, and observable service platform:
 
-```
-                 ┌───────────────────────┐
-                 │                       │
-                 │        WATCH          │
-                 │   (Observability)     │
-                 │                       │
-                 └─────┬─────────────┬───┘
-                       │             │
-                 monitors         monitors
-                       │             │
-                       ▼             ▼
-┌───────────┐     guards    ┌───────────┐
-│           │◀──────────────│           │
-│   PATH    │               │   GUARD   │
-│  (Service)│               │ (Security)│
-│           │               │           │
-└───────────┘               └───────────┘
+```mermaid
+graph TD
+    WATCH["WATCH (Observability)"]
+    PATH["PATH (Service)"]
+    GUARD["GUARD (Security)"]
+    
+    GUARD -->|guards| PATH
+    WATCH -->|monitors| PATH
+    WATCH -->|monitors| GUARD
 ```
 
 This chart deploys:
