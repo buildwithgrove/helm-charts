@@ -48,8 +48,8 @@ kube-prometheus-stack:
       GF_USERS_EDITORS_CAN_ADMIN: "false"
       GF_USERS_ALLOW_SIGN_UP: "false"
 
-    # Uncomment to create a viewer user
-    # extraInitContainers:
+    #-- Init container allows us to execute actions such as to create a viewer user
+    extraInitContainers: []
     #   - name: setup-viewer-user
     #     image: "curlimages/curl:7.73.0"
     #     command: ["/bin/sh", "-c"]
