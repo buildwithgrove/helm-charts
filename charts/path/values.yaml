@@ -66,17 +66,17 @@ path:
 ## PATH requires a config file at /app/config/.config.yaml
 ## Choose one of the following options to provide this configuration:
 config:
-  # Option 1: Use an existing Secret (recommended for security)
-  fromSecret:
-    enabled: false
-    # name: "path-config-secret"       # Name of the existing Secret
-    # key: ".config.yaml"              # Key in the Secret containing the configuration
+  #-- fromSecret configuration is recommended for production deployments 
+#-- fromSecret:
+#--  name: "path-config-secret"       # Name of the existing Secret
+#--  key: ".config.yaml"              # Key in the Secret containing the configuration
+  fromSecret: {}
 
-  # Option 2: Use an existing ConfigMap
-  fromConfigMap:
-    enabled: false
-    # name: "path-config"              # Name of the existing ConfigMap
-    # key: ".config.yaml"              # Key in the ConfigMap containing the configuration
+#-- fromConfigMap uses an already existing config map to pass the configuration
+#-- fromConfigMap:
+#--  name: "path-config-secret"       # Name of the existing ConfigMap
+#--  key: ".config.yaml"              # Key in the Secret containing the configuration
+  fromConfigMap: {}
 
 # Integrated Observability Stack (WATCH)
 observability:
