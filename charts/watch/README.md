@@ -78,6 +78,7 @@ For a detailed architecture overview, see the [Architecture Documentation](./arc
 
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grove https://buildwithgrove.github.io/helm-charts
 helm repo update
 ```
 
@@ -85,10 +86,10 @@ helm repo update
 
 ```bash
 # For standalone installation
-helm install watch ./watch -n monitoring
+helm install watch grove/watch -n monitoring
 
 # As part of PATH chart (recommended)
-helm install path ./path --set observability.enabled=true
+helm install path grove/path --set observability.enabled=true
 ```
 
 ### Accessing Grafana
@@ -221,7 +222,7 @@ See `values.yaml` for detailed configuration options. Key parameters include:
 Deploy complete observability with kube-prometheus-stack:
 
 ```bash
-helm install watch ./watch
+helm install watch grove/watch
 ```
 
 ### 2. Dashboards with Existing Infrastructure
@@ -229,7 +230,7 @@ helm install watch ./watch
 Use **WATCH** dashboards with your existing monitoring:
 
 ```bash
-helm install watch ./watch \
+helm install watch grove/watch \
   --set kube-prometheus-stack.enabled=false \
   --set externalMonitoring.grafanaNamespace=monitoring
 ```
