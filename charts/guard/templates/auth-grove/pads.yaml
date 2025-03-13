@@ -38,10 +38,10 @@ spec:
         ports:
         - containerPort: {{ $padsConfig.port }}
         volumeMounts:
-          - name: pads-data-volume
-            mountPath: /app/data
+          - name: {{$name}}-data
+            mountPath: {{ .Values.pads.mountPath }}
       volumes:
-      - name: pads-data-volume
+      - name: {{$name}}-data
         configMap:
           name: pads-data
 ---

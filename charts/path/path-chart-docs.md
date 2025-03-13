@@ -1,21 +1,49 @@
-# PATH Helm Chart
+# PATH Helm Chart <!-- omit in toc -->
 
-![Version: 0.1.9](https://img.shields.io/badge/Version-0.1.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.16](https://img.shields.io/badge/AppVersion-0.0.16-informational?style=flat-square)
+A canonical Helm chart for deploying PATH (PATH API and Tooling Harness) service with integrated observability.
 
-A Helm chart for deploying the PATH API and Tooling Harness service with integrated observability.
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+  - [Installation Prerequisites](#installation-prerequisites)
+  - [Configuration Prerequisites](#configuration-prerequisites)
+  - [Create Namespaces](#create-namespaces)
+- [Configuration Requirements](#configuration-requirements)
+- [Deployment Options](#deployment-options)
+  - [Option 1: Using the Helper Script (Recommended for Configuration)](#option-1-using-the-helper-script-recommended-for-configuration)
+  - [Option 2: Manual Installation](#option-2-manual-installation)
+- [Accessing PATH](#accessing-path)
+- [Accessing Grafana Dashboards](#accessing-grafana-dashboards)
+  - [1. Forward the Grafana port](#1-forward-the-grafana-port)
+  - [2. Access Grafana in your browser](#2-access-grafana-in-your-browser)
+  - [3. Log in with default credentials](#3-log-in-with-default-credentials)
+  - [4. Navigate to PATH dashboards](#4-navigate-to-path-dashboards)
+- [Configuration Values](#configuration-values)
+- [Observability Integration](#observability-integration)
+- [Troubleshooting](#troubleshooting)
+  - [Configuration Issues](#configuration-issues)
+  - [PATH Application Issues](#path-application-issues)
+  - [Observability Issues](#observability-issues)
 
 ## Overview
 
-PATH (PATH API and Tooling Harness) is deployed with WATCH (Workload Analytics and Telemetry for Comprehensive Health) for comprehensive monitoring, alerting, and visualization capabilities.
+**PATH** (PATH API and Tooling Harness) is deployed with **WATCH** (Workload Analytics and Telemetry for Comprehensive Health)
+for comprehensive monitoring, alerting, and visualization capabilities.
 
-## Installation Prerequisites
+## Prerequisites
 
-- Kubernetes 1.16+
-- Helm 3.1+
-- Namespace for PATH application (e.g., `app`)
-- Namespace for monitoring components (e.g., `monitoring`)
+### Installation Prerequisites
+
+1. [Kubernetes](https://kubernetes.io/releases/download/) 1.16+
+2. [Helm](https://helm.sh/docs/helm/helm_install/) 3.1+
+
+### Configuration Prerequisites
+
+1. Namespace for **PATH** application (e.g., `app`)
+2. Namespace for **WATCH** components (e.g., `monitoring`)
 
 ### Create Namespaces
+
+Using `app` and `monitoring` namespaces as an examples:
 
 ```bash
 kubectl create namespace app
@@ -29,30 +57,46 @@ PATH requires a configuration file to be mounted at `/app/config/.config.yaml` i
 1. **Using a ConfigMap**: Mount the configuration from a Kubernetes ConfigMap
 2. **Using a Secret**: Mount the configuration from a Kubernetes Secret (for sensitive configuration data)
 
-## Installation Options
+## Deployment Options
 
-You have multiple options for deploying PATH:
+You have multiple options for deploying **PATH**:
 
 ### Option 1: Using the Helper Script (Recommended for Configuration)
 
 The provided `install-path.sh` script simplifies the process by:
+
 1. Creating a Kubernetes ConfigMap or Secret from a local configuration file
 2. Deploying the PATH Helm chart configured to use that resource
 
+Make the script executable
+
 ```bash
-# Make the script executable
 chmod +x install-path.sh
+```
 
-# Create a Secret from your local config file and deploy PATH (default)
+Create a Secret from your local config file and deploy PATH (default):
+
+```bash
 ./install-path.sh --config /path/to/your/.config.yaml --namespace app
+```
 
-# Or use a ConfigMap instead
+Or use a ConfigMap instead:
+
+```bash
 ./install-path.sh --config /path/to/your/.config.yaml --namespace app --configmap
 ```
 
-#### Script Options
+#### Script Options <!-- omit in toc -->
 
+You can view the script options with:
+
+```bash
+./install-path.sh -h
 ```
+
+Which will display:
+
+```bash
 Required:
   -c, --config FILE            Path to local .config.yaml file
 
@@ -68,46 +112,65 @@ Options:
 
 If you prefer to have more control over the installation process, you can manually create the ConfigMap or Secret and then deploy the chart.
 
-#### Step 1: Create the ConfigMap or Secret
+#### Step 1: Create the ConfigMap or Secret <!-- omit in toc -->
+
+Create a ConfigMap from your configuration file:
 
 ```bash
-# Create a ConfigMap
 kubectl create configmap path-config --from-file=.config.yaml=/path/to/your/.config.yaml -n app
+```
 
-# Or create a Secret (for sensitive data)
+For sensitive configuration data, use a Secret instead:
+
+```bash
 kubectl create secret generic path-config-secret --from-file=.config.yaml=/path/to/your/.config.yaml -n app
 ```
 
-#### Step 2: Deploy PATH using Helm
+#### Step 2: Deploy PATH using Helm <!-- omit in toc -->
 
-```bash
-# Standard installation with integrated observability
-helm install path ./path --namespace app
+There are multiple ways to deploy PATH using Helm, depending on your configuration source.
 
-# Using a ConfigMap for configuration
-helm install path ./path \
-  --namespace app \
-  --set config.fromConfigMap.enabled=true \
-  --set config.fromConfigMap.name=path-config
+1. Standard installation with integrated observability:
 
-# Or using a Secret for configuration
-helm install path ./path \
-  --namespace app \
-  --set config.fromSecret.enabled=true \
-  --set config.fromSecret.name=path-config-secret
+   ```bash
+   helm install path ./path --namespace app
+   ```
 
-# Install without observability
-helm install path ./path --namespace app --set observability.enabled=false
+2. Using a ConfigMap for configuration:
 
-# Install with existing Prometheus stack
-helm install path ./path --namespace app \
-  --set observability.watch.kube-prometheus-stack.enabled=false \
-  --set observability.watch.externalMonitoring.grafanaNamespace=monitoring
-```
+   ```bash
+   helm install path ./path \
+     --namespace app \
+     --set config.fromConfigMap.enabled=true \
+     --set config.fromConfigMap.name=path-config
+   ```
+
+3. Using a Secret for configuration:
+
+   ```bash
+   helm install path ./path \
+     --namespace app \
+     --set config.fromSecret.enabled=true \
+     --set config.fromSecret.name=path-config-secret
+   ```
+
+4. Install without observability
+
+   ```bash
+   helm install path ./path --namespace app --set observability.enabled=false
+   ```
+
+5. Install with existing Prometheus stack
+
+   ```bash
+   helm install path ./path --namespace app \
+   --set observability.watch.kube-prometheus-stack.enabled=false \
+   --set observability.watch.externalMonitoring.grafanaNamespace=monitoring
+   ```
 
 ## Accessing PATH
 
-To access the PATH API, forward the HTTP port:
+To access the PATH, forward the HTTP port `3069`:
 
 ```bash
 kubectl port-forward svc/path-http 3069:3069 -n app
@@ -117,7 +180,7 @@ The API will be available at `http://localhost:3069`
 
 ## Accessing Grafana Dashboards
 
-When PATH is installed with observability enabled, you can access the Grafana dashboards to monitor your application:
+When PATH is installed with observability enabled, you can access the Grafana dashboards to monitor your application.
 
 ### 1. Forward the Grafana port
 
@@ -127,12 +190,12 @@ kubectl port-forward svc/watch-grafana 3000:80 -n monitoring
 
 ### 2. Access Grafana in your browser
 
-Navigate to http://localhost:3000
+Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### 3. Log in with default credentials
 
-- **Username**: admin
-- **Password**: check values.yaml (default is "change-me-in-production")
+- **Username**: `admin`
+- **Password**: check values.yaml (default is `change-me-in-production`)
 
 If you didn't set a custom password, retrieve it with:
 
@@ -150,27 +213,27 @@ For more detailed instructions on accessing and troubleshooting Grafana, see the
 
 ## Configuration Values
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `replicas` | int | `1` | Number of PATH replicas |
-| `image.repository` | string | `ghcr.io/buildwithgrove/path` | PATH Docker image repository |
-| `image.tag` | string | `main` | PATH Docker image tag |
-| `image.pullPolicy` | string | `IfNotPresent` | Image pull policy |
-| `observability.enabled` | bool | `true` | Enable WATCH observability |
-| `config.fromConfigMap.enabled` | bool | `false` | Use ConfigMap for configuration |
-| `config.fromConfigMap.name` | string | `path-config` | Name of the ConfigMap |
-| `config.fromSecret.enabled` | bool | `false` | Use Secret for configuration |
-| `config.fromSecret.name` | string | `path-config-secret` | Name of the Secret |
-| `additionalManifests` | list | `[]` | Additional Kubernetes manifests |
-| `additionalYamlManifests` | string | `""` | Additional YAML manifests |
-| `path.resources` | object | `{}` | Resource limits and requests |
-| `path.horizontalPodAutoscaler.enabled` | bool | `false` | Enable HPA |
-| `path.additionalLabels` | object | `{}` | Additional labels |
-| `path.additionalAnnotations` | object | `{}` | Additional annotations |
+| Key                                    | Type   | Default                       | Description                     |
+| -------------------------------------- | ------ | ----------------------------- | ------------------------------- |
+| `replicas`                             | int    | `1`                           | Number of PATH replicas         |
+| `image.repository`                     | string | `ghcr.io/buildwithgrove/path` | PATH Docker image repository    |
+| `image.tag`                            | string | `main`                        | PATH Docker image tag           |
+| `image.pullPolicy`                     | string | `IfNotPresent`                | Image pull policy               |
+| `observability.enabled`                | bool   | `true`                        | Enable WATCH observability      |
+| `config.fromConfigMap.enabled`         | bool   | `false`                       | Use ConfigMap for configuration |
+| `config.fromConfigMap.name`            | string | `path-config`                 | Name of the ConfigMap           |
+| `config.fromSecret.enabled`            | bool   | `false`                       | Use Secret for configuration    |
+| `config.fromSecret.name`               | string | `path-config-secret`          | Name of the Secret              |
+| `additionalManifests`                  | list   | `[]`                          | Additional Kubernetes manifests |
+| `additionalYamlManifests`              | string | `""`                          | Additional YAML manifests       |
+| `path.resources`                       | object | `{}`                          | Resource limits and requests    |
+| `path.horizontalPodAutoscaler.enabled` | bool   | `false`                       | Enable HPA                      |
+| `path.additionalLabels`                | object | `{}`                          | Additional labels               |
+| `path.additionalAnnotations`           | object | `{}`                          | Additional annotations          |
 
 ## Observability Integration
 
-PATH integrates with WATCH for observability, featuring:
+**PATH** integrates with WATCH for observability, featuring:
 
 - Prometheus for metrics collection
 - Grafana for dashboards and visualization
@@ -186,24 +249,28 @@ For more details on the observability integration, see the [PATH-WATCH Integrati
 If PATH fails to start or doesn't behave as expected:
 
 1. Verify your ConfigMap or Secret exists and contains the correct configuration:
+
    ```bash
    kubectl get configmap path-config -n app
    kubectl describe configmap path-config -n app
    ```
 
 2. Check the PATH logs for any configuration-related errors:
+
    ```bash
    kubectl logs deployment/path -n app
    ```
 
 3. Verify the configuration is properly mounted:
+
    ```bash
    kubectl exec -it deployment/path -n app -- cat /app/config/.config.yaml
    ```
 
 ### PATH Application Issues
 
-Check PATH pod status:
+Check **PATH** pod status:
+
 ```bash
 kubectl get pods -n app
 kubectl describe pod <pod-name> -n app
@@ -215,30 +282,20 @@ kubectl logs <pod-name> -n app
 If metrics aren't showing up in Grafana:
 
 1. Check if ServiceMonitor exists:
+
    ```bash
    kubectl get servicemonitor -n monitoring | grep path
    ```
 
-2. Verify PATH metrics are accessible:
+2. Verify PATH metrics are accessible by forwarding the metrics port and curling the metrics endpoint:
+
    ```bash
-   # Forward the metrics port
    kubectl port-forward svc/path-metrics 9090:9090 -n app
-   # In another terminal, check metrics
    curl localhost:9090/metrics
    ```
 
-3. Check if Prometheus is scraping metrics:
+3. Check if Prometheus is scraping metrics by forwarding the Prometheus port and visiting [localhost:9090/targets](http://localhost:9090/targets) in your browser:
+
    ```bash
-   # Forward Prometheus port
    kubectl port-forward svc/watch-prometheus-server 9090:9090 -n monitoring
-   # Access http://localhost:9090/targets in your browser
    ```
-
-## Further Documentation
-
-- [PATH-WATCH Integration Guide](path-watch-integration.md)
-- [Accessing Grafana Dashboards](accessing-grafana.md)
-- [Namespace Considerations](namespace-considerations.md)
-
-----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
