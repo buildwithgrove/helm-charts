@@ -107,7 +107,7 @@ helm install path ./path --namespace app \
 
 ## Accessing PATH
 
-To access the PATH API, forward the HTTP port:
+To access PATH, forward the HTTP port:
 
 ```bash
 kubectl port-forward svc/path-http 3069:3069 -n app
@@ -143,7 +143,7 @@ kubectl get secret watch-grafana -n monitoring -o jsonpath="{.data.admin-passwor
 ### 4. Navigate to PATH dashboards
 
 - Click on Dashboards in the left sidebar
-- Select the "PATH API" folder
+- Select the "PATH" folder
 - Choose a dashboard to view metrics for your PATH application
 
 For more detailed instructions on accessing and troubleshooting Grafana, see the [Accessing Grafana Dashboards](accessing-grafana.md) guide.

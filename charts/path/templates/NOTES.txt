@@ -2,7 +2,7 @@ Thank you for installing {{ .Chart.Name }}.
 
 Your release is named {{ .Release.Name }}.
 
-PATH API server has been deployed with the following configuration approach:
+PATH server has been deployed with the following configuration approach:
 {{- if .Values.config.fromConfigMap.enabled }}
 - Configuration loaded from existing ConfigMap: {{ .Values.config.fromConfigMap.name }}
   Using key: {{ .Values.config.fromConfigMap.key | default ".config.yaml" }}
@@ -19,7 +19,7 @@ Configuration is mounted at /app/config/.config.yaml in the PATH container.
 To check the status of your deployment:
   kubectl get deployments -n {{ .Release.Namespace }}
 
-To access the PATH API service:
+To access the PATH service:
   kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "path.fullname" . }}-http 3069:3069
   
-This will make the PATH API accessible at http://localhost:3069
+This will make PATH accessible at http://localhost:3069

@@ -5,7 +5,7 @@ This guide provides detailed instructions for accessing the Grafana dashboards d
 ## Understanding the Deployment Architecture
 
 When PATH is installed with observability enabled:
-- PATH API service is deployed in your application namespace (e.g., `app`)
+- PATH is deployed in your application namespace (e.g., `app`)
 - Monitoring components (Prometheus, Grafana) are deployed in the `monitoring` namespace
 - ServiceMonitors in `monitoring` discover and scrape metrics from PATH in the `app` namespace
 
@@ -71,11 +71,11 @@ After logging in to Grafana:
 
 1. Click on "Dashboards" in the left sidebar (four-squares icon)
 2. Select "Browse" to see all folders
-3. Click on the "PATH API" folder
+3. Click on the "PATH" folder
 4. Select one of the available dashboards:
-   - **PATH API Overview**: General metrics and health
-   - **PATH API Errors**: Error rates and details
-   - **PATH API Performance**: Detailed performance metrics
+   - **PATH Overview**: General metrics and health
+   - **PATH Errors**: Error rates and details
+   - **PATH Performance**: Detailed performance metrics
 
 ## Available PATH Metrics
 
@@ -99,7 +99,7 @@ You can create customized dashboards for PATH:
    sum(rate(http_requests_total{job="path-api"}[5m])) by (path)
    ```
 
-5. Save your dashboard to the "PATH API" folder
+5. Save your dashboard to the "PATH" folder
 
 ## Troubleshooting
 

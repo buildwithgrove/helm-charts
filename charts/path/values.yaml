@@ -94,7 +94,7 @@ observability:
       namespace: monitoring
       path:
         enabled: true
-        folderName: "PATH API"
+        folderName: "PATH"
       guard:
         enabled: false  # Only enable GUARD dashboards if using GUARD
     # ServiceMonitor configuration

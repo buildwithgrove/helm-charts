@@ -41,7 +41,7 @@ helm install path ./path --namespace app
 ```
 
 This will deploy:
-- PATH API service in the app namespace
+- PATH service in the app namespace
 - WATCH with kube-prometheus-stack in the monitoring namespace
 - ServiceMonitor for PATH metrics in the monitoring namespace
 - Dashboards for PATH in the monitoring namespace
@@ -126,7 +126,7 @@ metadata:
   labels:
     grafana_dashboard: "1"
   annotations:
-    grafana_folder: "PATH API"
+    grafana_folder: "PATH"
 data:
   my-dashboard.json: |
     {
