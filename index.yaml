@@ -152,4 +152,21 @@ entries:
     urls:
     - https://github.com/buildwithgrove/helm-charts/releases/download/universal-helm-0.1.0/universal-helm-0.1.0.tgz
     version: 0.1.0
-generated: "2025-03-07T21:03:53.768495709Z"
+  watch:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-03-13T22:31:13.847073677Z"
+    dependencies:
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 69.6.0
+    description: Workload Analytics and Telemetry for Comprehensive Health (WATCH)
+      - Observability stack for PATH and GUARD
+    digest: 064ff9c61dbc5f67eaacabc9bc53887b2dfabe47da3fc044c0db7ce7fbe9b5da
+    name: watch
+    type: application
+    urls:
+    - https://github.com/buildwithgrove/helm-charts/releases/download/watch-0.1.0/watch-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-03-13T22:31:13.847095017Z"
