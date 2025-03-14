@@ -1,9 +1,15 @@
-name: Release Charts
+      - name: Add Helm repos
+        run: |
+          # Add commonly used Helm repositories
+          helm repo add stable https://charts.helm.sh/stable
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo updatename: Release Charts
 on:
   push:
     branches:
       - main
-      - fix-chart-releaser
     paths:
       - 'charts/**'
 
@@ -55,6 +61,9 @@ jobs:
         if: steps.filter.outputs.guard == 'true'
         run: |
           echo "Releasing guard chart..."
+          # Build dependencies first
+          helm dependency build charts/guard
+          # Then package the chart
           helm package charts/guard -d .cr-release-packages/
           cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
           sleep 5
@@ -72,6 +81,9 @@ jobs:
         if: steps.filter.outputs.watch == 'true'
         run: |
           echo "Releasing watch chart..."
+          # Build dependencies first
+          helm dependency build charts/watch
+          # Then package the chart
           helm package charts/watch -d .cr-release-packages/
           cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
           sleep 5
@@ -89,6 +101,9 @@ jobs:
         if: steps.filter.outputs.path == 'true'
         run: |
           echo "Releasing path chart..."
+          # Build dependencies first
+          helm dependency build charts/path
+          # Then package the chart
           helm package charts/path -d .cr-release-packages/
           cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
           sleep 5
