@@ -1,6 +1,9 @@
-# TODO_TECHDEBT(@adshmh,@commoddity,@HebertCL): The pre-commit is disabled for now,
-# in favour of manually regenerating the docs. In the future, we should determine 
-# an approach that works for us and re-enable the pre-commit.
+# TODO_TECHDEBT(@adshmh,@commoddity,@HebertCL): This pre-commit is disabled for now.
+# It will be deprecated in favor of:
+# - A make target that replaces it
+# - Manual triggering of the make target in the beginning
+# - Eventual (not soon) automation of triggering the make target at the right time
+# Ref: https://github.com/buildwithgrove/helm-charts/pull/25#discussion_r1994367363
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
