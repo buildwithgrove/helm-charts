@@ -1,6 +1,6 @@
 apiVersion: v2
 appVersion: 0.0.16
-description: A Helm chart for PATH API and Tooling Harness
+description: A Helm chart for PATH (PATH API & Toolkit Harness)
 name: path
 type: application
 version: 0.1.10
