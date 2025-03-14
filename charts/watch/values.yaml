@@ -83,12 +83,12 @@ dashboards:
   # PATH Dashboard Configuration
   path:
     enabled: true
-    folderName: "PATH API"
+    folderName: "PATH"
     
   # GUARD Dashboard Configuration
   guard:
     enabled: true
-    folderName: "GUARD API"
+    folderName: "GUARD"
   
   # Custom Dashboards - can be provided through values
   custom:

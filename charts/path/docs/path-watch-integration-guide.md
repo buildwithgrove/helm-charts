@@ -135,7 +135,7 @@ metadata:
   labels:
     grafana_dashboard: "1"
   annotations:
-    grafana_folder: "PATH API"
+    grafana_folder: "PATH"
 data:
   my-dashboard.json: |
     {

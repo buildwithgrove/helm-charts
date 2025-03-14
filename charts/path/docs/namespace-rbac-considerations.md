@@ -1,12 +1,12 @@
-# Namespace Considerations for PATH and WATCH Integration <!-- omit in toc -->
+# Namespace and Access Control Considerations for PATH and WATCH Integration <!-- omit in toc -->
 
-This document provides important information about the namespace configuration when deploying **PATH** with **WATCH** observability.
+This document provides important information about the namespace configuration and access control when deploying **PATH** with **WATCH** observability.
 
 - [Separation of Application and Monitoring](#separation-of-application-and-monitoring)
 - [Cross-Namespace Service Discovery](#cross-namespace-service-discovery)
 - [Example Deployment](#example-deployment)
 - [Common Issues](#common-issues)
-- [RBAC Configuration](#rbac-configuration)
+- [Access Control (RBAC) Configuration](#access-control-rbac-configuration)
 
 ## Separation of Application and Monitoring
 
@@ -61,9 +61,11 @@ This will:
    - Verify there are no NetworkPolicies blocking access between namespaces
    - Check that services are accessible across namespace boundaries
 
-## RBAC Configuration
+## Access Control (RBAC) Configuration
 
-If you're using strict RBAC policies, you may need to create a specific role for Prometheus to scrape metrics from other namespaces:
+**What is RBAC?** Role-Based Access Control (RBAC) in Kubernetes is a security mechanism that regulates which users or services can perform specific actions on resources. For monitoring across namespaces, proper RBAC configuration is essential to allow the monitoring tools to access metrics from applications in different namespaces. For more detailed information, refer to the [official Kubernetes RBAC documentation](https://kubernetes.io/docs/reference/access-authn-authz/rbac/).
+
+If you're using strict RBAC policies, you need to create a specific role for Prometheus to scrape metrics from other namespaces:
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -88,3 +90,8 @@ subjects:
     name: prometheus-k8s
     namespace: monitoring
 ```
+
+This RBAC configuration:
+1. Creates a **ClusterRole** defining what resources can be accessed (services, endpoints, and pods) and what actions can be performed on them (get, list, watch)
+2. Creates a **ClusterRoleBinding** that gives these permissions to the Prometheus service account in the monitoring namespace
+3. Enables Prometheus to discover and scrape metrics from applications in any namespace, including the `app` namespace where PATH is deployed

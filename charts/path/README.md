@@ -172,6 +172,8 @@ There are multiple ways to deploy PATH using Helm, depending on your configurati
 
 ## Accessing PATH
 
+:::info
+
 To access the PATH, forward the HTTP port `3069`:
 
 ```bash
@@ -179,6 +181,13 @@ kubectl port-forward svc/path-http 3069:3069 -n app
 ```
 
 The API will be available at `http://localhost:3069`
+
+:::tip Use the following command to verify PATH is serving requests:
+
+```bash
+curl http://localhost:3069/healthz
+{"status":"ready","imageTag":"development","readyStates":{"pokt-morse":true}}
+```
 
 ## Accessing Grafana Dashboards
 
@@ -208,8 +217,13 @@ kubectl get secret watch-grafana -n monitoring -o jsonpath="{.data.admin-passwor
 ### 4. Navigate to PATH dashboards
 
 - Click on Dashboards in the left sidebar
-- Select the "PATH API" folder
+- Select the "PATH" folder
+
+![Grafana dashboards list](./docs/img/grafana-dashboards-list.png)
+
 - Choose a dashboard to view metrics for your PATH application
+
+![Grafana PATH dashboards list](./docs/img/grafana-path-dashboards.png)
 
 For more detailed instructions on accessing and troubleshooting Grafana, see the [Accessing Grafana Dashboards](accessing-grafana.md) guide.
 

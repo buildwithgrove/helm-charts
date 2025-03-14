@@ -78,6 +78,8 @@ path:
 ## PATH requires a config file at /app/config/.config.yaml
 ## Choose one of the following options to provide this configuration:
 config:
+  ## TODO_FUTURE(@HebertCL): consider dropping the enabled field and using fromSecret/fromConfig fields if defined.
+  #
   # Option 1: Use an existing Secret (recommended for security)
   fromSecret:
     enabled: false
@@ -106,7 +108,7 @@ observability:
       namespace: monitoring
       path:
         enabled: true
-        folderName: "PATH API"
+        folderName: "PATH"
       guard:
         enabled: false  # Only enable GUARD dashboards if using GUARD
     # ServiceMonitor configuration
