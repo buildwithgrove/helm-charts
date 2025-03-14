@@ -128,8 +128,6 @@ guard:
     # This is the port that Envoy Gateway will forward requests to.
     port: 3069
   gateway:
-    # -- Whether to deploy the Envoy Gateway resource (should always be true)
-    enabled: true
     # -- The port that Envoy Gateway will listen on.
     port: 3070
 
