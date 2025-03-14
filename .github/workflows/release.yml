@@ -1,28 +1,116 @@
 name: Release Charts
-
 on:
   push:
     branches:
       - main
+    paths:
+      - 'charts/**'
 
 jobs:
-  release:
+  release-charts:
+    runs-on: ubuntu-latest
     permissions:
       contents: write
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+      
       - name: Configure Git
         run: |
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.6.0
+      
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+      
+      - name: Add Helm repos
+        run: |
+          # Add commonly used Helm repositories
+          helm repo add stable https://charts.helm.sh/stable
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo update
+      
+      - name: Install chart-releaser
+        run: |
+          mkdir -p .cr-release-packages
+          curl -sSLo cr.tar.gz "https://github.com/helm/chart-releaser/releases/download/v1.6.0/chart-releaser_1.6.0_linux_amd64.tar.gz"
+          tar -xzf cr.tar.gz
+          chmod +x cr
+          sudo mv cr /usr/local/bin/cr
+      
+      - name: Check for chart changes
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            guard:
+              - 'charts/guard/**'
+            watch:
+              - 'charts/watch/**'
+            path:
+              - 'charts/path/**'
+      
+      - name: Debug chart changes
+        run: |
+          echo "Guard changed: ${{ steps.filter.outputs.guard }}"
+          echo "Watch changed: ${{ steps.filter.outputs.watch }}"
+          echo "Path changed: ${{ steps.filter.outputs.path }}"
+      
+      # Release guard chart (if changed)
+      - name: Release guard chart
+        if: steps.filter.outputs.guard == 'true'
+        run: |
+          echo "Releasing guard chart..."
+          # Build dependencies first
+          helm dependency build charts/guard
+          # Then package the chart
+          helm package charts/guard -d .cr-release-packages/
+          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
+          sleep 5
+          cr index -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -c https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ -i index.yaml
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
+      
+      # Wait a bit to ensure guard release completes
+      - name: Wait for guard release to complete
+        if: steps.filter.outputs.guard == 'true'
+        run: sleep 10
+      
+      # Release watch chart (if changed)
+      - name: Release watch chart
+        if: steps.filter.outputs.watch == 'true'
+        run: |
+          echo "Releasing watch chart..."
+          # Build dependencies first
+          helm dependency build charts/watch
+          # Then package the chart
+          helm package charts/watch -d .cr-release-packages/
+          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
+          sleep 5
+          cr index -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -c https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ -i index.yaml
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      
+      # Wait a bit to ensure watch release completes
+      - name: Wait for watch release to complete
+        if: steps.filter.outputs.watch == 'true'
+        run: sleep 10
+      
+      # Release path chart (if changed)
+      - name: Release path chart
+        if: steps.filter.outputs.path == 'true'
+        run: |
+          echo "Releasing path chart..."
+          # Build dependencies first
+          helm dependency build charts/path
+          # Then package the chart
+          helm package charts/path -d .cr-release-packages/
+          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
+          sleep 5
+          cr index -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -c https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ -i index.yaml
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
