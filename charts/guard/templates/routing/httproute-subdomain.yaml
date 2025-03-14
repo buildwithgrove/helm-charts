@@ -24,11 +24,10 @@
 #   - https://eth-mainnet.path.grove.city/v1
 #
 # All these requests would receive the header "target-service-id: F00C"
-{{- if and .Values.guard.services .Values.guard.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 {{- $name:= include "guard-helm.fullname" . }}
 
-{{- range .Values.guard.services }}
+{{- range .Values.services }}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -44,10 +43,10 @@ spec:
 
   # Match requests based on their subdomain.
   hostnames:
-  - "{{ .serviceId | lower }}.{{ $.Values.guard.domain }}"
+  - "{{ .serviceId | lower }}.{{ $.Values.domain }}"
   {{- if .aliases }}
   {{- range .aliases }}
-  - "{{ . | lower }}.{{ $.Values.guard.domain }}"
+  - "{{ . | lower }}.{{ $.Values.domain }}"
   {{- end }}
   {{- end }}
 
@@ -70,26 +69,5 @@ spec:
     - path:
         type: PathPrefix
         value: /v1
-
-# TODO_MVP(@commoddity): Modify this config to use TLS for
-# the connection to the external authorization server.
----
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: SecurityPolicy
-metadata:
-  name: {{ .serviceId | lower }}-subdomain-auth-policy
-spec:
-  targetRefs:
-    - group: gateway.networking.k8s.io
-      kind: HTTPRoute
-      # eg. F00C-subdomain-route - matches the HTTPRoute resource created above
-      name: {{ .serviceId | lower }}-subdomain-route
-  extAuth:
-    grpc:
-      backendRefs:
-        - name: {{$name}}-auth-server
-          port: 10001
-
-{{- end }}
 
 {{- end }}

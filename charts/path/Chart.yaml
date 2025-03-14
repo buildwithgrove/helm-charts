@@ -9,7 +9,7 @@ dependencies:
     version: 0.1.1
     repository: https://buildwithgrove.github.io/helm-charts/
   - name: watch
-    version: 0.1.0
+    version: 0.1.1
     repository: https://buildwithgrove.github.io/helm-charts/
     namespace: monitoring
     condition: observability.enabled

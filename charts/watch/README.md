@@ -195,7 +195,7 @@ kube-prometheus-stack:
 
 ## Configuration
 
-See `values.yaml` for detailed configuration options. Key parameters include:
+See [values.yaml](https://github.com/buildwithgrove/helm-charts/blob/main/charts/watch/values.yaml) for detailed configuration options. Key parameters include:
 
 | Parameter                                     | Description                                  | Default                   |
 | --------------------------------------------- | -------------------------------------------- | ------------------------- |

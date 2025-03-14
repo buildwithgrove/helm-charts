@@ -3,7 +3,6 @@
 # Generates an HTTPRoute resource for the healthz endpoint.
 #
 # Ref: https://gateway.envoyproxy.io/latest/api/gateway_api/httproute/
-{{- if .Values.guard.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -25,5 +24,3 @@ spec:
         - path:
             type: Exact
             value: /healthz
-
-{{- end }}
