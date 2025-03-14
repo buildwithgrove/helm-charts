@@ -1,0 +1,146 @@
+# The global settings for the GUARD Helm chart.
+#
+# These values will be used if the values are not overridden
+# by applying an additional `values.yaml` file when installing.
+
+# ---- Envoy Gateway ----
+# This section can be used to configure gateway-helm dependency.
+# Uncomment `gateway-helm` below to specify a gateway-helm configuration.
+# Any values from the below `gateway-helm` reference will override the default values.
+#
+# References:
+# - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
+# - https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
+# gateway-helm:
+#   # For example, the default log level may be overridden to `warn` as follows:
+#   config:
+#     envoyGateway:
+#       logging:
+#         level:
+#           default: warn
+
+# TODO_MVP(@commoddity): Update GUARD to implement Issue #27, which
+# make GUARD's auth components configurable by `values.yaml`.
+# https://github.com/buildwithgrove/helm-charts/issues/27
+
+
+# ---- GUARD Global settings ----
+fullnameOverride: guard
+global:
+  # domain will be used for matching subdomains in the HTTPRoutes.
+  # For example, hostnames will be created for `<SERVICE_ID>.path.grove.city`.
+  domain: path.grove.city
+  # namespace is the namespace that both Envoy Gateway and the PATH service are deployed to.
+  namespace: path
+  # serviceName is the name of the service that the PATH service is deployed to.
+  serviceName: path-http
+
+  # Port is the port that the PATH service runs on in the cluster.
+  # This is the port that Envoy Gateway will forward requests to.
+  port: 3069
+
+# ---- GUARD configuration ----
+guard:
+  # Deploy K8s Gateway resource.
+  gateway:
+    enabled: true
+    port: 3070
+
+  # ---- Service routing settings ----
+
+  # List of services that will be routed by Envoy Gateway to the PATH backend.
+  # These services will be used to construct HTTPRoutes for each service.
+  # These HTTPRoutes are used to assign the "target-service-id" header to the
+  # request based on the subdomain service alias.
+  #
+  # Configurations:
+  # - serviceId [REQUIRED]: The authorative service ID of the service.
+  # - aliases [OPTIONAL]: A list of aliases for the service.
+  #
+  # For example:
+  # - F00C.path.grove.city -> "target-service-id: F00C"
+  # - eth.path.grove.city -> "target-service-id: F00C"
+  # - polygon.path.grove.city -> "target-service-id: F021"
+  #
+  # IMPORTANT: For production deployments, the `services` field
+  # should be overridden with the actual services that will be
+  # routed to the PATH backend using a `values.yaml` file.
+  services:
+    - serviceId: F00C
+      aliases:
+        - eth
+        - eth-mainnet
+    - serviceId: F021
+      aliases:
+        - polygon
+        - polygon-mainnet
+
+# ---- PATH External Auth Server (PEAS) configuration ----
+authServer:
+  enabled: true
+  replicas: 1
+  port: 10001
+  env:
+    - name: PORT
+      value: "10001"
+    # GRPC_HOST_PORT=guard-pads:10002 is the value to point to the default
+    # PADS server in the cluster created by the GUARD Helm Chart.
+    - name: GRPC_HOST_PORT
+      value: guard-pads:10002
+    # GRPC_USE_INSECURE_CREDENTIALS=true is required to run PEAS in the
+    # cluster created by the GUARD Helm Chart, as PADS does not have TLS
+    # enabled by default.
+    - name: GRPC_USE_INSECURE_CREDENTIALS
+      value: "true"
+
+# ---- PATH Auth Data Server (PADS) configuration ----
+pads:
+  enabled: true
+  replicas: 1
+  port: 10002
+  # IMPORTANT: Exactly one of the following sections below must be set:
+  # - 1. YAML_FILEPATH
+  # - 2. POSTGRES_CONNECTION_STRING
+  # An error will be thrown if neither or both are set.
+
+  # -- 1. YAML_FILEPATH --
+  # IMPORTANT: To use a Postgres database as the PADS data source, comment out
+  # the below section and use the POSTGRES_CONNECTION_STRING section instead.
+  #
+  # If the YAML_FILEPATH environment variable is set,
+  # PADS will use the file at the specified path as the data source.
+
+  env:
+  - name: PORT
+    value: "10002"
+  # The local path to the .yaml file containing the Gateway Endpoints.
+  - name: YAML_FILEPATH
+    value: "/app/data/.gateway-endpoints.yaml"
+  # Gateway endpoints define the allowed endpoints for a PATH instance.
+  # For a detailed breakdown of the possible format of this file, see:
+  # - See gateway endpoints YAML at https://path.grove.city/develop/envoy/envoy_config
+  # - See endpoint authorization at https://path.grove.city/develop/envoy/walkthrough
+  #
+  # IMPORTANT: For a production deployment, if using a YAML file as the PADS data source,
+  # the `pads.configMap` field should be overridden with the actual gateway endpoints configuration.
+  configMap:
+    .gateway-endpoints.yaml: |
+      endpoints:
+        test_endpoint:
+          auth:
+            api_key: "test_api_key"
+
+  # -- 2. POSTGRES_CONNECTION_STRING --
+  # IMPORTANT: To use a Postgres database as the PADS data source,
+  # uncomment the env variable below and set the value to the connection string.
+  #
+  # If the POSTGRES_CONNECTION_STRING environment variable is set,
+  # PADS will use the specified connection string to connect to a Postgres database as the data source.
+  # For more details, see the documentation for the PADS Postgres data source:
+  # https://path.grove.city/develop/pads/postgres
+  # env:
+  # - name: PORT
+  #   value: "10002"
+  # # The connection string for the Postgres database.
+  # - name: POSTGRES_CONNECTION_STRING
+  #   value: "postgres://user:password@host:port/database" # Replace with your Postgres connection string

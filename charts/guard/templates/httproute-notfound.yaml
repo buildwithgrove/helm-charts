@@ -1,0 +1,43 @@
+# HTTPRoute - Catch-all 404 Handler
+#
+# Returns a 404 Not Found error with a JSON body for any requests that don't match other routes.
+#
+# Use cases:
+#   - Requests to services not configured in the `values.yaml` file's `services` array
+#   - Requests to services not configured in any `*-values.yaml` file applied to the GUARD service
+{{- if .Values.guard.gateway.enabled }}
+{{- $gwname:= default "guard" $.Values.fullnameOverride }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: resource-not-found-route
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: {{$gwname}}-envoy-gateway
+    namespace: {{ $.Values.global.namespace }}
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: "/"
+    filters:
+    - type: ExtensionRef
+      extensionRef:
+        group: gateway.envoyproxy.io
+        kind: HTTPRouteFilter
+        name: resource-not-found-filter
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: HTTPRouteFilter
+metadata:
+  name: resource-not-found-filter
+spec:
+  directResponse:
+    contentType: application/json
+    statusCode: 404
+    body:
+      type: Inline
+      inline: '{"error": "Resource not found"}'
+
+{{- end }}

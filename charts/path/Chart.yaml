@@ -4,6 +4,9 @@ description: A Helm chart for PATH API and Tooling Harness
 name: path
 type: application
 version: 0.1.10
+# TODO_MVP(@commoddity,@adshmh): Update PATH to implement Issue #26, which
+# makes GUARD & WATCH dependencies of this PATH helm chart.
+# https://github.com/buildwithgrove/helm-charts/issues/26
 dependencies:
   - name: watch
     version: 0.1.1

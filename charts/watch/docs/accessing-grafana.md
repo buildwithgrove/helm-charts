@@ -25,6 +25,10 @@ The Grafana service is deployed with the name `watch-grafana` in the monitoring 
 kubectl get svc -n monitoring | grep grafana
 ```
 
+<!---
+TODO_MVP(@adshmh): add helper scripts/functions for the tasks described in this doc, and update the doc to refer to them.
+-->
+
 You should see output similar to:
 
 ```text
