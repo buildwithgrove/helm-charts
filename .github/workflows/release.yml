@@ -24,6 +24,14 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v3
       
+      - name: Install chart-releaser
+        run: |
+          mkdir -p .cr-release-packages
+          curl -sSLo cr.tar.gz "https://github.com/helm/chart-releaser/releases/download/v1.6.0/chart-releaser_1.6.0_linux_amd64.tar.gz"
+          tar -xzf cr.tar.gz
+          chmod +x cr
+          sudo mv cr /usr/local/bin/cr
+      
       - name: Check for chart changes
         id: filter
         uses: dorny/paths-filter@v2
@@ -45,14 +53,14 @@ jobs:
       # Release guard chart (if changed)
       - name: Release guard chart
         if: steps.filter.outputs.guard == 'true'
-        uses: helm/chart-releaser-action@v1.6.0
+        run: |
+          echo "Releasing guard chart..."
+          helm package charts/guard -d .cr-release-packages/
+          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
+          sleep 5
+          cr index -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -c https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ -i index.yaml
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          CR_SKIP_EXISTING: true
-          CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-{{ .Version }}"
-        with:
-          charts_dir: charts/guard
-          config: null
       
       # Wait a bit to ensure guard release completes
       - name: Wait for guard release to complete
@@ -62,14 +70,14 @@ jobs:
       # Release watch chart (if changed)
       - name: Release watch chart
         if: steps.filter.outputs.watch == 'true'
-        uses: helm/chart-releaser-action@v1.6.0
+        run: |
+          echo "Releasing watch chart..."
+          helm package charts/watch -d .cr-release-packages/
+          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
+          sleep 5
+          cr index -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -c https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ -i index.yaml
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          CR_SKIP_EXISTING: true
-          CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-{{ .Version }}"
-        with:
-          charts_dir: charts/watch
-          config: null
       
       # Wait a bit to ensure watch release completes
       - name: Wait for watch release to complete
@@ -79,11 +87,11 @@ jobs:
       # Release path chart (if changed)
       - name: Release path chart
         if: steps.filter.outputs.path == 'true'
-        uses: helm/chart-releaser-action@v1.6.0
+        run: |
+          echo "Releasing path chart..."
+          helm package charts/path -d .cr-release-packages/
+          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
+          sleep 5
+          cr index -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -c https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ -i index.yaml
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          CR_SKIP_EXISTING: true
-          CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-{{ .Version }}"
-        with:
-          charts_dir: charts/path
-          config: null
