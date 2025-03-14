@@ -1,7 +1,7 @@
 apiVersion: v2
 name: guard
 description: A Helm chart for development and production deployments of GUARD (Gateway Utilities for Authentication, Routing & Defense)
-version: 0.1.2
+version: 0.1.3
 appVersion: "1.0"
 dependencies:
   - name: gateway-helm
