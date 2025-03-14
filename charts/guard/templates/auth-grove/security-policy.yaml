@@ -11,8 +11,8 @@
 #
 # Creates a security policy for each service in the `services` list.
 #
-# The security policies ensure that requests to the service are authorized
-# through the PATH External Authorization Server (PEAS).
+# The security policies ensure that requests to the service (e.g. eth)
+# are authorized through the PATH External Authorization Server (PEAS).
 
 # Create a security policy for the subdomain route.
 # eg. F00C-subdomain-auth-policy
