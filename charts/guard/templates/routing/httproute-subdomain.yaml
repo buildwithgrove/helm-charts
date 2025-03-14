@@ -24,6 +24,17 @@
 #   - https://eth-mainnet.path.grove.city/v1
 #
 # All these requests would receive the header "target-service-id: F00C"
+#
+# -- CONTROLLED TRAFFIC SHIFTING --
+# DEV_NOTE: Only subdomain routes split traffic to Middleware as the Middleware
+# only supports subdomain service ID routing.
+# For example:
+#     - https://eth.path.grove.city/v1 will split traffic.
+#     - https://path.grove.city/v1 with header "-H target-service-id: eth" will not split traffic.
+#
+# For more context, see Notion discussion Here:
+# https://www.notion.so/buildwithgrove/Traffic-Shifting-Migration-to-PATH-1b2a36edfff6803d8b24e4cafc83fbad?pvs=4#1b5a36edfff680be8dbdeb47647cd3ad
+#
 {{- if and .Values.services .Values.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 {{- $name:= include "guard-helm.fullname" . }}

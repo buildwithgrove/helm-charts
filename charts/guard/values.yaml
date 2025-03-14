@@ -6,7 +6,12 @@ fullnameOverride: guard
 global:
   serviceName: path-http
   port: 3069
+  # -- CONTROLLED TRAFFIC SHIFTING --
+  # -- This variable must correspond to the name of the Middleware Service
+  # -- that is deployed in the same namespace as PATH/GUARD.
   middlewareServiceName: middleware-http
+  # -- This variable must correspond to the port of the Middleware Service
+  # -- in the same namespace as PATH/GUARD.
   middlewarePort: 3000
 gateway:
   enabled: true

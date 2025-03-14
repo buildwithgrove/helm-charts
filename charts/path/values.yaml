@@ -128,11 +128,12 @@ guard:
     # This is the port that Envoy Gateway will forward requests to.
     port: 3069
     # -- CONTROLLED TRAFFIC SHIFTING --
-    # -- The name of the service that the Middleware service is deployed to.
+    # -- This variable must correspond to the name of the Middleware Service
+    # -- that is deployed in the same namespace as PATH/GUARD.
     middlewareServiceName: middleware-http
     # -- CONTROLLED TRAFFIC SHIFTING --
     # -- The port that the Middleware service runs on in the cluster.
-    # This is the port that Envoy Gateway will forward requests to.
+    # -- This is the port that Envoy Gateway will forward requests to.
     middlewarePort: 3000
   gateway:
     # -- Whether to deploy the Envoy Gateway resource (should always be true)

@@ -1,14 +1,11 @@
+# TODO_TECHDEBT(@adshmh,@commoddity,@HebertCL): The pre-commit is disabled for now,
+# in favour of manually regenerating the docs. In the future, we should determine 
+# an approach that works for us and re-enable the pre-commit.
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
     hooks:
     -   id: trailing-whitespace
-    # TODO_FIX(@commoddity): This hook is causing a circular issue:
-    # it modifies the README.md that the helm-docs hook modifies,
-    # which causes helm-docs to run again, which modifies the README.md
-    # again, which causes this hook to run again, etc.
-    # Determine if we need this hook.
-    # -   id: end-of-file-fixer
     -   id: check-added-large-files
 - repo: https://github.com/buildwithgrove/helm-charts
   rev: docs-hook-0.1.2
