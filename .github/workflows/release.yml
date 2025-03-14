@@ -3,25 +3,27 @@ on:
   push:
     branches:
       - main
-      - fix-chart-releaser
     paths:
       - 'charts/**'
 
 jobs:
-  detect-changes:
+  release-charts:
     runs-on: ubuntu-latest
-    outputs:
-      guard-changed: ${{ steps.filter.outputs.guard }}
-      watch-changed: ${{ steps.filter.outputs.watch }}
-      path-changed: ${{ steps.filter.outputs.path }}
-      any-changed: ${{ steps.any_changed.outputs.any_changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
-      - name: Check for modified charts
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+      
+      - name: Check for chart changes
         id: filter
         uses: dorny/paths-filter@v2
         with:
@@ -32,107 +34,52 @@ jobs:
               - 'charts/watch/**'
             path:
               - 'charts/path/**'
-          
-      - name: Set any_changed output
-        id: any_changed
+      
+      - name: Debug chart changes
         run: |
-          if [[ "${{ steps.filter.outputs.guard }}" == "true" || "${{ steps.filter.outputs.watch }}" == "true" || "${{ steps.filter.outputs.path }}" == "true" ]]; then
-            echo "any_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "any_changed=false" >> $GITHUB_OUTPUT
-          fi
-          
-          # Debug outputs
           echo "Guard changed: ${{ steps.filter.outputs.guard }}"
           echo "Watch changed: ${{ steps.filter.outputs.watch }}"
           echo "Path changed: ${{ steps.filter.outputs.path }}"
-
-  release-guard:
-    needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.guard-changed == 'true' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-      
-      - name: Install Helm
-        uses: azure/setup-helm@v3
-      
+      # Release guard chart (if changed)
       - name: Release guard chart
+        if: steps.filter.outputs.guard == 'true'
         uses: helm/chart-releaser-action@v1.6.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_SKIP_EXISTING: true
         with:
           charts_dir: charts
-          charts_repo_url: https://github.com/${{ github.repository }}
           config: .github/cr-config-guard.yaml
-
-  release-watch:
-    needs: [detect-changes, release-guard]
-    if: ${{ needs.detect-changes.outputs.watch-changed == 'true' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      # Wait a bit to ensure guard release completes
+      - name: Wait for guard release to complete
+        if: steps.filter.outputs.guard == 'true'
+        run: sleep 10
       
-      - name: Install Helm
-        uses: azure/setup-helm@v3
-      
+      # Release watch chart (if changed)
       - name: Release watch chart
+        if: steps.filter.outputs.watch == 'true'
         uses: helm/chart-releaser-action@v1.6.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_SKIP_EXISTING: true
         with:
           charts_dir: charts
-          charts_repo_url: https://github.com/${{ github.repository }}
           config: .github/cr-config-watch.yaml
-
-  release-path:
-    needs: [detect-changes, release-watch]
-    if: ${{ needs.detect-changes.outputs.path-changed == 'true' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      # Wait a bit to ensure watch release completes
+      - name: Wait for watch release to complete
+        if: steps.filter.outputs.watch == 'true'
+        run: sleep 10
       
-      - name: Install Helm
-        uses: azure/setup-helm@v3
-      
+      # Release path chart (if changed)
       - name: Release path chart
+        if: steps.filter.outputs.path == 'true'
         uses: helm/chart-releaser-action@v1.6.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_SKIP_EXISTING: true
         with:
           charts_dir: charts
-          charts_repo_url: https://github.com/${{ github.repository }}
           config: .github/cr-config-path.yaml
