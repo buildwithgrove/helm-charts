@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - fix-CI-chart-releaser
     paths:
       - 'charts/**'
 
