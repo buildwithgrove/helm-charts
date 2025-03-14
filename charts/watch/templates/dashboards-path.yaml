@@ -10,7 +10,7 @@ metadata:
     {{- include "watch.labels" $ | nindent 4 }}
     {{ $.Values.dashboards.label }}: "1"
   annotations:
-    grafana_folder: {{ $.Values.dashboards.path.folderName | default "PATH API" | quote }}
+    grafana_folder: {{ $.Values.dashboards.path.folderName | default "PATH" | quote }}
 data:
   {{ base $path }}: |-
 {{ $.Files.Get $path | indent 4 }}

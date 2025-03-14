@@ -14,24 +14,13 @@ image:
   repository: ghcr.io/buildwithgrove/path
   # TODO_MVP(@adshmh): change to "latest" once the PATH repo CI's docker image push job is updated to use the correct tag.
   tag: main
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 replicas: 1
 
 path:
   ## HPA cannot be enabled if replicas are declared in the values file. Either use one or the other depending on your needs!
   horizontalPodAutoscaler:
     enabled: false
-  ## Path helm chart supports environment values both defined at chart or from sources like secrets
-  # envFrom: some-secret
-  # env:
-  #   - name: KEY1
-  #     value: VALUE1
-  #   - name: KEY2
-  #     value: VALUE2
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   resources: {}
     # limits:
     #   memory: 2G
@@ -52,132 +41,83 @@ path:
       protocol: TCP
       service:
         type: ClusterIP
-  #     annotations: #{}
-  #       cloud.google.com/neg: '{"ingress": true}'
-  #   ingress:
-  #     annotations: #{}
-  #       kubernetes.io/ingress.class: "gce"
-  #       cert-manager.io/cluster-issuer: letscrypt-prod
-  #       cloud.google.com/backend-config: "health-check-config"
-  #     hosts:
-  #       - host: "path.example.org"
-  #         paths:
-  #           - path: /
-  #             pathType: Prefix
-  #     tls:
-  #       - secretName: my-ingress-secret
-  #         hosts:
-  #           - "path.example.org"
-  ## Container probes and lifecycle configurations
-  # lifecycle: ""
-  # startupProbe: {}
-  # livenessProbe:
-  #   failureThreshold: 6
-  #   httpGet:
-  #     path: /healthz
-  #     port: 3000
-  #     scheme: HTTP
-  # readinessProbe:
-  #   failureThreshold: 6
-  #   httpGet:
-  #     path: /healthz
-  #     port: 3000
-  #     scheme: HTTP
-
-  ## Deployment specific configurations. Depending on the needs of your workload
-  ## you can uncomment and setup the values below.
-  # terminationGracePeriodSeconds: 10
-  # affinity:
-  #   nodeAffinity:
-  #       requiredDuringSchedulingIgnoredDuringExecution:
-  #         nodeSelectorTerms:
-  #           - matchExpressions:
-  #               - key: cloud.google.com/gke-nodepool
-  #                 operator: In
-  #                 values:
-  #                   - gke-n2-standard-16
-
-  # tolerations: []
-  # nodeSelector: {}
-  # topologySpreadConstraints: []
-  # dnsPolicy: ""
-  # dnsConfig: ""
-  # imagePullSecrets:
-  #   - pull-secret1
-  #   - pull-secret2
-  ## Additional labels and annotations map values for labels and annotations
-  ## for all the resources.
+  # The PATH service uses the `/healthz` endpoint to check if the service is ready,
+  # which uses the response from the QoS service to determine whether to send a
+  # 503 (Service Unavailable) or 200 (OK) status code.
+  #
+  # When using PATH with large numbers of services enabled, the QoS service
+  # may take a long time to return a healthy response. Therefore, it is expected
+  # that the readinessProbe may take a large number of attempts to succeed.
+  readinessProbe:
+    failureThreshold: 600 # Set to high value to account for the potential long response time of the QoS service.
+    httpGet:
+      path: /healthz
+      port: 3069
+      scheme: HTTP
+  livenessProbe:
+    failureThreshold: 600 # Set to high value to account for the potential long response time of the QoS service.
+    httpGet:
+      path: /healthz
+      port: 3069
+      scheme: HTTP
   additionalLabels: {}
-  # applicationLabel: my-label
   additionalAnnotations: {}
-  # kubernetes.io/annotation: some-annotation
+## Configuration for PATH
+## PATH requires a config file at /app/config/.config.yaml
+## Choose one of the following options to provide this configuration:
+config:
+  ## TODO_FUTURE(@HebertCL): consider dropping the enabled field and using fromSecret/fromConfig fields if defined.
+  #
+  # Option 1: Use an existing Secret (recommended for security)
+  fromSecret:
+    enabled: false
+    # name: "path-config-secret"       # Name of the existing Secret
+    # key: ".config.yaml"              # Key in the Secret containing the configuration
 
-## Path supports mounting volumes, secrets and configmaps.
-## Depending on the users' needs, any of the following can be used to mount Path's configuration
-## within the container. Below can be found the 3 available options to be used.
-# mountSecrets:
-#   - name: path-secret-mount
-#     mountPath: /app/.config.yaml
-#     subPath: .config.yaml
-#     items:
-#       - key: .config.yaml
-#         path: .config.yaml
-# mountConfigMaps:
-#   - name: path-config
-#     mountPath: /app/config
-#   items:
-#     - item1
-#     - item2
-# persistence:
-#   volumeClaimTemplates:
-#     volumeMountPath: ""
+  # Option 2: Use an existing ConfigMap
+  fromConfigMap:
+    enabled: false
+    # name: "path-config"              # Name of the existing ConfigMap
+    # key: ".config.yaml"              # Key in the ConfigMap containing the configuration
 
-## Additional manifests and additional yaml manifests provide the ability to include
-## resources which are not provided by the chart itself. This allow to manage those
-## resources within the chart itself.
-additionalManifests: []
-additionalYamlManifests: ""
----
-# TODO_MVP(@HebertCL @adshmh): Review below chart configuration and decide they are needed
-# and where to place it within the chart with its respective description.
-# Adding an example at the end for reference
-serviceMonitor:
-  enabled: false
+# Integrated Observability Stack (WATCH)
+observability:
+  enabled: true  # Set to false to disable the WATCH chart
 
+  # Configuration passed to the WATCH subchart
+  watch:
+    # Service details from parent chart for automatic ServiceMonitor configuration
+    appServiceDetails:
+      name: "{{ .Release.Name }}-metrics"  # This refers to the PATH metrics service name
+      port: metrics
+      namespace: "{{ .Release.Namespace }}"
+    # Configure component monitoring
+    dashboards:
+      namespace: monitoring
+      path:
+        enabled: true
+        folderName: "PATH"
+      guard:
+        enabled: false  # Only enable GUARD dashboards if using GUARD
+    # ServiceMonitor configuration
+    serviceMonitors:
+      namespace: monitoring
+      path:
+        enabled: true
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: path
+        endpoints:
+          - port: metrics
+            interval: 15s
+            path: /metrics
+      guard:
+        enabled: false  # Only enable GUARD monitoring if using GUARD
+    # External monitoring configuration (used when kube-prometheus-stack.enabled=false)
+    externalMonitoring:
+      grafanaNamespace: "monitoring"
+      prometheusSelectorLabels:
+        app.kubernetes.io/part-of: watch-monitoring
 logs:
   level: info
   format: plain
-
-development:
-  delve:
-    enabled: false
-    laddr: :40004
-
-prod:
-  enabled: false
-  namespace: ""
-scripts:
-  enabled: true
-
-pathConfig:
-  {}
-  # ## Change log level from chart so it gets reflected in an env variable
-  # ## This value defaults to info
-  # logs:
-  #   level: info
-  #   format: plain
-  # ## TODO_MVP(@adshmh): Unsure what this config is for. Appreciate a description from your end.
-  # development:
-  #   delve:
-  #     enabled: false
-  #     laddr: :40004
-  # ## TODO_MVP(@adshmh): Unsure what this config is for. Appreciate a description from your end.
-  # prod:
-  #   enabled: false
-  #   namespace: ""
-  # ## TODO_MVP(@adshmh): Unsure what this config is for. Appreciate a description from your end.
-  # scripts:
-  #   enabled: true
-  # ## TODO_MVP(@adshmh): Do we want/need/plan to add Prometheus.
-  # serviceMonitor:
-  #   enabled: false
