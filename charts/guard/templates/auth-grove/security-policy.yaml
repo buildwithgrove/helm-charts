@@ -1,4 +1,4 @@
-{{- if and .Values.services .Values.gateway.enabled .Values.auth.groveLegacy.enabled }}
+{{- if and .Values.services .Values.auth.groveLegacy.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
 
 {{- range .Values.services }}
@@ -6,14 +6,13 @@
 
 # Security Policies for PATH External Authorization Server (PEAS)
 # Used as part of the Grove legacy authorization flow.
-#
-# IMPORTANT: If your exact use-case is not authorizing requests to the
-# Grove Portal, you almost certainly have no need for this resources.
+# If you are not authorizing Grove Portal requests,
+# this is VERY unlikely to fit your exact use-case.
 #
 # Creates a security policy for each service in the `services` list.
 #
-# The security policies ensure that requests to the service are authorized
-# through the PATH External Authorization Server (PEAS).
+# The security policies ensure that requests to the service (e.g. eth)
+# are authorized through the PATH External Authorization Server (PEAS).
 
 # Create a security policy for the subdomain route.
 # eg. F00C-subdomain-auth-policy

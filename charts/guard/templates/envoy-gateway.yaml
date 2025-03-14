@@ -1,6 +1,5 @@
 # This resources configures the Envoy Gateway for GUARD.
 # Ref: https://gateway.envoyproxy.io/latest/api/gateway_api/gateway/
-{{- if .Values.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
@@ -28,4 +27,3 @@ metadata:
 spec:
   controllerName: gateway.envoyproxy.io/gatewayclass-controller
 
-{{- end }}

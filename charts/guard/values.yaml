@@ -14,7 +14,6 @@ global:
   # -- in the same namespace as PATH/GUARD.
   middlewarePort: 3000
 gateway:
-  enabled: true
   port: 3070
 domain: ""
 services: []

@@ -1,4 +1,4 @@
-{{- if and .Values.services .Values.gateway.enabled .Values.auth.apiKey.enabled }}
+{{- if and .Values.services .Values.auth.apiKey.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
 {{- $apiKeyConfig:= .Values.auth.apiKey }}
 
@@ -9,8 +9,8 @@
 #
 # Creates a security policy for each service in the `services` list.
 #
-# The security policies ensure that requests to the service are authorized
-# through the API Key authorization flow.
+# The security policies ensure that requests to the service (e.g. eth)
+# are authorized through the API Key authorization flow.
 
 # Create a security policy for the subdomain route.
 # eg. F00C-subdomain-auth-policy

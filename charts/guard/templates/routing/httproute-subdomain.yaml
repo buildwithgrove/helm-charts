@@ -95,5 +95,3 @@ spec:
             value: /v1
 
 {{- end }}
-
-{{- end }}

@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# TODO_IMPROVE(@adshmh): mimic the interface from Claude Code:
+# https://github.com/anthropics/claude-code
+#
 ###############################################################################
 # PATH Configuration Script
 #

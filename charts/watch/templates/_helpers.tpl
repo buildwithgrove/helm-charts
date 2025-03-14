@@ -81,9 +81,9 @@ Get Grafana dashboard folder for a component
 {{- define "watch.dashboardFolder" -}}
 {{- $component := . -}}
 {{- if eq $component "path" -}}
-{{- $.Values.dashboards.path.folderName | default "PATH API" -}}
+{{- $.Values.dashboards.path.folderName | default "PATH" -}}
 {{- else if eq $component "guard" -}}
-{{- $.Values.dashboards.guard.folderName | default "GUARD API" -}}
+{{- $.Values.dashboards.guard.folderName | default "GUARD" -}}
 {{- else -}}
 {{- printf "%s" $component | title -}}
 {{- end -}}
