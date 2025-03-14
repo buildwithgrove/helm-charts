@@ -56,6 +56,8 @@ If you didn't specify a custom password, retrieve it with:
 kubectl get secret path-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
 
+<!--- TODO_DOCUMENT(@HebertCL): Document how to use WATCH integrated with an already existing monitoring solution.
+-->
 ### Method 2: Kubernetes Ingress (Recommended for Production)
 
 For production environments, you'll likely want to set up an Ingress for Grafana.
