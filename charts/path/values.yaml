@@ -120,6 +120,14 @@ guard:
     # -- The port that the PATH service runs on in the cluster.
     # This is the port that Envoy Gateway will forward requests to.
     port: 3069
+    # -- CONTROLLED TRAFFIC SHIFTING --
+    # -- This variable must correspond to the name of the Middleware Service
+    # -- that is deployed in the same namespace as PATH/GUARD.
+    middlewareServiceName: middleware-http
+    # -- CONTROLLED TRAFFIC SHIFTING --
+    # -- The port that the Middleware service runs on in the cluster.
+    # -- This is the port that Envoy Gateway will forward requests to.
+    middlewarePort: 3000
   gateway:
     # -- The port that Envoy Gateway will listen on.
     port: 3070
@@ -147,21 +155,34 @@ guard:
     # - eth.path.grove.city -> "target-service-id: F00C"
     # - polygon.path.grove.city -> "target-service-id: F021"
 
-    # Shannon Example Service ID (with no aliases)
-    # @ignored
+    # Shannon Example Service ID (with no aliases)    
     - serviceId: anvil
 
-    # Morse Example Service IDs (with aliases)
-    # @ignored
+    # Morse Example Service IDs (with aliases)    
     - serviceId: F00C
       aliases:
         - eth
         - eth-mainnet
-    # @ignored
+      # -- CONTROLLED TRAFFIC SHIFTING --
+      # Provide configuration for splitting traffic between
+      # the PATH and Middleware backends.
+      trafficSplitting:
+        enabled: true
+        weights:
+          path: 50
+          middleware: 50    
     - serviceId: F021
       aliases:
         - polygon
         - polygon-mainnet
+      # -- CONTROLLED TRAFFIC SHIFTING --
+      # Provide configuration for splitting traffic between
+      # the PATH and Middleware backends.
+      trafficSplitting:
+        enabled: true
+        weights:
+          path: 50
+          middleware: 50
 
   # GUARD may be configured to use one or more authorization flows.
   # The following authorization flows are supported:

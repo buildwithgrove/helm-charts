@@ -6,6 +6,16 @@ fullnameOverride: guard
 global:
   serviceName: path-http
   port: 3069
+  # -- CONTROLLED TRAFFIC SHIFTING --
+  # This variable must correspond to the name of the Middleware Service
+  # that is deployed in the same namespace as PATH/GUARD.
+  # Defined in `charts/path/values.yaml`
+  middlewareServiceName: middleware-http
+  # -- CONTROLLED TRAFFIC SHIFTING --
+  # This variable must correspond to the port of the Middleware Service
+  # in the same namespace as PATH/GUARD.
+  # Defined in `charts/path/values.yaml`
+  middlewarePort: 3000
 gateway:
   port: 3070
 domain: ""

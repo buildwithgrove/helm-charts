@@ -24,6 +24,17 @@
 #   - https://eth-mainnet.path.grove.city/v1
 #
 # All these requests would receive the header "target-service-id: F00C"
+#
+# -- CONTROLLED TRAFFIC SHIFTING --
+# DEV_NOTE: Only subdomain routes split traffic to Middleware as the Middleware
+# only supports subdomain service ID routing.
+# For example:
+#     - https://eth.path.grove.city/v1 will split traffic.
+#     - https://path.grove.city/v1 with header "-H target-service-id: eth" will not split traffic.
+#
+# For more context, see Notion discussion Here:
+# https://www.notion.so/buildwithgrove/Traffic-Shifting-Migration-to-PATH-1b2a36edfff6803d8b24e4cafc83fbad?pvs=4#1b5a36edfff680be8dbdeb47647cd3ad
+#
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 {{- $name:= include "guard-helm.fullname" . }}
 
@@ -51,23 +62,35 @@ spec:
   {{- end }}
 
   rules:
-  # Determine the backend service to route to.
-  - backendRefs:
-    - name: {{ $.Values.global.serviceName }}
-      port: {{ $.Values.global.port }}
+    # -- CONTROLLED TRAFFIC SHIFTING --
+    # Define a default dict for the traffic splitting configuration.
+    # This is to prevent nil pointer errors when the traffic splitting
+    # configuration is not set for a service.
+    {{- $ts := default dict .trafficSplitting }}
+    - backendRefs:
+        - name: {{ $.Values.global.serviceName }}
+          port: {{ $.Values.global.port }}
+          # -- CONTROLLED TRAFFIC SHIFTING --
+          # If traffic splitting is enabled, set the weight for the PATH backend.
+          {{- if eq $ts.enabled true }}
+          weight: {{ $ts.weights.path }}
+          {{- end }}
+        # -- CONTROLLED TRAFFIC SHIFTING --
+        # If traffic splitting is enabled, set a second backendRef for the Middleware backend.
+        {{- if eq $ts.enabled true }}
+        - name: {{ $.Values.global.middlewareServiceName }}
+          port: {{ $.Values.global.middlewarePort }}
+          weight: {{ $ts.weights.middleware }}
+        {{- end }}
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: "target-service-id"
+                value: "{{ .serviceId }}"
+      matches:
+        - path:
+            type: PathPrefix
+            value: /v1
 
-    filters:
-    # Ensure the request header "target-service-id" is set to the authoritative service ID.
-    - type: RequestHeaderModifier
-      requestHeaderModifier:
-        set:
-        - name: "target-service-id"
-          value: "{{ .serviceId }}"
-
-    matches:
-    # Match any path prefix that starts with "/v1"
-    - path:
-        type: PathPrefix
-        value: /v1
-
-{{- end }}
+{{ end }}
