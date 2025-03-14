@@ -1,8 +1,9 @@
 # PATH External Authorization Server (PEAS) Helm Chart
 # Used as part of the Grove legacy authorization flow.
 #
-# IMPORTANT: If your exact use-case is not authorizing requests to the
-# Grove Portal, you almost certainly have no need for this resources.
+# ######### VERY IMPORTANT #########
+# If you are not authorizing Grove Portal requests,
+# this is VERY unlikely to fit your exact use-case.
 #
 # An external authorization server designed to authorize requests to the PATH Gateway.
 # This exists due to unique needs for authorizing Portal Apps in the Grove Portal that

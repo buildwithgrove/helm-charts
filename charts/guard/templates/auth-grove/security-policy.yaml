@@ -6,9 +6,8 @@
 
 # Security Policies for PATH External Authorization Server (PEAS)
 # Used as part of the Grove legacy authorization flow.
-#
-# IMPORTANT: If your exact use-case is not authorizing requests to the
-# Grove Portal, you almost certainly have no need for this resources.
+# If you are not authorizing Grove Portal requests,
+# this is VERY unlikely to fit your exact use-case.
 #
 # Creates a security policy for each service in the `services` list.
 #

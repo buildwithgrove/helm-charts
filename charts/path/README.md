@@ -213,6 +213,7 @@ kubectl get secret watch-grafana -n monitoring -o jsonpath="{.data.admin-passwor
 
 For more detailed instructions on accessing and troubleshooting Grafana, see the [Accessing Grafana Dashboards](accessing-grafana.md) guide.
 
+<!-- TODO_IMPROVE(@HebertCL): Add  Makefile target to generate the values table-->
 ## Configuration Values
 
 | Key                                    | Type   | Default                       | Description                     |
