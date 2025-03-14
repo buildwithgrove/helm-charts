@@ -1,21 +1,17 @@
-      - name: Add Helm repos
-        run: |
-          # Add commonly used Helm repositories
-          helm repo add stable https://charts.helm.sh/stable
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo add jetstack https://charts.jetstack.io
-          helm repo updatename: Release Charts
+name: Release Charts
 on:
   push:
     branches:
       - main
+      - fix-chart-releaser
     paths:
       - 'charts/**'
 
 jobs:
   release-charts:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,6 +25,15 @@ jobs:
       
       - name: Install Helm
         uses: azure/setup-helm@v3
+      
+      - name: Add Helm repos
+        run: |
+          # Add commonly used Helm repositories
+          helm repo add stable https://charts.helm.sh/stable
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo update
       
       - name: Install chart-releaser
         run: |
