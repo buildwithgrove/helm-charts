@@ -164,12 +164,10 @@ guard:
     # - eth.path.grove.city -> "target-service-id: F00C"
     # - polygon.path.grove.city -> "target-service-id: F021"
 
-    # Shannon Example Service ID (with no aliases)
-    # @ignored
+    # Shannon Example Service ID (with no aliases)    
     - serviceId: anvil
 
-    # Morse Example Service IDs (with aliases)
-    # @ignored
+    # Morse Example Service IDs (with aliases)    
     - serviceId: F00C
       aliases:
         - eth
@@ -181,8 +179,7 @@ guard:
         enabled: true
         weights:
           path: 50
-          middleware: 50
-    # @ignored
+          middleware: 50    
     - serviceId: F021
       aliases:
         - polygon
