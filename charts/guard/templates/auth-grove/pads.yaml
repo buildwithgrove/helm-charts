@@ -1,6 +1,9 @@
 # PATH Auth Data Server (PADS) Helm Chart
 # Used as part of the Grove legacy authorization flow.
 #
+# IMPORTANT: If your exact use-case is not authorizing requests to the
+# Grove Portal, you almost certainly have no need for this resources.
+#
 # A gRPC server that provides Gateway Endpoint data from a configurable data source
 # to the Go External Authorization Server, enabling authorization for the PATH Gateway.
 #
@@ -38,10 +41,10 @@ spec:
         ports:
         - containerPort: {{ $padsConfig.port }}
         volumeMounts:
-          - name: pads-data-volume
-            mountPath: /app/data
+          - name: {{$name}}-data
+            mountPath: {{ .Values.pads.mountPath }}
       volumes:
-      - name: pads-data-volume
+      - name: {{$name}}-data
         configMap:
           name: pads-data
 ---

@@ -5,6 +5,8 @@
 # Use cases:
 #   - Requests to services not configured in the `values.yaml` file's `services` array
 #   - Requests to services not configured in any `*-values.yaml` file applied to the GUARD service
+#
+# Ref: https://gateway.envoyproxy.io/latest/api/gateway_api/httproute/
 {{- if .Values.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 apiVersion: gateway.networking.k8s.io/v1
