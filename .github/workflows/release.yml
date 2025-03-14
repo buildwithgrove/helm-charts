@@ -49,9 +49,10 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_SKIP_EXISTING: true
+          CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-{{ .Version }}"
         with:
-          charts_dir: charts
-          config: .github/cr-config-guard.yaml
+          charts_dir: charts/guard
+          config: null
       
       # Wait a bit to ensure guard release completes
       - name: Wait for guard release to complete
@@ -65,9 +66,10 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_SKIP_EXISTING: true
+          CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-{{ .Version }}"
         with:
-          charts_dir: charts
-          config: .github/cr-config-watch.yaml
+          charts_dir: charts/watch
+          config: null
       
       # Wait a bit to ensure watch release completes
       - name: Wait for watch release to complete
@@ -81,6 +83,7 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_SKIP_EXISTING: true
+          CR_RELEASE_NAME_TEMPLATE: "{{ .Name }}-{{ .Version }}"
         with:
-          charts_dir: charts
-          config: .github/cr-config-path.yaml
+          charts_dir: charts/path
+          config: null

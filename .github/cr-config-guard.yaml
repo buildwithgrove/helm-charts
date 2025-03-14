@@ -1,8 +1,7 @@
 chart-dirs:
   - charts
-exclude-charts:
-  - charts/watch
-  - charts/path
+charts:
+  - charts/guard
 index-path: ./index.yaml
 release-name-template: "{{ .Name }}-{{ .Version }}"
 
