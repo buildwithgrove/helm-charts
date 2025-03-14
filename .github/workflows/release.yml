@@ -66,18 +66,23 @@ jobs:
         if: steps.filter.outputs.guard == 'true'
         run: |
           echo "Releasing guard chart..."
-          # Build dependencies first
+          
+          # Create clean directory for this release
+          rm -rf .cr-release-packages-guard
+          mkdir -p .cr-release-packages-guard
+          
+          # Build dependencies and package
           helm dependency build charts/guard
-          # Then package the chart
-          helm package charts/guard -d .cr-release-packages/
-          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
-          sleep 5
+          helm package charts/guard -d .cr-release-packages-guard
+          
+          # Create GitHub release and update index
+          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages-guard || true
           cr index -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -c https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ -i index.yaml
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       
-      # Wait a bit to ensure guard release completes
-      - name: Wait for guard release to complete
+      # Wait between releases
+      - name: Wait after guard release
         if: steps.filter.outputs.guard == 'true'
         run: sleep 10
       
@@ -86,18 +91,23 @@ jobs:
         if: steps.filter.outputs.watch == 'true'
         run: |
           echo "Releasing watch chart..."
-          # Build dependencies first
+          
+          # Create clean directory for this release
+          rm -rf .cr-release-packages-watch
+          mkdir -p .cr-release-packages-watch
+          
+          # Build dependencies and package
           helm dependency build charts/watch
-          # Then package the chart
-          helm package charts/watch -d .cr-release-packages/
-          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
-          sleep 5
+          helm package charts/watch -d .cr-release-packages-watch
+          
+          # Create GitHub release and update index
+          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages-watch || true
           cr index -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -c https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ -i index.yaml
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       
-      # Wait a bit to ensure watch release completes
-      - name: Wait for watch release to complete
+      # Wait between releases
+      - name: Wait after watch release
         if: steps.filter.outputs.watch == 'true'
         run: sleep 10
       
@@ -106,12 +116,17 @@ jobs:
         if: steps.filter.outputs.path == 'true'
         run: |
           echo "Releasing path chart..."
-          # Build dependencies first
+          
+          # Create clean directory for this release
+          rm -rf .cr-release-packages-path
+          mkdir -p .cr-release-packages-path
+          
+          # Build dependencies and package
           helm dependency build charts/path
-          # Then package the chart
-          helm package charts/path -d .cr-release-packages/
-          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages
-          sleep 5
+          helm package charts/path -d .cr-release-packages-path
+          
+          # Create GitHub release and update index
+          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages-path || true
           cr index -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -c https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/ -i index.yaml
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
