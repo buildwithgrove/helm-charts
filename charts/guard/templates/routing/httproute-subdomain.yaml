@@ -24,7 +24,6 @@
 #   - https://eth-mainnet.path.grove.city/v1
 #
 # All these requests would receive the header "target-service-id: F00C"
-{{- if and .Values.services .Values.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 {{- $name:= include "guard-helm.fullname" . }}
 
@@ -70,7 +69,5 @@ spec:
     - path:
         type: PathPrefix
         value: /v1
-
-{{- end }}
 
 {{- end }}

@@ -1,4 +1,4 @@
-{{- if and .Values.services .Values.gateway.enabled .Values.auth.apiKey.enabled }}
+{{- if and .Values.services .Values.auth.apiKey.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
 {{- $apiKeyConfig:= .Values.auth.apiKey }}
 

@@ -1,4 +1,4 @@
-{{- if and .Values.services .Values.gateway.enabled .Values.auth.groveLegacy.enabled }}
+{{- if and .Values.services .Values.auth.groveLegacy.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
 
 {{- range .Values.services }}

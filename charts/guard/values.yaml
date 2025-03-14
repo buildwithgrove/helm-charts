@@ -7,7 +7,6 @@ global:
   serviceName: path-http
   port: 3069
 gateway:
-  enabled: true
   port: 3070
 domain: ""
 services: []

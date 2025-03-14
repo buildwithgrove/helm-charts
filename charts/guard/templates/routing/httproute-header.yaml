@@ -38,7 +38,6 @@
 #   - One additional HTTPRoute for EACH service alias
 
 # Create an HTTPRoute resource for each authoritative service ID.
-{{- if .Values.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 {{- $name:= include "guard-helm.fullname" . }}
 
@@ -112,8 +111,6 @@ spec:
           value: "{{ . | lower }}"
 
 {{- end }}
-{{- end }}
-
 {{- end }}
 
 {{- end }}
