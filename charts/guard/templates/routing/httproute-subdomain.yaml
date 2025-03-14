@@ -35,7 +35,6 @@
 # For more context, see Notion discussion Here:
 # https://www.notion.so/buildwithgrove/Traffic-Shifting-Migration-to-PATH-1b2a36edfff6803d8b24e4cafc83fbad?pvs=4#1b5a36edfff680be8dbdeb47647cd3ad
 #
-{{- if and .Values.services .Values.gateway.enabled }}
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 {{- $name:= include "guard-helm.fullname" . }}
 
@@ -94,4 +93,4 @@ spec:
             type: PathPrefix
             value: /v1
 
-{{- end }}
+{{ end }}
