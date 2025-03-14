@@ -25,6 +25,36 @@ When **PATH** is installed with observability enabled:
 - Monitoring components (Prometheus, Grafana) are deployed in the `monitoring` namespace
 - ServiceMonitors in `monitoring` discover and scrape metrics from **PATH** in the `app` namespace
 
+```mermaid
+graph TD
+    subgraph "Kubernetes Cluster"
+        subgraph "app namespace"
+            PATH["PATH Application"]
+            PATH_SVC["PATH Service"]
+            PATH_SVC -->|"exposes"| PATH
+        end
+        subgraph "monitoring namespace"
+            subgraph "Prometheus Stack"
+                PROM["Prometheus"]
+                SM["ServiceMonitor"]
+                SM --> PROM
+            end
+            subgraph "Grafana Stack"
+                GRAF["Grafana"]
+                DASH["Dashboards"]
+                GRAF -->|"publishes"| DASH
+            end
+            GRAF -->|"queries"| PROM
+        end
+        SM -.->|"discovers & scrapes metrics"| PATH_SVC
+    end
+    style PATH fill:#ff9900,stroke:#ff6600,stroke-width:2px
+    style PROM fill:#6666ff,stroke:#3333cc,stroke-width:2px
+    style GRAF fill:#66cc66,stroke:#339933,stroke-width:2px
+    style SM fill:#cc66cc,stroke:#993399,stroke-width:2px
+    style DASH fill:#ffcc66,stroke:#ff9933,stroke-width:2px
+```
+
 ## Accessing Grafana
 
 ### Method 1: kubectl port-forward (Recommended for Development)
@@ -118,6 +148,10 @@ You can create customized dashboards for PATH:
    sum(rate(http_requests_total{job="path-api"}[5m])) by (path)
    ```
 
+<!--- TODO_DOCUMENT(@adshmh): add a link to the folder URL, through the following steps:
+    1. Update the WATCH Helm Chart configmap used to define PATH dashboards to assign an easy to read ID.
+    2. Include the resulting dashboard URL here.
+-->
 5. Save your dashboard to the "PATH" folder
 
 ## Troubleshooting

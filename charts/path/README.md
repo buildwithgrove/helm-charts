@@ -172,6 +172,8 @@ There are multiple ways to deploy PATH using Helm, depending on your configurati
 
 ## Accessing PATH
 
+:::info
+
 To access the PATH, forward the HTTP port `3069`:
 
 ```bash
