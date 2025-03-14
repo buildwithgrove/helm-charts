@@ -1,0 +1,152 @@
+# HTTPRoute Generator for Services
+#
+# Generates HTTPRoute resources for each service in the `services` list, configuring routing
+# based on the subdomain of the request.
+#
+# Routing behavior:
+#   - Creates an HTTPRoute for each authoritative service ID
+#   - Creates additional HTTPRoutes for each service alias
+#   - Routes requests based on the `target-service-id` header
+#
+# Example configuration:
+# services:
+#   - serviceId: F00C
+#     aliases:
+#       - eth
+#   - serviceId: F021
+#     aliases:
+#       - polygon
+#
+# This configuration would match requests to:
+#   -H "target-service-id: F00C" -> "target-service-id: F00C"
+#   -H "target-service-id: eth" -> "target-service-id: F00C"
+#   -H "target-service-id: F021" -> "target-service-id: F021"
+#   -H "target-service-id: polygon" -> "target-service-id: F021"
+#
+# In the case of a match based on an alias, the header 
+# will be set to the authoritative service ID.
+#
+# For each service, multiple HTTPRoute resources are created:
+#   - One HTTPRoute for the authoritative service ID
+#   - One additional HTTPRoute for EACH service alias
+
+# Create an HTTPRoute resource for each authoritative service ID.
+{{- if .Values.guard.gateway.enabled }}
+{{- $gwname:= default "guard" $.Values.fullnameOverride }}
+{{- $name:= include "guard-helm.fullname" . }}
+
+{{- range .Values.guard.services }}
+{{- $service := . }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+
+metadata:
+  # eg. F00C-header-route
+  name: {{ $service.serviceId | lower }}-header-route
+  namespace: {{ $.Values.global.namespace }}
+
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: {{$gwname}}-envoy-gateway
+    namespace: {{ $.Values.global.namespace }}
+
+  rules:
+  # Determine the backend service to route to.
+  - backendRefs:
+    - name: {{ $.Values.global.serviceName }}
+      namespace: {{ $.Values.global.namespace }}
+      port: {{ $.Values.global.port }}
+
+    matches:
+    - path:
+        type: PathPrefix
+        value: /v1
+      headers:
+      - name: target-service-id
+        value: "{{ $service.serviceId }}"
+
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ $service.serviceId | lower }}-header-auth-policy
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      # eg. F00C-header-route - matches the HTTPRoute resource created above
+      name: {{ $service.serviceId | lower }}-header-route
+  extAuth:
+    grpc:
+      backendRefs:
+        - name: {{$name}}-auth-server
+          port: 10001
+# If the service has aliases, create an HTTPRoute resource for each alias.
+{{- if $service.aliases }}
+{{- range $service.aliases }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+
+metadata:
+  # eg. F00C-eth-alias-header-route
+  name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-route
+  namespace: {{ $.Values.global.namespace }}
+
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: {{$gwname}}-envoy-gateway
+    namespace: {{ $.Values.global.namespace }}
+
+  rules:
+  # Determine the backend service to route to.
+  - backendRefs:
+    - name: {{ $.Values.global.serviceName }}
+      namespace: {{ $.Values.global.namespace }}
+      port: {{ $.Values.global.port }}
+
+    filters:
+    # Ensure the request header "target-service-id" is set to the authoritative service ID.
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+        - name: "target-service-id"
+          value: "{{ $service.serviceId }}"
+
+    matches:
+      # Match any path prefix that starts with "/v1"
+      - path:
+          type: PathPrefix
+          value: /v1
+        # Match any `target-service-id` header value that matches the alias.
+        headers:
+        - name: target-service-id
+          value: "{{ . | lower }}"
+
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-auth-policy
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      # eg. F00C-eth-alias-header-route - matches the HTTPRoute resource created above
+      name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-route
+  extAuth:
+    grpc:
+      backendRefs:
+        - name: {{$name}}-auth-server
+          port: 10001
+{{- end }}
+{{- end }}
+
+{{- end }}
+
+{{- end }}
