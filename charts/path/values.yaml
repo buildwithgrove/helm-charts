@@ -1,10 +1,13 @@
+##########################################################################
+# -------------------- PATH Specific Configurations -------------------- #
+##########################################################################
 nameOverride: path
 fullnameOverride: path
 global:
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   serviceAccount:
     create: true
-    name: path-sa
+    name: "path-sa"
   securityContext:
     fsGroup: 1001
     runAsUser: 1001

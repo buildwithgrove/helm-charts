@@ -4,12 +4,12 @@ description: A Helm chart for PATH (PATH API & Toolkit Harness)
 name: path
 type: application
 version: 0.1.10
-# TODO_MVP(@commoddity,@adshmh): Update PATH to implement Issue #26, which
-# makes GUARD & WATCH dependencies of this PATH helm chart.
-# https://github.com/buildwithgrove/helm-charts/issues/26
 dependencies:
-  - name: watch
+  - name: guard
     version: 0.1.1
+    repository: https://buildwithgrove.github.io/helm-charts/
+  - name: watch
+    version: 0.1.0
     repository: https://buildwithgrove.github.io/helm-charts/
     namespace: monitoring
     condition: observability.enabled
