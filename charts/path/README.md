@@ -174,7 +174,7 @@ There are multiple ways to deploy PATH using Helm, depending on your configurati
 
 :::info
 
-To access the PATH, forward the HTTP port `3069`:
+To access PATH, forward the HTTP port `3069`:
 
 ```bash
 kubectl port-forward svc/path-http 3069:3069 -n app
