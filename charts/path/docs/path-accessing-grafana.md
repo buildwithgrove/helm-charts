@@ -127,8 +127,7 @@ After logging in to Grafana:
 
 ![Grafana PATH dashboards list](./img/grafana-path-dashboards.png)
 
-<!---
-TODO_DOCUMENT(@adshmh): update the list once the MVP set of dashboards are finalized.
+<!--- TODO_DOCUMENT(@adshmh): update the list once the MVP set of dashboards are finalized.
 -->
 ## Available PATH Metrics
 
