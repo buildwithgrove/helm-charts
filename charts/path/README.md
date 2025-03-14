@@ -182,6 +182,13 @@ kubectl port-forward svc/path-http 3069:3069 -n app
 
 The API will be available at `http://localhost:3069`
 
+:::tip Use the following command to verify PATH is serving requests:
+
+```bash
+curl http://localhost:3069/healthz
+{"status":"ready","imageTag":"development","readyStates":{"pokt-morse":true}}
+```
+
 ## Accessing Grafana Dashboards
 
 When PATH is installed with observability enabled, you can access the Grafana dashboards to monitor your application.
@@ -211,7 +218,12 @@ kubectl get secret watch-grafana -n monitoring -o jsonpath="{.data.admin-passwor
 
 - Click on Dashboards in the left sidebar
 - Select the "PATH" folder
+
+![Grafana dashboards list](./docs/img/grafana-dashboards-list.png)
+
 - Choose a dashboard to view metrics for your PATH application
+
+![Grafana PATH dashboards list](./docs/img/grafana-path-dashboards.png)
 
 For more detailed instructions on accessing and troubleshooting Grafana, see the [Accessing Grafana Dashboards](accessing-grafana.md) guide.
 

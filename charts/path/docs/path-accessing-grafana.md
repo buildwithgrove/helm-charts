@@ -118,13 +118,18 @@ For production environments, you'll likely want to set up an Ingress for Grafana
 After logging in to Grafana:
 
 1. Click on "Dashboards" in the left sidebar (four-squares icon)
-2. Select "Browse" to see all folders
-3. Click on the "PATH" folder
-4. Select one of the available dashboards:
-   - **PATH Overview**: General metrics and health
-   - **PATH Errors**: Error rates and details
-   - **PATH Performance**: Detailed performance metrics
 
+![Grafana dashboards list](./img/grafana-dashboards-list.png)
+
+2. Click on the "PATH" folder
+
+3. Select one of the available dashboards:
+
+![Grafana PATH dashboards list](./img/grafana-path-dashboards.png)
+
+<!---
+TODO_DOCUMENT(@adshmh): update the list once the MVP set of dashboards are finalized.
+-->
 ## Available PATH Metrics
 
 The most important metrics available in the dashboards include:
@@ -139,7 +144,10 @@ The most important metrics available in the dashboards include:
 
 You can create customized dashboards for PATH:
 
-1. Click the "+" icon in the Grafana sidebar
+1. Click the "+" icon in the Grafana toolbar
+
+![Adding a new Grafana dashboard](./img/grafana-add-dashboard.png)
+
 2. Select "Dashboard"
 3. Add panels using metrics from the "Prometheus" data source
 4. Use PromQL queries like:
