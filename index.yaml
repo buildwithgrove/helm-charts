@@ -3,7 +3,7 @@ entries:
   gateway-helm:
   - apiVersion: v2
     appVersion: v1.3.0
-    created: "2025-03-18T10:25:45.647887-06:00"
+    created: "2025-03-18T10:44:16.182835-06:00"
     description: The Helm chart for Envoy Gateway
     digest: ef02a73267fa607c4ffa1bfc6a8e9184381ee514cd177580051b0b6aaf8290e2
     home: https://gateway.envoyproxy.io/
@@ -25,36 +25,15 @@ entries:
     urls:
     - https://buildwithgrove.github.io/helm-charts/charts/gateway-helm-v1.3.0.tgz
     version: v1.3.0
-  guard:
+  path:
   - apiVersion: v2
-    appVersion: "1.0"
-    created: "2025-03-18T10:25:45.62535-06:00"
-    dependencies:
-    - name: gateway-helm
-      repository: oci://docker.io/envoyproxy
-      version: v1.3.0
-    description: A Helm chart for development and production deployments of GUARD
-      (Gateway Utilities for Authentication, Routing & Defense)
-    digest: 63ca4a134154f89770b3b544f4793ca43688ea2385d99fd3e7310ac6642c1304
-    name: guard
-    urls:
-    - https://buildwithgrove.github.io/helm-charts/guard-0.1.5.tgz
-    version: 0.1.5
-  watch:
-  - apiVersion: v2
-    appVersion: 1.0.0
-    created: "2025-03-18T10:25:45.641475-06:00"
-    dependencies:
-    - condition: kube-prometheus-stack.enabled
-      name: kube-prometheus-stack
-      repository: https://prometheus-community.github.io/helm-charts
-      version: 69.6.0
-    description: Workload Analytics and Telemetry for Comprehensive Health (WATCH)
-      - Observability stack for PATH and GUARD
-    digest: 3f0fc248c6f57c3a13db98eb236a6938c8bc0f832ac5c73a84201cf5b44b4409
-    name: watch
+    appVersion: 0.0.16
+    created: "2025-03-18T10:44:16.175924-06:00"
+    description: A Helm chart for Kubernetes
+    digest: 3a36966e2c8db0d5d626e99191039cf292efc6bf21ac7df30ba63ac380100269
+    name: path
     type: application
     urls:
-    - https://buildwithgrove.github.io/helm-charts/watch-0.1.8.tgz
-    version: 0.1.8
-generated: "2025-03-18T10:25:45.618949-06:00"
+    - https://buildwithgrove.github.io/helm-charts/path-0.1.4.tgz
+    version: 0.1.4
+generated: "2025-03-18T10:44:16.175153-06:00"
