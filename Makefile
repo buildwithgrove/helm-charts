@@ -24,5 +24,5 @@ chart_dependencies: ## Validate Helm dependency list to ensure all helm dependen
 ####################################################
 
 .PHONY: release_chart
-release_chart: ## Run GitHub Action release charter workflow.
+release_chart: ## Run GitHub Action release charter workflow to release new versions of ...
 	@gh workflow run release.yml --repo buildwithgrove/helm-charts
