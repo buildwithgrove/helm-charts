@@ -15,6 +15,7 @@
 - [1. Introduction](#1-introduction)
   - [1.1 Getting started](#11-getting-started)
   - [1.2 Makefile targets](#12-makefile-targets)
+  - [1.3 Required packages](#13-required-packages)
 
 ## 1. Introduction
 
@@ -39,3 +40,21 @@ helm repo update
 This repository has a number of makefile targets which allow the team with functionality such as validations and workflow execution.
 
 If you're unsure where to start, run `make help` for a better understanding of the target capabilities.
+
+### 1.3 Required packages
+
+This repo requires you to have installed the following packages:
+
+- `helm`
+- `gh`
+
+To install them using Homebrew simply run the following command:
+
+```sh
+brew install helm gh
+```
+
+If you're using a distribution other than MacOS or not using Homebrew, head over to the release page of each package to find out the best way to install them:
+
+- https://helm.sh/docs/intro/install/
+- https://github.com/cli/cli?tab=readme-ov-file#installation

@@ -23,6 +23,13 @@ validate_chart_dependencies: ## Validate Helm dependency list to ensure all helm
 #############  Helm releases targets  ##############
 ####################################################
 
+.PHONY: validate_gh_cli
+validate_gh_cli: ## Validate if GitHub CLI is installed
+	@if [ command -v gh ]; then \
+		echo "GitHub CLI is not installed. Please review README for installation instructions."; \
+		exit 1; \
+	fi; \
+
 .PHONY: release_chart
-release_chart: ## Run GitHub Action release charter workflow to release new versions of ...
+release_chart: validate_gh_cli ## Run GitHub Action release charter workflow to release new versions of ...
 	@gh workflow run release.yml --repo buildwithgrove/helm-charts
