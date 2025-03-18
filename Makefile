@@ -16,7 +16,7 @@ help: ## Prints all make target descriptions
 ####################################################
 
 .PHONY: chart_dependencies
-chart_dependencies: ## Validate Helm dependency list to ensure all helm dependencies added are resolvable.
+validate_ chart_dependencies: ## Validate Helm dependency list to ensure all helm dependencies added are resolvable.
 	@./dependency-validation.sh
 
 ####################################################
