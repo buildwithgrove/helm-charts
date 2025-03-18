@@ -5,6 +5,13 @@ on:
       - main
     paths:
       - 'charts/**'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual run'
+        required: false
+        default: 'Manual validation and release'
+
 
 jobs:
   release-charts:
@@ -15,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history is needed for proper diffing
+          fetch-depth: 0
 
       - name: Configure Git
         run: |
@@ -23,278 +30,34 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Install Helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v4.3.0
 
-      - name: Add Helm repos
+      - name: Add repositories
         run: |
-          # Add commonly used Helm repositories
-          helm repo add stable https://charts.helm.sh/stable
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo add jetstack https://charts.jetstack.io
-          helm repo update
-
-      - name: Install chart-releaser
-        run: |
-          mkdir -p .cr-release-packages
-          curl -sSLo cr.tar.gz "https://github.com/helm/chart-releaser/releases/download/v1.6.0/chart-releaser_1.6.0_linux_amd64.tar.gz"
-          tar -xzf cr.tar.gz
-          chmod +x cr
-          sudo mv cr /usr/local/bin/cr
-
-      - name: Debug file changes
-        run: |
-          echo "Changed files:"
-          git diff --name-only HEAD~1 HEAD
-
-      # Manual detection of chart changes
-      - name: Detect chart changes
-        id: manual-filter
-        run: |
-          # Get list of changed files
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} || git diff --name-only $(git rev-parse HEAD~1) $(git rev-parse HEAD))
-          echo "Changed files: $CHANGED_FILES"
-
-          # Initialize outputs
-          echo "guard=false" >> $GITHUB_OUTPUT
-          echo "watch=false" >> $GITHUB_OUTPUT
-          echo "path=false" >> $GITHUB_OUTPUT
-
-          # Check if each chart directory has changes
-          echo "$CHANGED_FILES" | grep -q "charts/guard/" && echo "guard=true" >> $GITHUB_OUTPUT
-          echo "$CHANGED_FILES" | grep -q "charts/watch/" && echo "watch=true" >> $GITHUB_OUTPUT
-          echo "$CHANGED_FILES" | grep -q "charts/path/" && echo "path=true" >> $GITHUB_OUTPUT
-
-          # Output results for logging
-          echo "Guard chart changed: $(echo "$CHANGED_FILES" | grep -q "charts/guard/" && echo "true" || echo "false")"
-          echo "Watch chart changed: $(echo "$CHANGED_FILES" | grep -q "charts/watch/" && echo "true" || echo "false")"
-          echo "Path chart changed: $(echo "$CHANGED_FILES" | grep -q "charts/path/" && echo "true" || echo "false")"
-
-      # Debug chart changes
-      - name: Debug chart changes
-        run: |
-          echo "Guard changed: ${{ steps.manual-filter.outputs.guard }}"
-          echo "Watch changed: ${{ steps.manual-filter.outputs.watch }}"
-          echo "Path changed: ${{ steps.manual-filter.outputs.path }}"
-
-      # SEQUENTIAL PROCESSING: Process, release and index each chart individually
-
-      # GUARD CHART - Process, Release, and Index (if changed)
-      - name: Process guard chart
-        if: steps.manual-filter.outputs.guard == 'true'
-        run: |
-          echo "Processing guard chart..."
-
-          # Create release directory
-          mkdir -p .cr-release-packages-guard
-
-          # Build dependencies and package
-          helm dependency build charts/guard
-          helm package charts/guard -d .cr-release-packages-guard
-
-          # List packaged charts
-          echo "Packaged guard chart:"
-          ls -la .cr-release-packages-guard/
-
-      - name: Release guard chart
-        if: steps.manual-filter.outputs.guard == 'true'
-        run: |
-          echo "Releasing guard chart..."
-          # Upload the packaged chart to GitHub Releases
-          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages-guard --token "${{ secrets.GITHUB_TOKEN }}" --skip-existing
-
-          # Setup git for gh-pages
-          git fetch origin gh-pages || git checkout --orphan gh-pages
-          git checkout gh-pages || (git checkout --orphan gh-pages && git rm -rf . && git clean -fxd)
-
-          # Create charts directory if it doesn't exist
-          mkdir -p charts
-
-          # Copy the actual chart package to the gh-pages branch
-          cp .cr-release-packages-guard/*.tgz charts/
-
-          # Generate or update index.yaml
-          if [ -f "index.yaml" ]; then
-            helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/charts --merge index.yaml
-          else
-            helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/charts
-          fi
-          cp charts/index.yaml .
-
-          # Commit and push the updated index and charts
-          git add index.yaml charts/
-          git commit -m "Update Helm chart index and add guard chart package" || echo "No changes to commit"
-          git push origin gh-pages
-
-          # Return to original branch
-          git checkout -
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Wait for guard chart to be available
-        if: steps.manual-filter.outputs.guard == 'true'
-        run: |
-          echo "Waiting for guard chart to be available in the GitHub Pages repository..."
-          sleep 30  # Initial wait
-
-          # Add the repository and update
-          helm repo add repo-under-test https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/charts || true
-
-          # Try up to 5 times to verify the chart is available
-          for i in {1..5}; do
-            echo "Attempt $i: Updating Helm repositories..."
-            helm repo update
-
-            if helm search repo repo-under-test/guard | grep -q guard; then
-              echo "Guard chart is now available!"
-              break
-            else
-              echo "Chart not yet available, waiting 30 seconds..."
-              sleep 30
-            fi
-
-            if [ $i -eq 5 ]; then
-              echo "Warning: Guard chart is not yet available after multiple attempts."
-              # Continue anyway, but log the warning
-            fi
+          for dir in $(ls -d charts/*/); do
+            helm dependency list $dir 2> /dev/null | tail +2 | head -n -1 | awk '{ print "helm repo add " $1 " " $3 }' | while read cmd; do $cmd; done
           done
-
-      # WATCH CHART - Process, Release, and Index (if changed)
-      - name: Process watch chart
-        if: steps.manual-filter.outputs.watch == 'true'
-        run: |
-          echo "Processing watch chart..."
-
-          # Create release directory
-          mkdir -p .cr-release-packages-watch
-
-          # Make sure we have the latest repo
-          helm repo add repo-under-test https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/charts || true
           helm repo update
 
-          # Build dependencies and package
-          helm dependency build charts/watch
-          helm package charts/watch -d .cr-release-packages-watch
+      - name: Validate dependencies
+        id: validate-deps
+        run: ./dependency_validation.sh
 
-          # List packaged charts
-          echo "Packaged watch chart:"
-          ls -la .cr-release-packages-watch/
-
-      - name: Release watch chart
-        if: steps.manual-filter.outputs.watch == 'true'
+      - name: Create chart-releaser config
+        if: success()
         run: |
-          echo "Releasing watch chart..."
-          # Upload the packaged chart to GitHub Releases
-          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages-watch --token "${{ secrets.GITHUB_TOKEN }}" --skip-existing
+          cat > cr.yaml <<EOF
+          owner: buildwithgrove
+          git-repo: https://github.com/buildwithgrove/helm-charts
+          git-upload-url: https://buildwithgrove.github.io/helm-charts
+          skip-existing: true
+          EOF
 
-          # Setup git for gh-pages
-          git fetch origin gh-pages
-          git checkout gh-pages
-
-          # Create charts directory if it doesn't exist
-          mkdir -p charts
-
-          # Copy the actual chart package to the gh-pages branch
-          cp .cr-release-packages-watch/*.tgz charts/
-
-          # Generate or update index.yaml
-          if [ -f "index.yaml" ]; then
-            helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/charts --merge index.yaml
-          else
-            helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/charts
-          fi
-          cp charts/index.yaml .
-
-          # Commit and push the updated index and charts
-          git add index.yaml charts/
-          git commit -m "Update Helm chart index and add watch chart package" || echo "No changes to commit"
-          git push origin gh-pages
-
-          # Return to original branch
-          git checkout -
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Wait for watch chart to be available
-        if: steps.manual-filter.outputs.watch == 'true'
-        run: |
-          echo "Waiting for watch chart to be available in the GitHub Pages repository..."
-          sleep 30  # Initial wait
-
-          # Add the repository and update
-          helm repo add repo-under-test https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/charts || true
-
-          # Try up to 5 times to verify the chart is available
-          for i in {1..5}; do
-            echo "Attempt $i: Updating Helm repositories..."
-            helm repo update
-
-            if helm search repo repo-under-test/watch | grep -q watch; then
-              echo "Watch chart is now available!"
-              break
-            else
-              echo "Chart not yet available, waiting 30 seconds..."
-              sleep 30
-            fi
-
-            if [ $i -eq 5 ]; then
-              echo "Warning: Watch chart is not yet available after multiple attempts."
-              # Continue anyway, but log the warning
-            fi
-          done
-
-      # PATH CHART - Process, Release, and Index (if changed)
-      - name: Process path chart
-        if: steps.manual-filter.outputs.path == 'true'
-        run: |
-          echo "Processing path chart..."
-
-          # Create release directory
-          mkdir -p .cr-release-packages-path
-
-          # Make sure we have the latest repo
-          helm repo add repo-under-test https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/charts || true
-          helm repo update
-
-          # Build dependencies and package
-          helm dependency build charts/path
-          helm package charts/path -d .cr-release-packages-path
-
-          # List packaged charts
-          echo "Packaged path chart:"
-          ls -la .cr-release-packages-path/
-
-      - name: Release path chart
-        if: steps.manual-filter.outputs.path == 'true'
-        run: |
-          echo "Releasing path chart..."
-          # Upload the packaged chart to GitHub Releases
-          cr upload -o "${{ github.repository_owner }}" -r "${{ github.event.repository.name }}" -p .cr-release-packages-path --token "${{ secrets.GITHUB_TOKEN }}" --skip-existing
-
-          # Setup git for gh-pages
-          git fetch origin gh-pages
-          git checkout gh-pages
-
-          # Create charts directory if it doesn't exist
-          mkdir -p charts
-
-          # Copy the actual chart package to the gh-pages branch
-          cp .cr-release-packages-path/*.tgz charts/
-
-          # Generate or update index.yaml
-          if [ -f "index.yaml" ]; then
-            helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/charts --merge index.yaml
-          else
-            helm repo index charts/ --url https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/charts
-          fi
-          cp charts/index.yaml .
-
-          # Commit and push the updated index and charts
-          git add index.yaml charts/
-          git commit -m "Update Helm chart index and add path chart package" || echo "No changes to commit"
-          git push origin gh-pages
-
-          # Return to original branch
-          git checkout -
+      - name: Run chart-releaser
+        if: success()
+        uses: helm/chart-releaser-action@v1.7.0
+        with:
+          charts_dir: charts
+          config: cr.yaml
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
