@@ -41,9 +41,9 @@ jobs:
 
       - name: Validate dependencies
         id: validate-deps
-        run: ./dependency-validation.sh
+        run: ./dependency_validation.sh
 
-      - name: Create cr.yaml
+      - name: Create chart-releaser config
         if: success()
         run: |
           cat > cr.yaml <<EOF
