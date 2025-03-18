@@ -6,4 +6,4 @@ appVersion: "1.0"
 dependencies:
   - name: gateway-helm
     version: v1.3.0
-    repository: "oci://docker.io/envoyproxy"
+    repository: ./charts
