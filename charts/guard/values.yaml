@@ -31,6 +31,6 @@ auth:
       enabled: false
     pads:
       enabled: true
-      mountPath: /app
+      mountPath: /app/data
       fromSecret:
         secretName: pads-config
