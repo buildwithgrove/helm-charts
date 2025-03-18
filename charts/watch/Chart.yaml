@@ -2,7 +2,7 @@ apiVersion: v2
 name: watch
 description: Workload Analytics and Telemetry for Comprehensive Health (WATCH) - Observability stack for PATH and GUARD
 type: application
-version: 0.1.2
+version: 0.1.9
 appVersion: "1.0.0"
 dependencies:
   - name: kube-prometheus-stack
