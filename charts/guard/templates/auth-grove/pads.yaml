@@ -43,11 +43,17 @@ spec:
         - containerPort: {{ $padsConfig.port }}
         volumeMounts:
           - name: {{$name}}-data
-            mountPath: {{ .Values.pads.mountPath }}
+            mountPath: {{ $padsConfig.mountPath }}
       volumes:
+      {{- if $padsConfig.fromSecret }}
+      - name: {{$name}}-data
+        secret:
+          secretName: {{ $padsConfig.fromSecret.secretName }}
+      {{- else }}
       - name: {{$name}}-data
         configMap:
           name: pads-data
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -64,10 +70,12 @@ spec:
     protocol: TCP
     name: grpc
 ---
+{{- if not $padsConfig.fromSecret }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: pads-data
 data: {{- toYaml $padsConfig.configMap | nindent 4 }}
+{{- end }}
 
 {{- end }}

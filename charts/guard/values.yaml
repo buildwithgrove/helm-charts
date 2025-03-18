@@ -30,4 +30,7 @@ auth:
     peas:
       enabled: false
     pads:
-      enabled: false
+      enabled: true
+      mountPath: /app
+      fromSecret:
+        secretName: pads-config
