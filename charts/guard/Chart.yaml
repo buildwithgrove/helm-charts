@@ -7,4 +7,4 @@ version: 0.1.11
 dependencies:
   - name: gateway-helm
     version: v1.3.0
-    repository: file://./charts
+    repository: https://buildwithgrove.github.io/helm-charts/
