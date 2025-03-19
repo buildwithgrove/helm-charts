@@ -41,7 +41,22 @@ entries:
   guard:
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-18T17:57:11.140553-06:00"
+    created: "2025-03-18T18:38:44.120523-06:00"
+    dependencies:
+    - name: gateway-helm
+      repository: https://buildwithgrove.github.io/helm-charts/
+      version: v1.3.0
+    description: A Helm chart for development and production deployments of GUARD
+      (Gateway Utilities for Authentication, Routing & Defense)
+    digest: 09c4765efbd37062e0c1955b1723b8445ec9241714ef52e204201c1b3197d7d2
+    name: guard
+    type: application
+    urls:
+    - https://buildwithgrove.github.io/helm-charts/guard-0.1.12.tgz
+    version: 0.1.12
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2025-03-18T18:38:44.114074-06:00"
     dependencies:
     - name: gateway-helm
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -56,7 +71,7 @@ entries:
     version: 0.1.11
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-18T17:57:11.134323-06:00"
+    created: "2025-03-18T18:38:44.10706-06:00"
     dependencies:
     - name: gateway-helm
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -71,7 +86,7 @@ entries:
     version: 0.1.10
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-18T17:57:11.152779-06:00"
+    created: "2025-03-18T18:38:44.132981-06:00"
     dependencies:
     - name: gateway-helm
       repository: file://.charts
@@ -85,7 +100,7 @@ entries:
     version: 0.1.9
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-18T17:57:11.146889-06:00"
+    created: "2025-03-18T18:38:44.126734-06:00"
     dependencies:
     - name: gateway-helm
       repository: oci://docker.io/envoyproxy
@@ -114,7 +129,25 @@ entries:
   path:
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-18T17:57:11.199314-06:00"
+    created: "2025-03-18T18:38:44.202604-06:00"
+    dependencies:
+    - name: guard
+      repository: https://buildwithgrove.github.io/helm-charts/
+      version: 0.1.12
+    - condition: observability.enabled
+      name: watch
+      repository: https://buildwithgrove.github.io/helm-charts/
+      version: 0.1.8
+    description: A Helm chart for PATH (PATH API & Toolkit Harness)
+    digest: dbf0f7604cdc009548a7c71c6da3441b291d6129dfbb6fb8cd16d34fd8a7f017
+    name: path
+    type: application
+    urls:
+    - https://buildwithgrove.github.io/helm-charts/path-0.1.12.tgz
+    version: 0.1.12
+  - apiVersion: v2
+    appVersion: 0.0.16
+    created: "2025-03-18T18:38:44.178887-06:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -132,7 +165,7 @@ entries:
     version: 0.1.11
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-18T17:57:11.176211-06:00"
+    created: "2025-03-18T18:38:44.155112-06:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -150,7 +183,7 @@ entries:
     version: 0.1.10
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-18T17:57:11.200426-06:00"
+    created: "2025-03-18T18:38:44.203495-06:00"
     description: A Helm chart for Kubernetes
     digest: 6eccee4597c425e337a6045a2c661aba23cbac1c03ac5dd3a773c00416d1a66e
     name: path
@@ -200,7 +233,7 @@ entries:
     version: 0.1.5
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-18T17:57:11.19979-06:00"
+    created: "2025-03-18T18:38:44.203076-06:00"
     description: A Helm chart for Kubernetes
     digest: 3a36966e2c8db0d5d626e99191039cf292efc6bf21ac7df30ba63ac380100269
     name: path
@@ -274,7 +307,7 @@ entries:
   watch:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-03-18T17:57:11.215836-06:00"
+    created: "2025-03-18T18:38:44.219773-06:00"
     dependencies:
     - condition: kube-prometheus-stack.enabled
       name: kube-prometheus-stack
@@ -288,4 +321,4 @@ entries:
     urls:
     - https://buildwithgrove.github.io/helm-charts/watch-0.1.8.tgz
     version: 0.1.8
-generated: "2025-03-18T17:57:11.126086-06:00"
+generated: "2025-03-18T18:38:44.09931-06:00"
