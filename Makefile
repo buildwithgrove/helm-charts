@@ -33,3 +33,6 @@ validate_gh_cli: ## Validate if GitHub CLI is installed
 .PHONY: release_chart
 release_chart: validate_gh_cli ## Run GitHub Action release charter workflow to release new versions of ...
 	@gh workflow run release.yml --repo buildwithgrove/helm-charts
+
+
+include ./makefiles/debug.mk

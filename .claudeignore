@@ -1,0 +1,70 @@
+# Ignore git related files
+
+.git/
+.gitignore
+.claudeignore
+.github/
+pre-commit*
+.pre-commit*
+
+# Ignore development artifacts
+
+_.tgz
+_.tar.gz
+Makefile
+makesfiles/
+git-hook/
+dependency_validation.sh
+
+# Documentation
+
+\_.md
+README.md
+LICENSE
+docs/
+**/img/
+**/docs/img/
+
+# Editor configs
+
+.vscode/
+.idea/
+_.swp
+_.swo
+
+# Generated files
+
+**/generated/
+**/crds/generated/
+
+# CI/CD files
+
+.circleci/
+.travis.yml
+.jenkins/
+
+# Logs
+
+\*.log
+
+# OS generated files
+
+.DS*Store
+.DS_Store?
+.*\*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Chart package files
+
+guard-_.tgz
+path-_.tgz
+watch-\*.tgz
+
+# Testing
+
+**tests**/
+test/
+tests/
