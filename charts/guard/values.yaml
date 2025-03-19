@@ -22,15 +22,18 @@ domain: ""
 services: []
 auth:
   apiKey:
-    enabled: true
+    enabled: false
     headerKey: ""
     apiKeys: []
   groveLegacy:
-    enabled: false
+    enabled: true
     peas:
       enabled: false
     pads:
       enabled: true
+      envFrom:
+        - secretRef: 
+            name: pads-db-connection
       mountPath: /app/data
       fromSecret:
         secretName: pads-config

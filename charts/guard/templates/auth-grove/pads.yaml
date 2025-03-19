@@ -38,7 +38,12 @@ spec:
       - name: path-auth-data-server
         image: ghcr.io/buildwithgrove/path-auth-data-server:latest
         imagePullPolicy: IfNotPresent
-        env: {{- toYaml $padsConfig.env | nindent 10 }}
+        {{- with $padsConfig.envFrom }}
+        envFrom: {{- toYaml . | nindent 10}}
+        {{- end }}
+        {{- with $padsConfig.env }}
+        env: {{- toYaml . | nindent 10}}
+        {{- end }}
         ports:
         - containerPort: {{ $padsConfig.port }}
         volumeMounts:
