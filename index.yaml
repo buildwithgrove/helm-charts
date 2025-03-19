@@ -41,7 +41,7 @@ entries:
   guard:
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-19T00:23:30.525059-06:00"
+    created: "2025-03-19T11:14:48.444641-07:00"
     dependencies:
     - name: gateway-helm
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -56,7 +56,7 @@ entries:
     version: 0.1.13
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-19T00:23:30.519456-06:00"
+    created: "2025-03-19T11:14:48.437821-07:00"
     dependencies:
     - name: gateway-helm
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -71,7 +71,7 @@ entries:
     version: 0.1.12
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-19T00:23:30.513379-06:00"
+    created: "2025-03-19T11:14:48.430844-07:00"
     dependencies:
     - name: gateway-helm
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -101,7 +101,7 @@ entries:
     version: 0.1.10
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-19T00:23:30.535701-06:00"
+    created: "2025-03-19T11:14:48.458383-07:00"
     dependencies:
     - name: gateway-helm
       repository: file://.charts
@@ -115,7 +115,7 @@ entries:
     version: 0.1.9
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-19T00:23:30.530429-06:00"
+    created: "2025-03-19T11:14:48.451526-07:00"
     dependencies:
     - name: gateway-helm
       repository: oci://docker.io/envoyproxy
@@ -129,7 +129,7 @@ entries:
     version: 0.1.5
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-07T21:03:53.658284327Z"
+    created: "2025-03-19T11:14:48.423331-07:00"
     dependencies:
     - name: gateway-helm
       repository: oci://docker.io/envoyproxy
@@ -139,12 +139,30 @@ entries:
     digest: 843cd6ae5e501972868db4c4689d7cad3a30ee5f723f4ddb58edce3e15bc7524
     name: guard
     urls:
-    - https://github.com/buildwithgrove/helm-charts/releases/download/guard-0.1.1/guard-0.1.1.tgz
+    - https://buildwithgrove.github.io/helm-charts/guard-0.1.1.tgz
     version: 0.1.1
   path:
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-19T00:23:30.624838-06:00"
+    created: "2025-03-19T11:14:48.608041-07:00"
+    dependencies:
+    - name: guard
+      repository: https://buildwithgrove.github.io/helm-charts/
+      version: 0.1.13
+    - condition: observability.enabled
+      name: watch
+      repository: https://buildwithgrove.github.io/helm-charts/
+      version: 0.1.8
+    description: A Helm chart for PATH (PATH API & Toolkit Harness)
+    digest: 9e9194095c6db08fcdd284184f97a4c9fc14d17716d70f1ab6adf1e0ab397671
+    name: path
+    type: application
+    urls:
+    - https://buildwithgrove.github.io/helm-charts/path-0.1.14.tgz
+    version: 0.1.14
+  - apiVersion: v2
+    appVersion: 0.0.16
+    created: "2025-03-19T11:14:48.578551-07:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -162,7 +180,7 @@ entries:
     version: 0.1.13
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-19T00:23:30.601949-06:00"
+    created: "2025-03-19T11:14:48.548924-07:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -180,7 +198,7 @@ entries:
     version: 0.1.12
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-19T00:23:30.579991-06:00"
+    created: "2025-03-19T11:14:48.519508-07:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -198,7 +216,7 @@ entries:
     version: 0.1.11
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-19T00:23:30.558436-06:00"
+    created: "2025-03-19T11:14:48.489206-07:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -340,7 +358,7 @@ entries:
   watch:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-03-19T00:23:30.641906-06:00"
+    created: "2025-03-19T11:14:48.628745-07:00"
     dependencies:
     - condition: kube-prometheus-stack.enabled
       name: kube-prometheus-stack
@@ -354,4 +372,4 @@ entries:
     urls:
     - https://buildwithgrove.github.io/helm-charts/watch-0.1.8.tgz
     version: 0.1.8
-generated: "2025-03-19T00:23:30.498692-06:00"
+generated: "2025-03-19T11:14:48.414635-07:00"
