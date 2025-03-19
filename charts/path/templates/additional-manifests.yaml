@@ -7,4 +7,4 @@
 ---
 {{ $manifest | toYaml }}
 {{- end }}
-{{- end }} 
+{{- end }}

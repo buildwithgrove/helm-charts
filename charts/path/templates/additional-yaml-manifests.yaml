@@ -5,4 +5,4 @@
 */ -}}
 {{- if .Values.additionalYamlManifests }}
 {{ tpl .Values.additionalYamlManifests . }}
-{{- end }} 
+{{- end }}
