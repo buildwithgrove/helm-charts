@@ -31,9 +31,9 @@ auth:
       enabled: false
     pads:
       enabled: true
-      envFrom:
-        - secretRef: 
-            name: pads-db-connection
-      mountPath: /app/data
-      fromSecret:
-        secretName: pads-config
+      # envFrom:
+      #   - secretRef: 
+      #       name: pads-db-connection
+      # mountPath: /app/data
+      # fromSecret:
+      #   secretName: pads-config
