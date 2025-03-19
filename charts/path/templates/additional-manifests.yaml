@@ -1,0 +1,10 @@
+{{- /*
+  This template allows for additional Kubernetes manifests to be included in the chart.
+  The additionalManifests value expects a list of complete YAML manifests.
+*/ -}}
+{{- if .Values.additionalManifests }}
+{{- range $manifest := .Values.additionalManifests }}
+---
+{{ $manifest | toYaml }}
+{{- end }}
+{{- end }} 
