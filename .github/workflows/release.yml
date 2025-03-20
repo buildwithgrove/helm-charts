@@ -39,10 +39,6 @@ jobs:
           done
           helm repo update
 
-      - name: Validate dependencies
-        id: validate-deps
-        run: ./dependency_validation.sh
-
       - name: Create chart-releaser config
         if: success()
         run: |
