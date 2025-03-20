@@ -18,21 +18,34 @@ global:
   middlewarePort: 3000
 gateway:
   port: 3070
-domain: ""
-services: []
+# **IMPORTANT: domain needs to be specified for the HTTPRoute resources to route the requests as intended. **
+domain: "example.com"
+# **IMPORTANT: specify at least one version: otherwise no requests will be accepted by Envoy Gateway.
+services:
+  # Morse-specific services
+  - serviceId: F00C
+    aliases:
+      - eth
+      - eth-mainnet
+    # TODO_MVP(@adshmh): Required by Grove for migratin to PATH. Remove once the migration is completed.
+    #trafficSplitting:
+    #  enabled: true
+    #  weights:
+    #    path: 70
+    #    middleware: 30
 auth:
   apiKey:
-    enabled: false
+    enabled: true
     headerKey: ""
     apiKeys: []
   groveLegacy:
-    enabled: true
+    enabled: false
     peas:
       enabled: false
     pads:
       enabled: true
       envFrom:
-        - secretRef: 
+        - secretRef:
             name: pads-db-connection
       mountPath: /app/data
       fromSecret:

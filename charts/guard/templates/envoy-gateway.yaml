@@ -9,6 +9,11 @@ metadata:
     {{- include "guard-helm.labels" $ | nindent 4 }}
 spec:
   gatewayClassName: {{$gwname}}-envoy-gateway-class
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: {{$gwname}}-custom-proxy-config
   listeners:
     - name: http
       protocol: HTTP
@@ -26,4 +31,3 @@ metadata:
     {{- include "guard-helm.labels" $ | nindent 4 }}
 spec:
   controllerName: gateway.envoyproxy.io/gatewayclass-controller
-
