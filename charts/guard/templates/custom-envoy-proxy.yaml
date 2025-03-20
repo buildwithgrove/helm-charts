@@ -1,4 +1,6 @@
 # This resources configures a custom Envoy Proxy, to allow specifying ClusterIP as the type of the Envoy Proxy service.
+# See the following link for more details:
+# https://gateway.envoyproxy.io/latest/tasks/operations/customize-envoyproxy/
 ---
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 apiVersion: gateway.envoyproxy.io/v1alpha1
