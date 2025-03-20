@@ -34,20 +34,24 @@ GUARD uses Envoy Gateway as its underlying proxy technology and is deployed usin
 
 ```mermaid
 graph TD
-    User["External User/Client"]
-    GUARD["GUARD (Envoy Gateway)"]
-    PATH["PATH API"]
-    
-    User -->|"HTTP Requests"| GUARD
-    GUARD -->|"Authenticate & Route"| PATH
-    
-    subgraph "GUARD Components"
-      Auth["Authentication"]
-      Route["Routing"]
-    end
-    
-    GUARD --- Auth
-    GUARD --- Route
+    User(["<big>PATH<br>User</big>"])
+    GUARD(["<big>GUARD<br>(Envoy Gateway}</big>"])
+
+    AUTH{{"SecurityPolicy"}}
+
+    AUTH_DECISION{Did<br>Authorize<br>Request?}
+    PATH([<big>PATH Service</big>])
+
+    Error[[Error Returned to User]]
+    Result[[Result Returned to User]]
+
+    User -->|1.Send Request| GUARD
+    GUARD -->|2.Authorization Check| AUTH
+    AUTH -->|3.Authorization Result| GUARD
+    GUARD --> AUTH_DECISION
+    AUTH_DECISION -->|4.No <br> Forward Request| Error
+    AUTH_DECISION -->|4.Yes <br> Forward Request| PATH
+    PATH -->|5.Response| Result
 ```
 
 ## Architecture
