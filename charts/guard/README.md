@@ -5,7 +5,6 @@ A Helm chart for deploying GUARD, a gateway layer providing authentication, rout
 - [Overview](#overview)
 - [Architecture](#architecture)
   - [Envoy Gateway](#envoy-gateway)
-  - [Request Flow](#request-flow)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
   - [Add Required Helm Repositories](#add-required-helm-repositories)
@@ -18,6 +17,7 @@ A Helm chart for deploying GUARD, a gateway layer providing authentication, rout
   - [Route Examples](#route-examples)
 - [Authentication Methods](#authentication-methods)
   - [API Key Authentication](#api-key-authentication)
+    - [Request Flow](#request-flow)
 - [Security Considerations](#security-considerations)
 - [Extending GUARD](#extending-guard)
 - [Uninstalling](#uninstalling)
@@ -75,28 +75,6 @@ Envoy Gateway is an open source project for managing Envoy Proxy as a standalone
 - [Envoy Gateway Quickstart](https://gateway.envoyproxy.io/docs/tasks/quickstart/)
 - [Envoy Gateway Resources](https://gateway.envoyproxy.io/docs/concepts/concepts_overview/)
 - [Envoy Gateway API Reference](https://gateway.envoyproxy.io/docs/api/)
-
-### Request Flow
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant G as GUARD<br/>(Envoy Gateway)
-    participant A as API Key<br/>SecurityPolicy
-    participant P as PATH
-
-    U->>G: Send request with API key
-    G->>A: Validate API key
-    alt API key valid
-        A-->>G: Valid response
-        G->>P: Forward request to PATH
-        P-->>G: Processed response
-        G-->>U: Return response to user
-    else API key invalid
-        A-->>G: Invalid response
-        G-->>U: Return error (Unauthorized)
-    end
-```
 
 ## Prerequisites
 
@@ -238,6 +216,28 @@ More authentication methods will be added in the future, as [Envoy Gateway](http
 ### API Key Authentication
 
 API key authentication allows you to secure your services with API keys. This authentication method is configured in the `auth-api-key` templates.
+
+#### Request Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant G as GUARD<br/>(Envoy Gateway)
+    participant A as API Key<br/>SecurityPolicy
+    participant P as PATH
+
+    U->>G: Send request with API key
+    G->>A: Validate API key
+    alt API key valid
+        A-->>G: Valid response
+        G->>P: Forward request to PATH
+        P-->>G: Processed response
+        G-->>U: Return response to user
+    else API key invalid
+        A-->>G: Invalid response
+        G-->>U: Return error (Unauthorized)
+    end
+```
 
 **Enabling API Key Authentication:**
 
