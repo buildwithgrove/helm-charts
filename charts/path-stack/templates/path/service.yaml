@@ -1,0 +1,20 @@
+{{ $name := include "path.name" . }}
+{{- range $prt := .Values.path.ports }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$name}}-{{ $prt.name }}
+  labels:
+    app.kubernetes.io/name: {{$name}}
+spec:
+  selector:
+    app.kubernetes.io/name: {{$name}}
+  type: {{ $prt.service.type }}
+  ports:
+    - name: {{ $prt.name }}
+      protocol: {{ $prt.protocol }}
+      port: {{ $prt.port }}
+      targetPort: {{ $prt.port }}
+---
+{{- end }}

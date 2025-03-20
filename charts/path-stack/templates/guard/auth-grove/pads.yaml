@@ -1,0 +1,86 @@
+# PATH Auth Data Server (PADS) Helm Chart
+# Used as part of the Grove legacy authorization flow.
+#
+# ######### VERY IMPORTANT #########
+# If you are not authorizing Grove Portal requests,
+# this is VERY unlikely to fit your exact use-case.
+#
+# A gRPC server that provides Gateway Endpoint data from a configurable data source
+# to the Go External Authorization Server, enabling authorization for the PATH Gateway.
+#
+# Data sources can include:
+#   - YAML files
+#   - Postgres databases
+#
+# Github Repo: https://github.com/buildwithgrove/path-auth-data-server
+{{- if .Values.guard.auth.groveLegacy.enabled }}
+{{- $name := include "guard.fullname" . }}
+{{- $padsConfig:= .Values.guard.auth.groveLegacy.pads }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{$name}}-pads
+  labels:
+    {{- include "path-stack.labels" $ | nindent 4 }}
+spec:
+  replicas: {{ $padsConfig.replicas }}
+  selector:
+    matchLabels:
+      app: {{$name}}-pads
+  template:
+    metadata:
+      labels:
+        {{- include "path-stack.labels" $ | nindent 8 }}
+        app: {{$name}}-pads
+    spec:
+      containers:
+      - name: path-auth-data-server
+        image: ghcr.io/buildwithgrove/path-auth-data-server:latest
+        imagePullPolicy: IfNotPresent
+        {{- with $padsConfig.envFrom }}
+        envFrom: {{- toYaml . | nindent 10}}
+        {{- end }}
+        {{- with $padsConfig.env }}
+        env: {{- toYaml . | nindent 10}}
+        {{- end }}
+        ports:
+        - containerPort: {{ $padsConfig.port }}
+        volumeMounts:
+          - name: {{$name}}-data
+            mountPath: {{ $padsConfig.mountPath }}
+      volumes:
+      {{- if $padsConfig.fromSecret }}
+      - name: {{$name}}-data
+        secret:
+          secretName: {{ $padsConfig.fromSecret.secretName }}
+      {{- else }}
+      - name: {{$name}}-data
+        configMap:
+          name: pads-data
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{$name}}-pads
+  labels:
+    {{- include "path-stack.labels" $ | nindent 4 }}
+spec:
+  selector:
+    app: {{$name}}-pads
+  ports:
+  - port: {{ $padsConfig.port }}
+    targetPort: {{ $padsConfig.port }}
+    protocol: TCP
+    name: grpc
+---
+{{- if not $padsConfig.fromSecret }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pads-data
+data: {{- toYaml $padsConfig.configMap | nindent 4 }}
+{{- end }}
+
+{{- end }}

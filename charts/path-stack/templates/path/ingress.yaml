@@ -1,0 +1,59 @@
+{{ $ingressname := include "path.name" . }}
+{{- range $kprt, $prt := $.Values.path.ports }}
+
+{{- if $prt.ingress }}
+{{- if or (eq "true" (get $prt.ingress "enabled"|toString)) (empty (get $prt.ingress "enabled"|toString))}}{{/* # If enabled==true or not given*/}}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{$ingressname}}-{{ $prt.name }}
+  labels:
+    {{- include "path.labels" $ | nindent 4 }}
+  {{- with $prt.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with $prt.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- if $prt.ingress.tls }}
+  tls:
+    {{- range $prt.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range $prt.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+            pathType: {{ .pathType }}
+            {{- end }}
+            {{- if .backend}}
+            backend:
+              service:
+                name: {{ .backend.service.name }}
+                port:
+                  number: {{ .backend.service.port.number }}
+            {{- else }}
+            backend:
+              service:
+                name: {{$ingressname}}-{{ $prt.name }}
+                port:
+                  number: {{ $prt.port }}
+            {{- end }}
+          {{- end }}
+    {{- end }}
+
+{{- end -}}
+{{- end -}}
+{{- end -}}

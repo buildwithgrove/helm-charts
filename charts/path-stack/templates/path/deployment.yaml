@@ -1,0 +1,122 @@
+{{ $name := include "path.name" . }}
+{{- $volumeName := printf "%s-data" $name }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "path.fullname" . }}
+  labels:
+    {{- include "path-stack.labels" $ | nindent 4 }}
+    {{- with .Values.path.additionalLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- with .Values.path.additionalAnnotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.path.replicas }}
+  strategy:
+    type: {{ default "Recreate" $.Values.path.strategy }}
+  selector:
+    matchLabels:
+      deploymentname: {{ include "path.fullname" . }}
+  template:
+    metadata:
+      labels:
+        {{- include "path-stack.labels" $ | nindent 8 }}
+        {{- with .Values.path.additionalLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        deploymentname: {{ include "path.fullname" . }}
+      annotations:
+        {{- with .Values.path.additionalAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with $.Values.path.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
+      {{- with $.Values.path.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.path.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.path.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.path.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.global.securityContext }}
+      securityContext: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.global.serviceAccount.name }}
+      serviceAccountName: {{ . }}
+      {{- end }}
+      {{- with $.Values.path.dnsPolicy }}
+      dnsPolicy: {{  . }}
+      {{- end }}
+      {{- with $.Values.path.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.path.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml . | nindent 8 }}
+      {{- end }}
+
+      containers:
+        - name: {{ include "path.name" . }}
+          image: "{{ .Values.path.image.repository }}:{{ .Values.path.image.tag }}"
+          imagePullPolicy: {{ default "IfNotPresent" $.Values.path.image.pullPolicy }}
+          {{- with $.Values.path.envFrom }}
+          envFrom: {{- toYaml . | nindent 12}}
+          {{- end }}
+          {{- with $.Values.path.env }}
+          env: {{- toYaml . | nindent 12}}
+          {{- end }}
+          {{- with $.Values.path.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+          {{- end }}
+
+          {{- range $kprt, $prt := $.Values.path.ports }}
+          ports:
+            - name:  {{ $prt.name}}
+              protocol: {{ $prt.protocol }}
+              containerPort: {{ $prt.port }}
+          {{- end }}
+          volumeMounts:
+          {{- if or $.Values.path.fromConfigMap $.Values.path.fromSecret }}
+            - name: path-config-volume
+              mountPath: /app/config/.config.yaml
+              subPath: .config.yaml
+          {{- end }}
+          {{- with $.Values.path.lifecycle }}
+          lifecycle: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with (default (list ) $.Values.path.startupProbe) }}
+          startupProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with (default (list ) $.Values.path.livenessProbe) }}
+          livenessProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with (default (list ) $.Values.path.readinessProbe) }}
+          readinessProbe: {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+      {{- if $.Values.path.fromConfigMap }}
+        - name: path-config-volume
+          configMap:
+            name: {{ $.Values.path.fromConfigMap.name }}
+            items:
+              - key: {{ $.Values.path.fromConfigMap.key | default ".config.yaml" }}
+                path: .config.yaml
+      {{- else if $.Values.path.fromSecret }}
+        - name: path-config-volume
+          secret:
+            secretName: {{ $.Values.path.fromSecret.name }}
+            items:
+              - key: {{ $.Values.path.fromSecret.key | default ".config.yaml" }}
+                path: .config.yaml
+      {{- end }}

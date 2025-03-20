@@ -1,0 +1,25 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+PATH server has been deployed with the following configuration approach:
+{{- if .Values.path.fromConfigMap }}
+- Configuration loaded from existing ConfigMap: {{ .Values.path.fromConfigMap.name }}
+  Using key: {{ .Values.path.fromConfigMap.key | default ".config.yaml" }}
+{{- else if .Values.path.fromSecret }}
+- Configuration loaded from existing Secret: {{ .Values.path.fromSecret.name }}
+  Using key: {{ .Values.path.fromSecret.key | default ".config.yaml" }}
+{{- else }}
+- No configuration has been provided. PATH may use default values or fail to start properly.
+  Please configure PATH by setting either config.fromConfigMap or config.fromSecret in values.yaml.
+{{- end }}
+
+Configuration is mounted at /app/config/.config.yaml in the PATH container.
+
+To check the status of your deployment:
+  kubectl get deployments -n {{ .Release.Namespace }}
+
+To access the PATH service:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "path.fullname" . }}-http 3069:3069
+  
+This will make PATH accessible at http://localhost:3069

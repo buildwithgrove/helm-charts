@@ -1,0 +1,96 @@
+# HTTPRoute Generator for Services
+#
+# Generates an HTTPRoute resource for each service in the `services` list, configuring routing
+# based on subdomain patterns (service ID or aliases).
+#
+# Ref: https://gateway.envoyproxy.io/latest/api/gateway_api/httproute/
+#
+# Routing behavior:
+#   - The `hostnames` field specifies which subdomains will match the request
+#   - All matched requests receive a "target-service-id: [SERVICE_ID]" header
+#
+# Example configuration:
+# services:
+#   - serviceId: F00C
+#     aliases:
+#       - eth
+#       - eth-mainnet
+#
+# This configuration would match requests to:
+#   - https://<ALIAS OR SERVICE_ID>.path.grove.city/v1
+# For example:
+#   - https://F00C.path.grove.city/v1
+#   - https://eth.path.grove.city/v1
+#   - https://eth-mainnet.path.grove.city/v1
+#
+# All these requests would receive the header "target-service-id: F00C"
+#
+# -- CONTROLLED TRAFFIC SHIFTING --
+# DEV_NOTE: Only subdomain routes split traffic to Middleware as the Middleware
+# only supports subdomain service ID routing.
+# For example:
+#     - https://eth.path.grove.city/v1 will split traffic.
+#     - https://path.grove.city/v1 with header "-H target-service-id: eth" will not split traffic.
+#
+# For more context, see Notion discussion Here:
+# https://www.notion.so/buildwithgrove/Traffic-Shifting-Migration-to-PATH-1b2a36edfff6803d8b24e4cafc83fbad?pvs=4#1b5a36edfff680be8dbdeb47647cd3ad
+#
+{{- $gwname:= default "guard" $.Values.guard.name }}
+{{- $name:= include "guard.fullname" . }}
+
+{{- range .Values.guard.services }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+
+metadata:
+  # eg. F00C-subdomain-route
+  name: {{ .serviceId | lower }}-subdomain-route
+
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: {{$gwname}}-envoy-gateway
+
+  # Match requests based on their subdomain.
+  hostnames:
+  - "{{ .serviceId | lower }}.{{ $.Values.guard.domain }}"
+  {{- if .aliases }}
+  {{- range .aliases }}
+  - "{{ . | lower }}.{{ $.Values.guard.domain }}"
+  {{- end }}
+  {{- end }}
+
+  rules:
+    # -- CONTROLLED TRAFFIC SHIFTING --
+    # Define a default dict for the traffic splitting configuration.
+    # This is to prevent nil pointer errors when the traffic splitting
+    # configuration is not set for a service.
+    {{- $ts := default dict .trafficSplitting }}
+    - backendRefs:
+        - name: {{ $.Values.guard.serviceName }}
+          port: {{ $.Values.guard.servicePort }}
+          # -- CONTROLLED TRAFFIC SHIFTING --
+          # If traffic splitting is enabled, set the weight for the PATH backend.
+          {{- if eq $ts.enabled true }}
+          weight: {{ $ts.weights.path }}
+          {{- end }}
+        # -- CONTROLLED TRAFFIC SHIFTING --
+        # If traffic splitting is enabled, set a second backendRef for the Middleware backend.
+        {{- if eq $ts.enabled true }}
+        - name: {{ $.Values.guard.middlewareServiceName }}
+          port: {{ $.Values.guard.middlewarePort }}
+          weight: {{ $ts.weights.middleware }}
+        {{- end }}
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: "target-service-id"
+                value: "{{ .serviceId }}"
+      matches:
+        - path:
+            type: PathPrefix
+            value: /v1
+
+{{ end }}

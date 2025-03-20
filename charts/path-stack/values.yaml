@@ -1,0 +1,257 @@
+##########################################################################
+# -------------------- PATH Stack Values definition -------------------- #
+##########################################################################
+fullnameOverride: path-stack
+global:
+  serviceAccount:
+    create: true
+    name: path-stack-sa
+    # annotations: {}
+  securityContext:
+    fsGroup: 1001
+    runAsUser: 1001
+    runAsGroup: 1001
+
+##########################################################################
+# -------------------- PATH Specific configurations -------------------- #
+##########################################################################
+path:
+  name: "path"
+  #-- nameOverride allows override of a standard name defined by the chart.
+  nameOverride: ""
+  image:
+    repository: ghcr.io/buildwithgrove/path
+    # TODO_MVP(@adshmh): change to "latest" once the PATH repo CI's docker image push job is updated to use the correct tag.
+    tag: main
+    pullPolicy: Always
+  #-- Number of pod replicas. Conflicts with horizontalPodAutoscaler.
+  replicas: 1
+  #-- horizontalPodAutoscaler provide HPA capabilities to PATH deployment. Conflicts with replicas.
+  horizontalPodAutoscaler:
+    enabled: false
+    # minReplicas: 2
+    # maxReplicas: 6
+    # targetCPUUtilizationPercentage: 70
+    # targetMemoryUtilizationPercentage: 1024
+    # behavior:
+    #   scaleDown:
+    #     stabilizationWindowSeconds: 600
+    #     policies:
+    #       - type: Percent
+    #         value: 60
+    #         periodSeconds: 300
+    #   scaleUp:
+    #     stabilizationWindowSeconds: 120
+    #     policies:
+    #       - type: Percent
+    #         value: 60
+    #         periodSeconds: 30
+
+  #-- resources define requests and limits for PATH deployment.
+  resources: {}
+    # limits:
+    #   memory: 2G
+    #   cpu: 4
+    # requests:
+    #   cpu: 1.8
+    #   memory: 800Mi
+  #-- ports supports the creation of services tied to the ports declared below.
+  ports: []
+    # - name: http
+    #   port: 3069
+    #   protocol: TCP
+    #   service:
+    #     type: ClusterIP
+    # - name: metrics
+    #   port: 9090
+    #   protocol: TCP
+    #   service:
+    #     type: ClusterIP
+  
+  #-- # Pod liveness probe. Set to high value to account for the potential long response time of the QoS service.
+  livenessProbe: {}
+    # failureThreshold: 600 
+    #   path: /healthz
+    #   port: 3069
+    #   scheme: HTTP
+  #-- # Pod readiness probe. Set to high value to account for the potential long response time of the QoS service.
+  readinessProbe: {}
+    # failureThreshold: 600
+    # httpGet:
+    #   path: /healthz
+    #   port: 3069
+    #   scheme: HTTP
+  #-- # Pod startup probe.
+  startupProbe: {}
+
+  #-- fromConfigMap allows to pass PATH configuration through a configMap.
+  #-- Such configMap is created outside the scope of this chart.
+  fromConfigMap: {}
+    # name: my-path-configuration
+    # key: .config.yaml
+  #-- fromSecret allows to pass PATH configuration through a Kubernetes secret.
+  #-- Such secret is created outside the scope of this chart.
+  fromSecret: {}
+    # name: my-path-configuration
+    # key: .config.yaml
+
+  #-- persistence provides a mechanism to create PVCs
+  persistence: {}
+    # volumeClaimTemplates:
+    #   storageClassName: pd-standard
+    #   size: 1024
+    #   volumeMountPath: /app/config
+
+  #-- Deployment specific configurations. --#
+  #-- PATH deployment supports the following deployment configurations by default.
+  #-- In order to use any of these below, simply uncomment and provide the desired configuration.
+  # terminationGracePeriodSeconds: 60
+  # affinity: {}
+  # tolerations: {}
+  # nodeSelector: {}
+  # topologySpreadConstraints: {}
+  # dnsPolicy: {}
+  # dnsConfig: {}
+  # imagePullSecrets: {}
+  #-- End of deployment specific configurations --#
+
+  #-- additionalLabels to include in resource's metadata.
+  additionalLabels: {}
+  #-- additionalAnnotations allow adding resource-wide annotations for extra functionality.
+  additionalAnnotations: {}
+
+###########################################################################
+# -------------------- GUARD Specific configurations -------------------- #
+###########################################################################
+guard:
+  name: "guard"
+  nameOverride: ""
+  gateway:
+    port: 3070
+  #-- services is used to provide an array of services that GUARD will handle traffic for.
+  #-- This field supports aliases and traffic splitting capabilities.
+  services: []
+    # - serviceId: F00C
+    #   aliases:
+    #     - eth
+    #     - eth-mainnet
+    #     - eth-archival
+    #     - eth-trace
+    #   trafficSplitting:
+    #     enabled: true
+    #     weights:
+    #       # Send 5% of F00C traffic to the PATH service
+    #       path: 5
+    #       # Send 95% of F00C traffic to the Middleware service
+    #       middleware: 95
+  #-- auth provides the authentication mechanism used to interact with PATH.
+  auth:
+    #-- apiKey configures the authentication to PATH.
+    #-- This block accpets a header string and an array of apiKeys to be used.
+    #-- apiKey is meant to be the default authentication mechanism for every
+    #-- brand new user of PATH.
+    apiKey:
+      enabled: false
+      headerKey: ""
+      apiKeys: []
+    #-- groveLegacy configures authentication with Grove's legacy gateway.
+    #-- New users are not meant to use this authentication mechanism.
+    #-- This configuration is meant to exist for backwards compatibility only
+    #-- and will be deprecated.
+    groveLegacy:
+      enabled: false
+
+  #-- serviceName declares the backend service to which GUARD routes will send traffic to.
+  serviceName: path-http
+  #-- servicePort sets the default port used by PATH service.
+  servicePort: 3069
+  #-- When traffic splitting is enabled, GUARD requires an additional
+  #-- gateway service and port to which traffic will be routed to.
+  #-- This configuration provides the ability to perform traffic shifting
+  #-- from an existing gateway to PATH.
+  # TODO_UPNEXT(@HebertCL): Change this configuration field names if traffic splitting is expected to persist in GUARD.
+  middlewareServiceName: "middleware-http"
+  middlewarePort: 3000
+  #-- domain sets a FQDN for which GUARD will take traffic from.
+  #-- This value is only part of GUARD configuration and it does not
+  #-- create any type of DNS recordset. Such configuration is out of
+  #-- this chart scope.
+  domain: "example.org"
+
+  #-- 
+
+###########################################################################
+# -------------------- WATCH Specific configurations -------------------- #
+###########################################################################
+watch:
+  name: ""
+  nameOverride: ""
+  enabled: false
+
+  #-- WATCH uses by default kube-prometheus-stack to launch a monitorign stack from scratch.
+  #-- Enable this option only if you don't have an existing monitoring option already.
+  kube-prometheus-stack:
+    enabled: false
+
+  #-- dashboards creates PATH, GUARD and WATCH dashboards which can be visualized
+  #-- in kube-prometheus-stack's Grafana. Enable this option to visualize the dashboards in the
+  #-- monitoring stack created above.
+  dashboards:
+    enabled: false
+    label: grafana
+
+    #-- namespace required by kube-prometheus-stack
+    namespace: monitoring
+  
+    # PATH Dashboard Configuration
+    path:
+      enabled: true
+      folderName: "PATH"
+      
+    # GUARD Dashboard Configuration
+    guard:
+      enabled: true
+      folderName: "GUARD"
+    
+    # Custom Dashboards - can be provided through values
+    custom:
+      enabled: false
+      dashboards: {}
+        # my-dashboard:
+        # folderName: "Custom"
+        # json: |
+        #   {
+        #     "title": "My Dashboard",
+        #     "panels": []
+        #   }
+
+  #-- serviceMonitors declares the monitoing services for PATH and GUARD.
+  #-- This configuration is used by kube-prometheus-stack.  
+  serviceMonitors: 
+    namespace: monitoring  # Default namespace for ServiceMonitors
+    path:
+      enabled: true
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: path
+      endpoints:
+        - port: metrics
+          interval: 15s
+          path: /metrics
+    
+    guard:
+      enabled: true
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: guard
+      endpoints:
+        - port: metrics
+          interval: 15s
+          path: /metrics
+
+#########################################################################
+# -------------------- Miscelaneous configurations -------------------- #
+#########################################################################
+#-- extraObjects provides a mechanism insert additional resources
+#-- which may be needed but are not part of this chart by default.
+extraObjects: []

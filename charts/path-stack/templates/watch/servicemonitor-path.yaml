@@ -1,0 +1,19 @@
+{{- if and .Values.watch.serviceMonitors.path.enabled (index .Values.watch "kube-prometheus-stack" "enabled") }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "watch.fullname" . }}-path
+  namespace: {{ include "watch.namespace" (list "servicemonitor" .) }}
+  labels:
+    {{- include "watch.labels" . | nindent 4 }}
+    app.kubernetes.io/part-of: watch-monitoring
+    release: {{ .Release.Name }}
+spec:
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+      {{- toYaml .Values.watch.serviceMonitors.path.selector.matchLabels | nindent 6 }}
+  endpoints:
+    {{- toYaml .Values.watch.serviceMonitors.path.endpoints | nindent 4 }}
+{{- end }}

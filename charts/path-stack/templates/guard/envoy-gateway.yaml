@@ -1,0 +1,29 @@
+# This resources configures the Envoy Gateway for GUARD.
+# Ref: https://gateway.envoyproxy.io/latest/api/gateway_api/gateway/
+{{- $gwname:= default "guard" $.Values.guard.name }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{$gwname}}-envoy-gateway
+  labels:
+    {{- include "path-stack.labels" $ | nindent 4 }}
+spec:
+  gatewayClassName: {{$gwname}}-envoy-gateway-class
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: {{ $.Values.guard.gateway.port }}
+      allowedRoutes:
+        kinds:
+        - kind: HTTPRoute
+# Ref: https://gateway.envoyproxy.io/latest/api/gateway_api/gatewayclass/
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: {{$gwname}}-envoy-gateway-class
+  labels:
+    {{- include "path-stack.labels" $ | nindent 4 }}
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+

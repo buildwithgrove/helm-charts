@@ -1,0 +1,116 @@
+# HTTPRoute Generator for Services
+#
+# Generates HTTPRoute resources for each service in the `services` list, configuring routing
+# based on the subdomain of the request.
+#
+# Ref: https://gateway.envoyproxy.io/latest/api/gateway_api/httproute/
+#
+# Routing behavior:
+#   - Creates an HTTPRoute for each authoritative service ID
+#   - Creates additional HTTPRoutes for each service alias
+#   - Routes requests based on the `target-service-id` header
+#
+# Example configuration, as defined in `values.yaml` at `guard.services`:
+# services:
+#   - serviceId: F00C
+#     aliases:
+#       - eth
+#       - eth-mainnet
+#   - serviceId: F021
+#     aliases:
+#       - polygon
+#
+# This configuration would match requests to:
+#   - https://rpc.path.com/v1
+# For any of the following headers:
+#   -H "target-service-id: F00C"        -> "target-service-id: F00C"
+#   -H "target-service-id: eth"         -> "target-service-id: F00C"
+#   -H "target-service-id: eth-mainnet" -> "target-service-id: F00C"
+#
+#   -H "target-service-id: F021"        -> "target-service-id: F021"
+#   -H "target-service-id: polygon"     -> "target-service-id: F021"
+#
+# In the case of a match based on an alias, the header
+# will be set to the authoritative service ID.
+#
+# For each service, multiple HTTPRoute resources are created:
+#   - One HTTPRoute for the authoritative service ID
+#   - One additional HTTPRoute for EACH service alias
+
+# Create an HTTPRoute resource for each authoritative service ID.
+{{- $gwname:= default "guard" $.Values.guard.name }}
+{{- $name:= include "guard.fullname" . }}
+
+{{- range .Values.guard.services }}
+{{- $service := . }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+
+metadata:
+  # eg. F00C-header-route
+  name: {{ $service.serviceId | lower }}-header-route
+
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: {{$gwname}}-envoy-gateway
+
+  rules:
+  # Determine the backend service to route to.
+  - backendRefs:
+    - name: {{ $.Values.guard.serviceName }}
+      port: {{ $.Values.guard.servicePort }}
+
+    matches:
+    - path:
+        type: PathPrefix
+        value: /v1
+      headers:
+      - name: target-service-id
+        value: "{{ $service.serviceId }}"
+
+# If the service has aliases, create an HTTPRoute resource for each alias.
+{{- if $service.aliases }}
+{{- range $service.aliases }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+
+metadata:
+  # eg. F00C-eth-alias-header-route
+  name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-route
+
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: {{$gwname}}-envoy-gateway
+
+  rules:
+  # Determine the backend service to route to.
+  - backendRefs:
+    - name: {{ $.Values.guard.serviceName }}
+      port: {{ $.Values.guard.servicePort }}
+
+    filters:
+    # Ensure the request header "target-service-id" is set to the authoritative service ID.
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+        - name: "target-service-id"
+          value: "{{ $service.serviceId }}"
+
+    matches:
+      # Match any path prefix that starts with "/v1"
+      - path:
+          type: PathPrefix
+          value: /v1
+        # Match any `target-service-id` header value that matches the alias.
+        headers:
+        - name: target-service-id
+          value: "{{ . | lower }}"
+
+{{- end }}
+{{- end }}
+
+{{- end }}

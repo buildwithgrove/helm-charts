@@ -1,0 +1,91 @@
+{{- if and .Values.guard.services .Values.guard.auth.apiKey.enabled }}
+{{- $name:= include "guard.fullname" . }}
+{{- $apiKeyConfig:= .Values.guard.auth.apiKey }}
+
+{{- range .Values.guard.services }}
+{{- $service := . }}
+
+# Security Policies for API Key authorization flow.
+#
+# Creates a security policy for each service in the `services` list.
+#
+# The security policies ensure that requests to the service (e.g. eth)
+# are authorized through the API Key authorization flow.
+
+# Create a security policy for the subdomain route.
+# eg. F00C-subdomain-auth-policy
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ $service.serviceId | lower }}-subdomain-auth-policy
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      # eg. F00C-subdomain-route - matches the HTTPRoute resource created above
+      name: {{ $service.serviceId | lower }}-subdomain-route
+  apiKeyAuth:
+    credentialRefs:
+    - group: ""
+      kind: Secret
+      name: api-keys-secret
+    extractFrom:
+    - headers:
+      - {{ $apiKeyConfig.headerKey }}
+
+# Create a security policy for the header route.
+# eg. F00C-header-auth-policy
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ $service.serviceId | lower }}-header-auth-policy
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      # eg. F00C-header-route - matches the HTTPRoute resource created above
+      name: {{ $service.serviceId | lower }}-header-route
+  apiKeyAuth:
+    credentialRefs:
+    - group: ""
+      kind: Secret
+      name: api-keys-secret
+    extractFrom:
+    - headers:
+      - {{ $apiKeyConfig.headerKey }}
+
+# If the service has aliases, create a SecurityPolicy resource for each alias.
+{{- if $service.aliases }}
+{{- range $service.aliases }}
+{{- $alias := . }}
+
+# Create a security policy for the alias header route.
+# eg. F00C-eth-alias-auth-policy
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: {{ $service.serviceId | lower }}-{{ $alias | lower }}-alias-header-auth-policy
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      # eg. F00C-eth-alias-header-route - matches the HTTPRoute resource created above
+      name: {{ $service.serviceId | lower }}-{{ $alias | lower }}-alias-header-route
+  apiKeyAuth:
+    credentialRefs:
+    - group: ""
+      kind: Secret
+      name: api-keys-secret
+    extractFrom:
+    - headers:
+      - {{ $apiKeyConfig.headerKey }}
+
+{{- end }}
+{{- end }}
+
+{{- end }}
+
+{{- end }}

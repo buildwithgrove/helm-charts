@@ -1,0 +1,26 @@
+{{- if and (index .Values.watch "kube-prometheus-stack" "enabled") (index .Values.watch "kube-prometheus-stack" "grafana" "enabled") }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "watch.fullname" . }}-datasources
+  namespace: {{ include "watch.namespace" (list "general" .) }}
+  labels:
+    {{- include "watch.labels" . | nindent 4 }}
+  {{- if (index .Values "kube-prometheus-stack" "grafana" "sidecar" "datasources" "label") }}
+    {{ (index .Values "kube-prometheus-stack" "grafana" "sidecar" "datasources" "label") }}: "1"
+  {{- else }}
+    grafana_datasource: "1"
+  {{- end }}
+data:
+  datasources.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      uid: ${DS_PROMETHEUS}
+      url: http://{{ include "watch.fullname" . }}-prometheus:9090
+      access: proxy
+      isDefault: true
+      jsonData:
+        timeInterval: 30s
+{{- end }}

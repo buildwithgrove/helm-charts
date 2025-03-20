@@ -1,0 +1,41 @@
+{{- with $.Values.path.horizontalPodAutoscaler }}
+{{- if and .enabled $.Values.path.replicas }}
+{{fail "VALIDATION FILED: Specify eaither replicas, or horizontalPodAutoscaler!!!"}}
+{{- end -}}
+{{- if .enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "path.name" . }}
+  labels:
+    {{ include "path-stack.labels" $ | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "path.name" . }}
+  minReplicas: {{ $.Values.path.horizontalPodAutoscaler.minReplicas }}
+  maxReplicas: {{ $.Values.path.horizontalPodAutoscaler.maxReplicas }}
+  {{ with $.Values.path.horizontalPodAutoscaler.behavior }}
+  behavior:
+    {{- toYaml . | nindent 4 }}
+  {{ end }}
+  metrics:
+    {{- if $.Values.path.horizontalPodAutoscaler.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $.Values.path.horizontalPodAutoscaler.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if $.Values.path.horizontalPodAutoscaler.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          averageUtilization: {{ $.Values.path.horizontalPodAutoscaler.targetMemoryUtilizationPercentage }}
+          type: Utilization
+    {{- end }}
+{{- end -}}
+{{- end -}}
