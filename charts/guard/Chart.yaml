@@ -4,7 +4,4 @@ description: A Helm chart for development and production deployments of GUARD (G
 name: guard
 type: application
 version: 0.1.13
-dependencies:
-  - name: gateway-helm
-    version: v1.3.0
-    repository: https://buildwithgrove.github.io/helm-charts/
+
