@@ -5,10 +5,19 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: {{$gwname}}-envoy-gateway
+  namespace: {{ $.Values.global.namespace }}
   labels:
     {{- include "guard-helm.labels" $ | nindent 4 }}
 spec:
   gatewayClassName: {{$gwname}}-envoy-gateway-class
+  # Specify a custom EnvoyProxy resource to customize Envoy Gateway behavior.
+  # See the following link for more details:
+  # https://gateway.envoyproxy.io/latest/tasks/operations/customize-envoyproxy/
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: {{$gwname}}-custom-proxy-config
   listeners:
     - name: http
       protocol: HTTP
@@ -26,4 +35,3 @@ metadata:
     {{- include "guard-helm.labels" $ | nindent 4 }}
 spec:
   controllerName: gateway.envoyproxy.io/gatewayclass-controller
-

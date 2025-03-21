@@ -8,6 +8,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: healthz-route
+  namespace: {{ $.Values.global.namespace }}
 spec:
   parentRefs:
   - kind: Gateway
@@ -17,8 +18,8 @@ spec:
         - group: ""
           kind: Service
           name: {{ $.Values.global.serviceName }}
+          namespace: {{ $.Values.global.namespace }}
           port: {{ $.Values.global.port }}
-          weight: 1
       matches:
         # /healthz route returns the health of the PATH service.
         - path:

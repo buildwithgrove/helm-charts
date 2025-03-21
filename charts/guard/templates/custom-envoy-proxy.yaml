@@ -1,0 +1,20 @@
+# This resources configures a custom Envoy Proxy, to allow specifying ClusterIP as the type of the Envoy Proxy service.
+# See the following link for more details:
+# https://gateway.envoyproxy.io/latest/tasks/operations/customize-envoyproxy/
+---
+{{- $gwname:= default "guard" $.Values.fullnameOverride }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: {{$gwname}}-custom-proxy-config
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        # Use a ClusterIP as type of GUARD service.
+        # It is assumed that some ingres service (e.g. Google's MCG) accepts external traffic and redirects it to GUARD.
+        type: ClusterIP
+        # The name of the service assigned to GUARD to which all requests should be directed for Authentication/Authorization/Rate Limiting/etc.
+        name: {{$gwname}}

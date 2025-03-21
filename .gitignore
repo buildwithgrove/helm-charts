@@ -9,3 +9,7 @@ Chart.lock
 
 # Temporary files
 tmp/*
+
+# Claude
+
+.claudesync
