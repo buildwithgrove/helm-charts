@@ -1,10 +1,9 @@
 # GUARD - Gateway Utilities for Authentication, Routing & Defense <!-- omit in toc -->
 
-<!-- TODO_DOCUMENT(@adshmh): Add a mermaid diagram to show clarify the relationship between the key components: Envoy Gateway, Gateway resource, GUARD service -->
-
 - [Overview](#overview)
 - [Architecture](#architecture)
   - [Envoy Gateway](#envoy-gateway)
+  - [GUARD Resources](#guard-resources)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
   - [Add Required Helm Repositories](#add-required-helm-repositories)
@@ -75,6 +74,63 @@ Envoy Gateway is an open source project for managing Envoy Proxy as a standalone
 - [Envoy Gateway Quickstart](https://gateway.envoyproxy.io/docs/tasks/quickstart/)
 - [Envoy Gateway Resources](https://gateway.envoyproxy.io/docs/concepts/concepts_overview/)
 - [Envoy Gateway API Reference](https://gateway.envoyproxy.io/docs/api/)
+
+### GUARD Resources
+
+```mermaid
+graph TD
+    User(["External User"]) -->|"HTTP Request<br>Port 3070"| GUARD_SVC
+    
+    subgraph Kubernetes_Cluster["GUARD Resources Overview"]
+        subgraph Control_Plane["Control Plane"]
+            GC["GatewayClass"]
+            G["Gateway"]
+            EP["EnvoyProxy<br>Custom Configuration"]
+            HR["HTTPRoute<br>Service Routes"]
+            SP["SecurityPolicy<br>Auth Rules"]
+            
+            G -->|References| GC
+            G -->|References| EP
+            HR -->|Applied to| EP_POD
+            SP -->|Applied to| EP_POD
+            G -->|Provisions| EP_POD
+        end
+        
+        subgraph Services["Services"]
+            GUARD_SVC["guard<br>ClusterIP<br>Port: 3070"]
+            PATH_SVC["path-http<br>ClusterIP<br>Port: 3069"]
+        end
+        
+        
+        subgraph Backend["Application Services"]
+            PATH_POD["PATH Service Pod"]
+        end
+        
+        GUARD_SVC -->|Routes to| EP_POD
+        EP_POD -->|Authorized Request| PATH_SVC
+        PATH_SVC -->|Routes to| PATH_POD
+        PATH_POD -->|Response| PATH_SVC
+        PATH_SVC -->|Response| EP_POD
+        EP_POD -->|Response| GUARD_SVC
+        GUARD_SVC -->|Response| User
+    end
+
+classDef resource fill:#bbf,stroke:#333
+classDef custom fill:#c9f,stroke:#333
+classDef service fill:#bfb,stroke:#333
+classDef pod fill:#ffe,stroke:#333
+classDef external fill:#fbb,stroke:#333
+classDef route fill:#9cf,stroke:#333
+classDef policy fill:#f99,stroke:#333
+
+class GC,G resource
+class EP custom
+class HR route
+class SP policy
+class GUARD_SVC,PATH_SVC service
+class EP_POD,PATH_POD pod
+class User external
+```
 
 ## Prerequisites
 
