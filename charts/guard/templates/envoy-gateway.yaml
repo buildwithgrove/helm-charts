@@ -8,16 +8,10 @@ metadata:
   namespace: {{ $.Values.global.namespace }}
   labels:
     {{- include "guard-helm.labels" $ | nindent 4 }}
+  annotations:
+    gateway.envoyproxy.io/envoyproxy-name: {{$gwname}}-custom-proxy-config
 spec:
   gatewayClassName: {{$gwname}}-envoy-gateway-class
-  # Specify a custom EnvoyProxy resource to customize Envoy Gateway behavior.
-  # See the following link for more details:
-  # https://gateway.envoyproxy.io/latest/tasks/operations/customize-envoyproxy/
-  infrastructure:
-    parametersRef:
-      group: gateway.envoyproxy.io
-      kind: EnvoyProxy
-      name: {{$gwname}}-custom-proxy-config
   listeners:
     - name: http
       protocol: HTTP
