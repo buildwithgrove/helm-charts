@@ -18,9 +18,11 @@ global:
   middlewarePort: 3000
 gateway:
   port: 3070
-# **IMPORTANT: domain needs to be specified for the HTTPRoute resources to route the requests as intended. **
+# ** IMPORTANT: update domain value: **
+# ** - domain must be specified in HTTPRoute resources for proper request routing. **
+# ** - domain must match the Host header value in HTTP requests received by GUARD/Envoy Gateway. **
 domain: "example.com"
-# **IMPORTANT: specify at least one version: otherwise no requests will be accepted by Envoy Gateway.
+# **IMPORTANT: specify at least one service: otherwise no requests will be accepted by Envoy Gateway.
 services:
   # Morse-specific services
   - serviceId: F00C
