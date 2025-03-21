@@ -70,6 +70,7 @@ spec:
     {{- $ts := default dict .trafficSplitting }}
     - backendRefs:
         - name: {{ $.Values.global.serviceName }}
+          namespace: {{ $.Values.global.namespace }}
           port: {{ $.Values.global.port }}
           # -- CONTROLLED TRAFFIC SHIFTING --
           # If traffic splitting is enabled, set the weight for the PATH backend.
@@ -80,6 +81,7 @@ spec:
         # If traffic splitting is enabled, set a second backendRef for the Middleware backend.
         {{- if eq $ts.enabled true }}
         - name: {{ $.Values.global.middlewareServiceName }}
+          namespace: {{ $.Values.global.middlewareNamespace }}
           port: {{ $.Values.global.middlewarePort }}
           weight: {{ $ts.weights.middleware }}
         {{- end }}

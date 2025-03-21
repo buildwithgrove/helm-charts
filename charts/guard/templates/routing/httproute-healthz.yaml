@@ -18,8 +18,8 @@ spec:
         - group: ""
           kind: Service
           name: {{ $.Values.global.serviceName }}
+          namespace: {{ $.Values.global.namespace }}
           port: {{ $.Values.global.port }}
-          weight: 1
       matches:
         # /healthz route returns the health of the PATH service.
         - path:
