@@ -2,7 +2,7 @@ apiVersion: v1
 entries:
   gcp-iam-externalsecrets:
   - apiVersion: v1
-    created: "2025-03-21T17:25:39.198289142Z"
+    created: "2025-03-21T11:05:37.804586-07:00"
     description: A Helm chart to create a service account in your desired project,
       and grant it a specific role.
     digest: bf1c1c637b8f56a4d3181bf5d8036f549b741f9a2bd3d7c19d611f0293eca8ae
@@ -16,7 +16,22 @@ entries:
   guard:
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-21T17:25:39.209152413Z"
+    created: "2025-03-21T11:05:37.839957-07:00"
+    dependencies:
+    - name: gateway-helm
+      repository: oci://docker.io/envoyproxy
+      version: v1.3.1
+    description: A Helm chart for development and production deployments of GUARD
+      (Gateway Utilities for Authentication, Routing & Defense)
+    digest: 3db0f2bd255fd97a11ce57d516203580b4f876d85cdd36e91e7b79eef2166ee6
+    name: guard
+    type: application
+    urls:
+    - https://buildwithgrove.github.io/helm-charts/guard-0.1.16.tgz
+    version: 0.1.16
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2025-03-21T11:05:37.833429-07:00"
     dependencies:
     - name: gateway-helm
       repository: oci://docker.io/envoyproxy
@@ -31,7 +46,7 @@ entries:
     version: 0.1.15
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-19T13:14:52.163755-07:00"
+    created: "2025-03-21T11:05:37.826748-07:00"
     dependencies:
     - name: gateway-helm
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -46,7 +61,7 @@ entries:
     version: 0.1.13
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-19T13:14:52.155614-07:00"
+    created: "2025-03-21T11:05:37.81982-07:00"
     dependencies:
     - name: gateway-helm
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -61,7 +76,7 @@ entries:
     version: 0.1.12
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-19T13:14:52.147991-07:00"
+    created: "2025-03-21T11:05:37.812417-07:00"
     dependencies:
     - name: gateway-helm
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -91,7 +106,7 @@ entries:
     version: 0.1.10
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-19T13:14:52.178051-07:00"
+    created: "2025-03-21T11:05:37.853235-07:00"
     dependencies:
     - name: gateway-helm
       repository: file://.charts
@@ -105,7 +120,7 @@ entries:
     version: 0.1.9
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-19T13:14:52.171097-07:00"
+    created: "2025-03-21T11:05:37.846449-07:00"
     dependencies:
     - name: gateway-helm
       repository: oci://docker.io/envoyproxy
@@ -134,7 +149,7 @@ entries:
   path:
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-21T17:25:39.254320984Z"
+    created: "2025-03-21T11:05:38.026802-07:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts
@@ -151,7 +166,7 @@ entries:
     version: 0.1.16
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-19T13:14:52.354984-07:00"
+    created: "2025-03-21T11:05:37.998031-07:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -169,7 +184,7 @@ entries:
     version: 0.1.15
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-19T13:14:52.325591-07:00"
+    created: "2025-03-21T11:05:37.969756-07:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -187,7 +202,7 @@ entries:
     version: 0.1.14
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-21T03:08:52.542884144Z"
+    created: "2025-03-21T11:05:37.940479-07:00"
     description: A Helm chart for PATH (PATH API & Toolkit Harness)
     digest: fc112dc419346982eccdf8f11919e123953093264f89fbecc045d55a99c5a864
     name: path
@@ -197,7 +212,7 @@ entries:
     version: 0.1.13
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-19T13:14:52.26754-07:00"
+    created: "2025-03-21T11:05:37.938486-07:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -215,7 +230,7 @@ entries:
     version: 0.1.12
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-19T13:14:52.238918-07:00"
+    created: "2025-03-21T11:05:37.909864-07:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -233,7 +248,7 @@ entries:
     version: 0.1.11
   - apiVersion: v2
     appVersion: 0.0.16
-    created: "2025-03-19T13:14:52.208577-07:00"
+    created: "2025-03-21T11:05:37.881488-07:00"
     dependencies:
     - name: guard
       repository: https://buildwithgrove.github.io/helm-charts/
@@ -362,7 +377,7 @@ entries:
   test-app:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-03-21T17:25:39.254722958Z"
+    created: "2025-03-21T11:05:38.027051-07:00"
     description: A simple web app which returns a static page with the release name
     digest: 4a31f2ee82361600d2ba31d8ad206e0b2776e0d06a09063532b7762e223a7f94
     name: test-app
@@ -373,7 +388,7 @@ entries:
   universal-helm:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-03-21T17:25:39.255111266Z"
+    created: "2025-03-21T11:05:38.027302-07:00"
     description: A Universal Helm chart
     digest: 0fa953183a58c257dee90defa8495702b6bdc9129e6b2522ddc92b4e9c797460
     maintainers:
@@ -386,7 +401,7 @@ entries:
   watch:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-03-21T17:25:39.286121537Z"
+    created: "2025-03-21T11:05:38.046989-07:00"
     dependencies:
     - condition: kube-prometheus-stack.enabled
       name: kube-prometheus-stack
@@ -402,7 +417,7 @@ entries:
     version: 0.1.11
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-03-19T13:14:52.375058-07:00"
+    created: "2025-03-21T11:05:38.066837-07:00"
     dependencies:
     - condition: kube-prometheus-stack.enabled
       name: kube-prometheus-stack
@@ -416,4 +431,4 @@ entries:
     urls:
     - https://buildwithgrove.github.io/helm-charts/watch-0.1.8.tgz
     version: 0.1.8
-generated: "2025-03-21T17:25:39.197856391Z"
+generated: "2025-03-21T11:05:37.80429-07:00"
