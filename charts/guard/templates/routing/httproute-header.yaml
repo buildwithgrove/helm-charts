@@ -50,6 +50,7 @@ kind: HTTPRoute
 metadata:
   # eg. F00C-header-route
   name: {{ $service.serviceId | lower }}-header-route
+  namespace: {{ $.Values.global.namespace }}
 
 spec:
   parentRefs:
@@ -60,6 +61,7 @@ spec:
   # Determine the backend service to route to.
   - backendRefs:
     - name: {{ $.Values.global.serviceName }}
+      namespace: {{ $.Values.global.namespace }}
       port: {{ $.Values.global.port }}
 
     matches:
@@ -80,7 +82,7 @@ kind: HTTPRoute
 metadata:
   # eg. F00C-eth-alias-header-route
   name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-route
-
+  namespace: {{ $.Values.global.namespace }}
 spec:
   parentRefs:
   - kind: Gateway
@@ -90,8 +92,8 @@ spec:
   # Determine the backend service to route to.
   - backendRefs:
     - name: {{ $.Values.global.serviceName }}
+      namespace: {{ $.Values.global.namespace }}
       port: {{ $.Values.global.port }}
-
     filters:
     # Ensure the request header "target-service-id" is set to the authoritative service ID.
     - type: RequestHeaderModifier
