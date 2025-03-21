@@ -1,6 +1,6 @@
 # GUARD - Gateway Utilities for Authentication, Routing & Defense <!-- omit in toc -->
 
-A Helm chart for deploying GUARD, a gateway layer providing authentication, routing, and defense capabilities for services like PATH.
+<!-- TODO_DOCUMENT(@adshmh): Add a mermaid diagram to show clarify the relationship between the key components: Envoy Gateway, Gateway resource, GUARD service -->
 
 - [Overview](#overview)
 - [Architecture](#architecture)
