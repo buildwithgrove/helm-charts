@@ -27,7 +27,7 @@ services:
     aliases:
       - eth
       - eth-mainnet
-    # TODO_MVP(@adshmh): Required by Grove for migratin to PATH. Remove once the migration is completed.
+    # TODO_MVP(@adshmh): Required by Grove for migration to PATH. Remove once the migration is completed.
     #trafficSplitting:
     #  enabled: true
     #  weights:
