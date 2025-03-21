@@ -82,12 +82,13 @@ graph TD
     User(["External User"]) -->|"HTTP Request<br>Port 3070"| GUARD_SVC
     
     subgraph Kubernetes_Cluster["GUARD Resources Overview"]
-        subgraph Control_Plane["Control Plane"]
+        subgraph Control_Plane["Envoy Gateway Resources"]
             GC["GatewayClass"]
             G["Gateway"]
             EP["EnvoyProxy<br>Custom Configuration"]
             HR["HTTPRoute<br>Service Routes"]
             SP["SecurityPolicy<br>Auth Rules"]
+            EP_POD["Envoy Proxy Pod"]
             
             G -->|References| GC
             G -->|References| EP
