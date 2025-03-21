@@ -1,6 +1,7 @@
 # guard
 
 <!-- TODO_DOCUMENT(@commoddity): Add proper documentation for GUARD -->
+<!-- TODO_DOCUMENT(@adshmh): Add a mermaid diagram to show clarify the relationship between the key components: Envoy Gateway, Gateway resource, GUARD service -->
 
 ![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![AppVersion: 1.0](https://img.shields.io/badge/AppVersion-1.0-informational?style=flat-square)
 
