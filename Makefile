@@ -35,4 +35,4 @@ release_chart: validate_gh_cli ## Run GitHub Action release charter workflow to 
 	@gh workflow run release.yml --repo buildwithgrove/helm-charts
 
 
-include ./makefiles/debug.mk
+include ./makefiles/claude.mk

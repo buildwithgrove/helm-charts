@@ -37,34 +37,14 @@ _.swo
 **/generated/
 **/crds/generated/
 
-# CI/CD files
-
-.circleci/
-.travis.yml
-.jenkins/
-
-# Logs
-
-\*.log
-
 # OS generated files
 
 .DS*Store
 .DS_Store?
 .*\*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
 
 # Chart package files
 
 guard-_.tgz
 path-_.tgz
 watch-\*.tgz
-
-# Testing
-
-**tests**/
-test/
-tests/
