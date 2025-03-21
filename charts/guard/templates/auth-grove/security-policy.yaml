@@ -21,6 +21,7 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: {{ $service.serviceId | lower }}-subdomain-auth-policy
+  namespace: {{ $.Values.global.namespace }}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
@@ -40,6 +41,7 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: {{ $service.serviceId | lower }}-header-auth-policy
+  namespace: {{ $.Values.global.namespace }}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
@@ -64,6 +66,7 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: {{ $service.serviceId | lower }}-{{ $alias | lower }}-alias-header-auth-policy
+  namespace: {{ $.Values.global.namespace }}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
