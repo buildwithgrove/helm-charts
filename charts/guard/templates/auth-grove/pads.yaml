@@ -21,6 +21,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{$name}}-pads
+  namespace: {{ $.Values.global.namespace }}
   labels:
     {{- include "guard-helm.labels" $ | nindent 4 }}
 spec:
@@ -64,6 +65,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{$name}}-pads
+  namespace: {{ $.Values.global.namespace }}
   labels:
     {{- include "guard-helm.labels" $ | nindent 4 }}
 spec:
@@ -80,6 +82,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: pads-data
+  namespace: {{ $.Values.global.namespace }}
 data: {{- toYaml $padsConfig.configMap | nindent 4 }}
 {{- end }}
 

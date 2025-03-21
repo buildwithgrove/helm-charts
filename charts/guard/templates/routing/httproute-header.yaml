@@ -50,6 +50,7 @@ kind: HTTPRoute
 metadata:
   # eg. F00C-header-route
   name: {{ $service.serviceId | lower }}-header-route
+  namespace: {{ $.Values.global.namespace }}
 
 spec:
   parentRefs:

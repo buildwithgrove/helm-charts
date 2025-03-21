@@ -46,6 +46,7 @@ kind: HTTPRoute
 metadata:
   # eg. F00C-subdomain-route
   name: {{ .serviceId | lower }}-subdomain-route
+  namespace: {{ $.Values.global.namespace }}
 
 spec:
   parentRefs:

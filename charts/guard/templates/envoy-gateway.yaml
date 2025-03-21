@@ -5,6 +5,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: {{$gwname}}-envoy-gateway
+  namespace: {{ $.Values.global.namespace }}
   labels:
     {{- include "guard-helm.labels" $ | nindent 4 }}
 spec:
