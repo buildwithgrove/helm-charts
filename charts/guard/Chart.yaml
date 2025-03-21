@@ -6,5 +6,5 @@ type: application
 version: 0.1.14
 dependencies:
   - name: gateway-helm
-    version: v1.3.0
-    repository: https://envoyproxy.github.io/gateway-helm
+    repository: oci://docker.io/envoyproxy
+    version: v1.3.1
