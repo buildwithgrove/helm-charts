@@ -3,5 +3,8 @@ appVersion: "1.0"
 description: A Helm chart for development and production deployments of GUARD (Gateway Utilities for Authentication, Routing & Defense)
 name: guard
 type: application
-version: 0.1.13
-
+version: 0.1.14
+dependencies:
+  - name: gateway-helm
+    repository: oci://docker.io/envoyproxy
+    version: v1.3.1
