@@ -48,3 +48,7 @@ _.swo
 guard-_.tgz
 path-_.tgz
 watch-\*.tgz
+
+# Claude
+
+.claudesync
