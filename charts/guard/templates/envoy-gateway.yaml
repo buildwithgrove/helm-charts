@@ -11,6 +11,7 @@ metadata:
 spec:
   gatewayClassName: {{$gwname}}-envoy-gateway-class
   # TODO_MVP(@adshmh): uncomment once ArgoCD version supports the `infrastructure` field in the spec.
+  # Ref: https://argo-cd.readthedocs.io/en/latest/faq/#how-do-i-fix-the-issue
   #
   # Specify a custom EnvoyProxy resource to customize Envoy Gateway behavior.
   # See the following link for more details:
