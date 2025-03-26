@@ -1,23 +1,25 @@
 name: Release Charts
+
 on:
   push:
     branches:
       - main
     paths:
-      - 'charts/**'
+      - "charts/**"
   workflow_dispatch:
     inputs:
       reason:
-        description: 'Reason for manual run'
+        description: "Reason for manual run"
         required: false
-        default: 'Manual validation and release'
-
+        default: "Manual validation and release"
 
 jobs:
-  release-charts:
-    runs-on: ubuntu-latest
+  release:
+    # depending on default permission settings for your org (contents being read-only or read-write for workloads), you will have to add permissions
+    # see: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
     permissions:
       contents: write
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,7 +34,9 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4.3.0
 
-      - name: Package and publish Helm charts
-        uses: stefanprodan/helm-gh-pages@master
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.7.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          skip_existing: true
