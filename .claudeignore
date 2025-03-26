@@ -12,10 +12,7 @@ pre-commit*
 _.tgz
 _.tar.gz
 Makefile
-makesfiles/
-git-hook/
-dependency_validation.sh
-
+makefiles/
 # Documentation
 
 \_.md

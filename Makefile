@@ -12,14 +12,6 @@ help: ## Prints all make target descriptions
 	@grep -h -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-60s\033[0m %s\n", $$1, $$2}'
 
 ####################################################
-############# Helm dependency targets ##############
-####################################################
-
-.PHONY: validate_chart_dependencies
-validate_chart_dependencies: ## Validate Helm dependency list to ensure all helm dependencies added are resolvable.
-	@./dependency_validation.sh
-
-####################################################
 #############  Helm releases targets  ##############
 ####################################################
 
