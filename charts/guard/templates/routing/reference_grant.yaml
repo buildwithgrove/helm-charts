@@ -1,4 +1,5 @@
-apiVersion: gateway.networking.k8s.io/v1beta1
+# TODO_MVP(@adshmh): Use v1beta1 as version. `v1lapha2` is used to stay compatible with the existing infra tooling.
+apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: ReferenceGrant
 metadata:
   name: allow-middleware-reference
