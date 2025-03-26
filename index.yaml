@@ -2,10 +2,10 @@ apiVersion: v1
 entries:
   gcp-iam-externalsecrets:
   - apiVersion: v1
-    created: "2025-03-26T17:09:52.040067309Z"
+    created: "2025-03-26T17:25:03.472752785Z"
     description: A Helm chart to create a service account in your desired project,
       and grant it a specific role.
-    digest: 8bdd7f6cee84502a063b7ba6075aa18018916a80461988af32e6136c451cf2eb
+    digest: b2b9cb6e173c4564459b3a1b0e4d018838e2e8f181e3711061ad4245f9a1ac0c
     maintainers:
     - name: Grove Infra team
     - name: HebertCL
@@ -16,14 +16,14 @@ entries:
   guard:
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-03-26T17:09:52.050828039Z"
+    created: "2025-03-26T17:25:03.483501708Z"
     dependencies:
     - name: gateway-helm
       repository: oci://docker.io/envoyproxy
       version: v1.3.1
     description: A Helm chart for development and production deployments of GUARD
       (Gateway Utilities for Authentication, Routing & Defense)
-    digest: ea19347837a67673c61013e79c180d49e2ea0e6adfb481b243f4c2ba5efe995f
+    digest: 72d103b83700009a235f9734d7b45ee09ceb34de007b19e248e9df5806308906
     name: guard
     type: application
     urls:
@@ -162,6 +162,23 @@ entries:
     - https://buildwithgrove.github.io/helm-charts/guard-0.1.1.tgz
     version: 0.1.1
   path:
+  - apiVersion: v2
+    appVersion: 0.0.16
+    created: "2025-03-26T17:25:03.525577644Z"
+    dependencies:
+    - name: guard
+      repository: https://buildwithgrove.github.io/helm-charts
+      version: 0.1.17
+    - name: watch
+      repository: https://buildwithgrove.github.io/helm-charts
+      version: 0.1.11
+    description: A Helm chart for PATH (PATH API & Toolkit Harness)
+    digest: aa206223dce024d8d1ee35353a1042e04a791b2a978a9608008d7292e62f00e3
+    name: path
+    type: application
+    urls:
+    - https://buildwithgrove.github.io/helm-charts/path-0.1.18.tgz
+    version: 0.1.18
   - apiVersion: v2
     appVersion: 0.0.16
     created: "2025-03-26T17:09:52.094622988Z"
@@ -409,9 +426,9 @@ entries:
   test-app:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-03-26T17:09:52.095012693Z"
+    created: "2025-03-26T17:25:03.525943151Z"
     description: A simple web app which returns a static page with the release name
-    digest: 2e5bffc97dca6251afab13dbe2a179f1122f796ce3b11c8f2a7f8bce7b3cae6e
+    digest: 314c0015dd915f17271fdc65ae9c235f3cd6ca19014b66d4bfbcdc0437d936a9
     name: test-app
     type: application
     urls:
@@ -420,9 +437,9 @@ entries:
   universal-helm:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2025-03-26T17:09:52.095423447Z"
+    created: "2025-03-26T17:25:03.52634676Z"
     description: A Universal Helm chart
-    digest: f390db569e4b95a22533650f441ffb285765ce889e02422ed32a296d7cd73ee9
+    digest: 5cfbf74be840df61be781215505bdce9f9ef5cf050bb2237b3eb4328f7c4ac84
     maintainers:
     - name: HebertCL
     name: universal-helm
@@ -433,7 +450,7 @@ entries:
   watch:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-03-26T17:09:52.127703798Z"
+    created: "2025-03-26T17:25:03.556727885Z"
     dependencies:
     - condition: kube-prometheus-stack.enabled
       name: kube-prometheus-stack
@@ -441,7 +458,7 @@ entries:
       version: 69.6.0
     description: Workload Analytics and Telemetry for Comprehensive Health (WATCH)
       - Observability stack for PATH and GUARD
-    digest: 93434b3c47611d52b54c6aee5327e0f483987e95341576ce7d3d48c6d32f8cfb
+    digest: 48c14cb5ca2330f441d94770e8c1e0122f06563a072b8aa18cda4bd583dca0b1
     name: watch
     type: application
     urls:
@@ -463,4 +480,4 @@ entries:
     urls:
     - https://buildwithgrove.github.io/helm-charts/watch-0.1.8.tgz
     version: 0.1.8
-generated: "2025-03-26T17:09:52.039630406Z"
+generated: "2025-03-26T17:25:03.472321034Z"
