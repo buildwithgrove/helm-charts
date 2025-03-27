@@ -1,0 +1,8 @@
+{{- /*
+  This template allows for raw YAML manifests to be included in the chart.
+  The additionalYamlManifests value expects a string containing one or more YAML documents.
+  The string will be passed through the tpl function, allowing for template expressions.
+*/ -}}
+{{- if .Values.additionalYamlManifests }}
+{{ tpl .Values.additionalYamlManifests . }}
+{{- end }}
