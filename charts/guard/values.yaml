@@ -50,9 +50,14 @@ auth:
       enabled: false
     pads:
       enabled: true
-      envFrom:
-        - secretRef:
-            name: pads-db-connection
+      env:
+      # DEV_NOTE: you MUST change this if you update the `postgresConnectionVarName` field's value below.
+      - name: POSTGRES_CONNECTION_STRING # Name of the environment variable in the PADS container.
+        valueFrom:
+          secretKeyRef:
+            name: guard-pads-db-connection # Name of the Secret
+            key: POSTGRES_CONNECTION_STRING  # Key within the Secret
       mountPath: /app/data
       fromSecret:
-        secretName: pads-config
+        secretName: guard-pads-db-connection
+        postgresConnectionVarName: POSTGRES_CONNECTION_STRING  # DEV_NOTE: you MUST update the envFrom section above if you change this value.

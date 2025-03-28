@@ -85,5 +85,52 @@ metadata:
   namespace: {{ $.Values.global.namespace }}
 data: {{- toYaml $padsConfig.configMap | nindent 4 }}
 {{- end }}
+---
+{{- if $padsConfig.fromSecret }}
+# ExternalSecret for PADS Postgres connection
+# # - Creates a K8s Secret from GCP Secret Manager
+# # - Includes DB connection string and SSL certificates
+# # - Secret name controlled by fromSecret.secretName
+# # - Used by PADS container for secure DB connection
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: {{ $padsConfig.fromSecret.externalSecretName | default "pads-db-connection" }}
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  data:
+  - secretKey: {{ $padsConfig.fromSecret.postgresConnectionVarName | default "POSTGRES_CONNECTION_STRING" }}
+    remoteRef:
+      conversionStrategy: {{ $padsConfig.fromSecret.conversionStrategy | default "Default" }}
+      decodingStrategy: {{ $padsConfig.fromSecret.decodingStrategy | default "None" }}
+      key: {{ $padsConfig.fromSecret.keyPrefix | default "guard-pads-db-connection" }}-{{ $.Values.global.environment | default "prod" }}
+      property: POSTGRES_CONNECTION_STRING
+  - secretKey: ssl_cert.pem
+    remoteRef:
+      conversionStrategy: {{ $padsConfig.fromSecret.conversionStrategy | default "Default" }}
+      decodingStrategy: {{ $padsConfig.fromSecret.decodingStrategy | default "None" }}
+      key: {{ $padsConfig.fromSecret.keyPrefix | default "guard-pads-db-connection" }}-{{ $.Values.global.environment | default "prod" }}
+      property: ssl_cert.pem
+  - secretKey: ssl_key.pem
+    remoteRef:
+      conversionStrategy: {{ $padsConfig.fromSecret.conversionStrategy | default "Default" }}
+      decodingStrategy: {{ $padsConfig.fromSecret.decodingStrategy | default "None" }}
+      key: {{ $padsConfig.fromSecret.keyPrefix | default "guard-pads-db-connection" }}-{{ $.Values.global.environment | default "prod" }}
+      property: ssl_key.pem
+  - secretKey: ssl_root_cert.pem
+    remoteRef:
+      conversionStrategy: {{ $padsConfig.fromSecret.conversionStrategy | default "Default" }}
+      decodingStrategy: {{ $padsConfig.fromSecret.decodingStrategy | default "None" }}
+      key: {{ $padsConfig.fromSecret.keyPrefix | default "guard-pads-db-connection" }}-{{ $.Values.global.environment | default "prod" }}
+      property: ssl_root_cert.pem
+  refreshInterval: {{ $padsConfig.fromSecret.refreshInterval | default "5s" }}
+  secretStoreRef:
+    kind: SecretStore
+    name: {{ $padsConfig.fromSecret.secretStore | default "secstore-portal-gcp-secrets" }}
+  target:
+    creationPolicy: {{ $padsConfig.fromSecret.creationPolicy | default "Owner" }}
+    deletionPolicy: {{ $padsConfig.fromSecret.deletionPolicy | default "Retain" }}
+    name: {{ $padsConfig.fromSecret.secretName | default "pads-db-connection" }}
+{{- end }}
 
 {{- end }}
