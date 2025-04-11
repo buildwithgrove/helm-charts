@@ -24,6 +24,24 @@ validate_gh_cli: ## Validate if GitHub CLI is installed
 
 .PHONY: release_chart
 release_chart: validate_gh_cli ## Run GitHub Action release charter workflow to release new versions of ...
-	@gh workflow run release.yml --repo buildwithgrove/helm-charts
+
+################################################
+#############  Helm Docs targets  ##############
+################################################
+
+.PHONY: check_helm_docs
+check_helm_docs: ## Check if helm-docs is installed
+	@if ! command -v helm-docs >/dev/null 2>&1; then \
+		echo "helm-docs could not be found. Please install from releases page: https://github.com/norwoodj/helm-docs/releases/tag/v1.14.2"; \
+		exit 1; \
+	fi
+
+.PHONY: generate_helm_values_docs
+generate_helm_values_docs: check_helm_docs ## Generate the helm docs for the charts
+	helm-docs -c ./charts/path -o docs/values.md -s file
+
+################################################
+#############  Additional Makefiles  ###########
+################################################
 
 include ./makefiles/claude.mk
