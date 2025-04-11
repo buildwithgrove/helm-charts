@@ -8,3 +8,4 @@ dependencies:
   - name: gateway-helm
     repository: oci://docker.io/envoyproxy
     version: v1.3.1
+    condition: gateway-helm.enabled

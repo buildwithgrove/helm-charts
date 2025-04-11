@@ -24,7 +24,8 @@ path:
   ## HPA cannot be enabled if replicas are declared in the values file. Either use one or the other depending on your needs!
   horizontalPodAutoscaler:
     enabled: false
-  resources: {}
+  resources:
+    {}
     # limits:
     #   memory: 2G
     #   cpu: 4
@@ -94,6 +95,7 @@ additionalYamlManifests: ""
 ###########################################################################
 
 guard:
+  enabled: false
   # TODO_DOCUMENT(@commoddity): Embed the `gateway-helm` values.yaml fields
   # referenced below into the `guard` section of the Docusaurus docs.
 
@@ -155,10 +157,10 @@ guard:
     # - eth.path.grove.city -> "target-service-id: F00C"
     # - polygon.path.grove.city -> "target-service-id: F021"
 
-    # Shannon Example Service ID (with no aliases)    
+    # Shannon Example Service ID (with no aliases)
     - serviceId: anvil
 
-    # Morse Example Service IDs (with aliases)    
+    # Morse Example Service IDs (with aliases)
     - serviceId: F00C
       aliases:
         - eth
@@ -170,7 +172,7 @@ guard:
         enabled: true
         weights:
           path: 50
-          middleware: 50    
+          middleware: 50
     - serviceId: F021
       aliases:
         - polygon
@@ -213,13 +215,13 @@ guard:
 
 # Integrated Observability Stack (WATCH)
 observability:
-  enabled: true  # Set to false to disable the WATCH chart
+  enabled: true # Set to false to disable the WATCH chart
 
   # Configuration passed to the WATCH subchart
   watch:
     # Service details from parent chart for automatic ServiceMonitor configuration
     appServiceDetails:
-      name: "{{ .Release.Name }}-metrics"  # This refers to the PATH metrics service name
+      name: "{{ .Release.Name }}-metrics" # This refers to the PATH metrics service name
       port: metrics
       namespace: "{{ .Release.Namespace }}"
     # Configure component monitoring
@@ -229,7 +231,7 @@ observability:
         enabled: true
         folderName: "PATH"
       guard:
-        enabled: false  # Only enable GUARD dashboards if using GUARD
+        enabled: false # Only enable GUARD dashboards if using GUARD
     # ServiceMonitor configuration
     serviceMonitors:
       namespace: monitoring
@@ -243,7 +245,7 @@ observability:
             interval: 15s
             path: /metrics
       guard:
-        enabled: false  # Only enable GUARD monitoring if using GUARD
+        enabled: false # Only enable GUARD monitoring if using GUARD
     # External monitoring configuration (used when kube-prometheus-stack.enabled=false)
     externalMonitoring:
       grafanaNamespace: "monitoring"
