@@ -56,3 +56,6 @@ auth:
       mountPath: /app/data
       fromSecret:
         secretName: pads-config
+
+gateway-helm:
+  enabled: false
