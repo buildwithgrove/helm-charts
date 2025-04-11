@@ -4,8 +4,12 @@
 # See: https://github.com/buildwithgrove/helm-charts/blob/main/charts/path/values.yaml
 fullnameOverride: guard
 global:
+  namespace: path
   serviceName: path-http
   port: 3069
+  # -- CONTROLLED TRAFFIC SHIFTING --
+  # This variable must correspond to the Middleware Service's namespace.
+  middlewareNamespace: middleware
   # -- CONTROLLED TRAFFIC SHIFTING --
   # This variable must correspond to the name of the Middleware Service
   # that is deployed in the same namespace as PATH/GUARD.
@@ -15,7 +19,7 @@ global:
   # This variable must correspond to the port of the Middleware Service
   # in the same namespace as PATH/GUARD.
   # Defined in `charts/path/values.yaml`
-  middlewarePort: 3000
+  middlewarePort: 8080
 gateway:
   port: 3070
 # ** IMPORTANT: update domain value: **

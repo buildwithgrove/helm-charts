@@ -7,6 +7,7 @@ apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
   name: {{$gwname}}-custom-proxy-config
+  namespace: {{ $.Values.global.namespace }}
 spec:
   provider:
     type: Kubernetes

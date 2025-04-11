@@ -1,4 +1,7 @@
-# HTTPRoute Generator for Healthz
+# MCG performs health checks against services to which it routes traffic.
+# To remove the need for customizing MCG health checks, this HTTPRoute resource directs traffic from `/'` (MCG's default healthcheck path) to `/healthz`
+#
+# HTTPRoute Generator to direct requests with no prefix to the healthcheck endpoint.
 #
 # Generates an HTTPRoute resource for the healthz endpoint.
 #
@@ -7,11 +10,12 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: healthz-route
+  name: healthz-route-no-prefix
   namespace: {{ $.Values.global.namespace }}
 spec:
   parentRefs:
-  - kind: Gateway
+  - group: gateway.networking.k8s.io
+    kind: Gateway
     name: {{$gwname}}-envoy-gateway
   rules:
     - backendRefs:
@@ -21,7 +25,12 @@ spec:
           namespace: {{ $.Values.global.namespace }}
           port: {{ $.Values.global.port }}
       matches:
-        # /healthz route returns the health of the PATH service.
         - path:
             type: Exact
-            value: /healthz
+            value: /
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /healthz

@@ -12,14 +12,6 @@ help: ## Prints all make target descriptions
 	@grep -h -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-60s\033[0m %s\n", $$1, $$2}'
 
 ####################################################
-############# Helm dependency targets ##############
-####################################################
-
-.PHONY: validate_chart_dependencies
-validate_chart_dependencies: ## Validate Helm dependency list to ensure all helm dependencies added are resolvable.
-	@./dependency_validation.sh
-
-####################################################
 #############  Helm releases targets  ##############
 ####################################################
 
@@ -32,7 +24,6 @@ validate_gh_cli: ## Validate if GitHub CLI is installed
 
 .PHONY: release_chart
 release_chart: validate_gh_cli ## Run GitHub Action release charter workflow to release new versions of ...
-	@gh workflow run release.yml --repo buildwithgrove/helm-charts
 
 ################################################
 #############  Helm Docs targets  ##############
@@ -48,3 +39,9 @@ check_helm_docs: ## Check if helm-docs is installed
 .PHONY: generate_helm_values_docs
 generate_helm_values_docs: check_helm_docs ## Generate the helm docs for the charts
 	helm-docs -c ./charts/path -o docs/values.md -s file
+
+################################################
+#############  Additional Makefiles  ###########
+################################################
+
+include ./makefiles/claude.mk

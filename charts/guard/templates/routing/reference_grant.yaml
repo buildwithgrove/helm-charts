@@ -1,0 +1,17 @@
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-middleware-reference
+  # To the Middleware Service's namespace
+  namespace: {{ $.Values.global.middlewareNamespace }}
+spec: 
+  # From the PATH namespace
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: {{ $.Values.global.namespace }}
+  # To the Middleware Service
+  to:
+  - group: ""
+    kind: Service
+    name: {{ $.Values.global.middlewareServiceName }}

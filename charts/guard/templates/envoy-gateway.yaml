@@ -5,18 +5,22 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: {{$gwname}}-envoy-gateway
+  namespace: {{ $.Values.global.namespace }}
   labels:
     {{- include "guard-helm.labels" $ | nindent 4 }}
 spec:
   gatewayClassName: {{$gwname}}-envoy-gateway-class
+  # TODO_MVP(@adshmh): uncomment once ArgoCD version supports the `infrastructure` field in the spec.
+  # Ref: https://argo-cd.readthedocs.io/en/latest/faq/#how-do-i-fix-the-issue
+  #
   # Specify a custom EnvoyProxy resource to customize Envoy Gateway behavior.
   # See the following link for more details:
   # https://gateway.envoyproxy.io/latest/tasks/operations/customize-envoyproxy/
-  infrastructure:
-    parametersRef:
-      group: gateway.envoyproxy.io
-      kind: EnvoyProxy
-      name: {{$gwname}}-custom-proxy-config
+  #infrastructure:
+  #  parametersRef:
+  #    group: gateway.envoyproxy.io
+  #    kind: EnvoyProxy
+  #    name: {{$gwname}}-custom-proxy-config
   listeners:
     - name: http
       protocol: HTTP
