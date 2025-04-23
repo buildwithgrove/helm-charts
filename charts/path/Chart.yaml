@@ -12,4 +12,4 @@ dependencies:
   - name: watch
     version: "0.1.11"
     repository: "https://buildwithgrove.github.io/helm-charts"
-    condition: watch.enabled
+    condition: observability.enabled
