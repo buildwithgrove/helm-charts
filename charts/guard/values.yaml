@@ -44,7 +44,7 @@ auth:
   apiKey:
     enabled: true
     headerKey: "authorization"
-    apiKeys: 
+    apiKeys:
       - test_api_key
 
   # -- Grove Legacy auth configuration --
@@ -60,3 +60,13 @@ auth:
       envFrom:
         - secretRef:
             name: pads-db-connection
+      mountPath: /app/data
+      fromSecret:
+        secretName: pads-config
+
+envoyGateway:
+  enabled: true
+  serviceType: ClusterIP
+
+middlewareNamespaceReferenceGrant:
+  enabled: false

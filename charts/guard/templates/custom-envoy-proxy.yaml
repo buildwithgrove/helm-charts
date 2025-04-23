@@ -15,6 +15,6 @@ spec:
       envoyService:
         # Use a ClusterIP as type of GUARD service.
         # It is assumed that some ingres service (e.g. Google's MCG) accepts external traffic and redirects it to GUARD.
-        type: ClusterIP
+        type: {{ .Values.envoyGateway.serviceType }}
         # The name of the service assigned to GUARD to which all requests should be directed for Authentication/Authorization/Rate Limiting/etc.
         name: {{$gwname}}
