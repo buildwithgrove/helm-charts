@@ -8,6 +8,6 @@ dependencies:
   - name: guard
     version: "0.1.18"
     repository: "https://buildwithgrove.github.io/helm-charts"
-  - name: watch
-    version: "0.1.11"
-    repository: "https://buildwithgrove.github.io/helm-charts"
+  # - name: watch
+  #   version: "0.1.11"
+  #   repository: "https://buildwithgrove.github.io/helm-charts"
