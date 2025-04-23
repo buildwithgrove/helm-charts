@@ -40,16 +40,23 @@ services:
     #    path: 70
     #    middleware: 30
 auth:
+  # -- API Key auth configuration (default) --
   apiKey:
     enabled: true
-    headerKey: ""
-    apiKeys: []
+    headerKey: "authorization"
+    apiKeys:
+      - test_api_key
+
+  # -- Grove Legacy auth configuration --
+  # ######### VERY IMPORTANT #########
+  # If you are not authorizing Grove Portal requests,
+  # this is VERY unlikely to fit your exact use-case.
   groveLegacy:
     enabled: false
     peas:
       enabled: false
     pads:
-      enabled: true
+      enabled: false
       envFrom:
         - secretRef:
             name: pads-db-connection
