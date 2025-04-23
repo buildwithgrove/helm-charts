@@ -58,7 +58,7 @@ auth:
         secretName: pads-config
 
 envoyGateway:
-  enabled: false
+  enabled: true
   serviceType: ClusterIP
 
 middlewareNamespaceReferenceGrant:
