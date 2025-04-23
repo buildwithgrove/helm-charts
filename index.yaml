@@ -16,6 +16,22 @@ entries:
   guard:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2025-04-23T19:11:13.851115164Z"
+    dependencies:
+    - condition: envoyGateway.enabled
+      name: gateway-helm
+      repository: oci://docker.io/envoyproxy
+      version: v1.3.1
+    description: A Helm chart for development and production deployments of GUARD
+      (Gateway Utilities for Authentication, Routing & Defense)
+    digest: e819a0bbcfd976b565ba9fda6cfa39594e84b0ce790f8754c6d8c21fdb6a5405
+    name: guard
+    type: application
+    urls:
+    - https://github.com/buildwithgrove/helm-charts/releases/download/guard-0.1.19/guard-0.1.19.tgz
+    version: 0.1.19
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2025-03-27T22:57:57.48034239Z"
     dependencies:
     - name: gateway-helm
@@ -177,6 +193,25 @@ entries:
     - https://buildwithgrove.github.io/helm-charts/guard-0.1.1.tgz
     version: 0.1.1
   path:
+  - apiVersion: v2
+    appVersion: 0.0.16
+    created: "2025-04-23T19:11:14.069018278Z"
+    dependencies:
+    - condition: guard.enabled
+      name: guard
+      repository: https://buildwithgrove.github.io/helm-charts
+      version: 0.1.18
+    - condition: observability.enabled
+      name: watch
+      repository: https://buildwithgrove.github.io/helm-charts
+      version: 0.1.11
+    description: A Helm chart for PATH (PATH API & Toolkit Harness)
+    digest: fa3b3c6fb83128c5e2b54df55aef54182d86451ecbf5d3e4847d024a84b04d37
+    name: path
+    type: application
+    urls:
+    - https://github.com/buildwithgrove/helm-charts/releases/download/path-0.1.21/path-0.1.21.tgz
+    version: 0.1.21
   - apiVersion: v2
     appVersion: 0.0.16
     created: "2025-03-27T23:20:35.878819672Z"
@@ -529,4 +564,4 @@ entries:
     urls:
     - https://buildwithgrove.github.io/helm-charts/watch-0.1.8.tgz
     version: 0.1.8
-generated: "2025-03-27T23:20:35.879043859Z"
+generated: "2025-04-23T19:11:14.069218363Z"
