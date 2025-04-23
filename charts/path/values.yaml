@@ -169,7 +169,7 @@ guard:
       # Provide configuration for splitting traffic between
       # the PATH and Middleware backends.
       trafficSplitting:
-        enabled: true
+        enabled: false
         weights:
           path: 50
           middleware: 50
@@ -181,7 +181,7 @@ guard:
       # Provide configuration for splitting traffic between
       # the PATH and Middleware backends.
       trafficSplitting:
-        enabled: true
+        enabled: false
         weights:
           path: 50
           middleware: 50

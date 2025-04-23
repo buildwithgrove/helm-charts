@@ -57,5 +57,9 @@ auth:
       fromSecret:
         secretName: pads-config
 
-gateway-helm:
+envoyGateway:
+  enabled: false
+  serviceType: ClusterIP
+
+middlewareNamespaceReferenceGrant:
   enabled: false
