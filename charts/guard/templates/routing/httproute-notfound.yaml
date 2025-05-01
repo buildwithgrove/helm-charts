@@ -15,8 +15,11 @@ metadata:
   namespace: {{ $.Values.global.namespace }}
 spec:
   parentRefs:
-  - kind: Gateway
-    name: {{$gwname}}-envoy-gateway
+  {{- range $.Values.gatewayRef }}
+  - group: {{ .group }}
+    kind: {{ .kind }}
+    name: {{$gwname}}-{{ .name }}
+  {{- end }}
   rules:
   - matches:
     - path:

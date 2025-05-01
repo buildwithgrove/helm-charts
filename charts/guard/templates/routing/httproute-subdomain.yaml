@@ -50,8 +50,11 @@ metadata:
 
 spec:
   parentRefs:
-  - kind: Gateway
-    name: {{$gwname}}-envoy-gateway
+  {{- range $.Values.gatewayRef }}
+  - group: {{ .group }}
+    kind: {{ .kind }}
+    name: {{$gwname}}-{{ .name }}
+  {{- end }}
 
   # Match requests based on their subdomain.
   hostnames:

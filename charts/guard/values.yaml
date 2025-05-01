@@ -22,6 +22,11 @@ global:
   middlewarePort: 8080
 gateway:
   port: 3070
+# Gateway parent references configuration for HTTPRoutes
+gatewayRef:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: guard-envoy-gateway
 # ** IMPORTANT: update domain value: **
 # ** - domain must be specified in HTTPRoute resources for proper request routing. **
 # ** - domain must match the Host header value in HTTP requests received by GUARD/Envoy Gateway. **
