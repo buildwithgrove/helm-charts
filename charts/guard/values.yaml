@@ -68,5 +68,9 @@ envoyGateway:
   enabled: true
   serviceType: ClusterIP
 
+# Controls whether to deploy Gateway API resources (Gateway, GatewayClass, EnvoyProxy)
+gatewayResources:
+  enabled: true
+
 middlewareNamespaceReferenceGrant:
   enabled: false

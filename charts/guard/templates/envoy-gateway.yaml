@@ -1,3 +1,4 @@
+{{- if .Values.gatewayResources.enabled }}
 # This resources configures the Envoy Gateway for GUARD.
 # Ref: https://gateway.envoyproxy.io/latest/api/gateway_api/gateway/
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
@@ -38,3 +39,4 @@ metadata:
     {{- include "guard-helm.labels" $ | nindent 4 }}
 spec:
   controllerName: gateway.envoyproxy.io/gatewayclass-controller
+{{- end }}
