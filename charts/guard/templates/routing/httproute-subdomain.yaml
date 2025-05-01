@@ -94,6 +94,10 @@ spec:
             set:
               - name: "target-service-id"
                 value: "{{ .serviceId }}"
+              {{- if $.Values.regionName }}
+              - name: "Auth-Region"
+                value: "{{ $.Values.regionName }}"
+              {{- end }}
       matches:
         - path:
             type: PathPrefix
