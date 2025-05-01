@@ -53,7 +53,7 @@ spec:
   {{- range $.Values.gatewayRef }}
   - group: {{ .group }}
     kind: {{ .kind }}
-    name: {{$gwname}}-{{ .name }}
+    name: {{ .name }}
   {{- end }}
 
   # Match requests based on their subdomain.
