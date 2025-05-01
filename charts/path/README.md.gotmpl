@@ -1,0 +1,151 @@
+{{ template "chart.header" . }}
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.badgesSection" . }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.homepageLine" . }}
+
+## Overview
+
+**PATH** (Path API & Toolkit Harness) is an open source framework for enabling access to a decentralized supply network. It provides various tools and libraries to streamline the integration and interaction with decentralized protocols.
+
+## Prerequisites
+
+- Kubernetes 1.16+
+- Helm 3.1+
+- Namespace for PATH application
+- A configuration file for PATH
+
+## Installation
+
+### Create Namespace
+
+```bash
+kubectl create namespace app
+```
+
+### Prepare Configuration
+
+PATH requires a configuration file to be mounted at `/app/config/.config.yaml` in the container. This Helm chart supports two ways to provide this configuration:
+
+1. **Using a ConfigMap**:
+```bash
+kubectl create configmap path-config --from-file=.config.yaml=/path/to/your/.config.yaml -n app
+```
+
+2. **Using a Secret** (recommended for sensitive data):
+```bash
+kubectl create secret generic path-config-secret --from-file=.config.yaml=/path/to/your/.config.yaml -n app
+```
+
+### Deploy PATH using Helm
+
+Standard installation:
+
+```bash
+helm install path . --namespace app
+```
+
+Using a ConfigMap for configuration:
+
+```bash
+helm install path . \
+  --namespace app \
+  --set config.fromConfigMap.enabled=true \
+  --set config.fromConfigMap.name=path-config
+```
+
+Using a Secret for configuration:
+
+```bash
+helm install path . \
+  --namespace app \
+  --set config.fromSecret.enabled=true \
+  --set config.fromSecret.name=path-config-secret
+```
+
+### Helper Script (Alternative)
+
+The `install-path.sh` helper script in the chart directory can simplify deployment by creating a ConfigMap or Secret and deploying PATH in one step.
+
+```bash
+./install-path.sh --config /path/to/your/.config.yaml --namespace app
+```
+
+For more options:
+
+```bash
+./install-path.sh --help
+```
+
+## Accessing PATH
+
+To access PATH, forward the HTTP port:
+
+```bash
+kubectl port-forward svc/path-http 3069:3069 -n app
+```
+
+The API will be available at `http://localhost:3069`
+
+Verify PATH is serving requests:
+
+```bash
+curl http://localhost:3069/healthz
+```
+
+## Related Charts
+
+### Observability with WATCH
+
+For observability, PATH can be integrated with the **separate** [WATCH Helm chart](https://github.com/buildwithgrove/helm-charts) which provides monitoring, alerting, and visualization capabilities. WATCH must be installed separately from PATH.
+
+See [PATH-WATCH Integration Guide](./docs/path-watch-integration-guide.md) and [Accessing Grafana Dashboards](./docs/path-accessing-grafana.md) for detailed instructions.
+
+### API Gateway with GUARD
+
+For API gateway functionality, PATH can be used with the **separate** [GUARD Helm chart](https://github.com/buildwithgrove/helm-charts) which provides routing and authentication. GUARD must be installed separately from PATH.
+
+## Advanced Topics
+
+For more detailed documentation on specific topics:
+
+- [Values Reference](./docs/values.md)
+- [Namespace and RBAC Considerations](./docs/namespace-rbac-considerations.md)
+
+## Troubleshooting
+
+### Configuration Issues
+
+If PATH fails to start:
+
+1. Verify your ConfigMap or Secret exists:
+   ```bash
+   kubectl get configmap path-config -n app
+   ```
+   
+2. Check PATH logs:
+   ```bash
+   kubectl logs deployment/path -n app
+   ```
+
+### Application Issues
+
+Check PATH pod status:
+
+```bash
+kubectl get pods -n app
+kubectl describe pod <pod-name> -n app
+```
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.valuesSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}

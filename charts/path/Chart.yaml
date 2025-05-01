@@ -1,16 +1,6 @@
 apiVersion: v2
-appVersion: 0.0.16
-description: A Helm chart for PATH (PATH API & Toolkit Harness)
+appVersion: 0.0.24
+description: PATH (Path API & Toolkit Harness) is an open source framework for enabling access to a decentralized supply network. It provides various tools and libraries to streamline the integration and interaction with decentralized protocols.
 name: path
 type: application
 version: 0.1.22
-dependencies:
-  # TODO: Remove dependencies for internal charts.
-  - name: guard
-    version: "0.1.19"
-    repository: "https://buildwithgrove.github.io/helm-charts"
-    condition: guard.enabled
-  - name: watch
-    version: "0.1.11"
-    repository: "https://buildwithgrove.github.io/helm-charts"
-    condition: observability.enabled

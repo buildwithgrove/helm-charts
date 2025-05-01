@@ -1,29 +1,43 @@
 ##########################################################################
 # -------------------- PATH Specific Configurations -------------------- #
 ##########################################################################
+# -- The name override for the chart
 nameOverride: path
+# -- The full name override for the chart
 fullnameOverride: path
 global:
+  # -- Image pull policy for all containers in the deployment
   imagePullPolicy: IfNotPresent
   serviceAccount:
+    # -- Whether to create a service account
     create: true
+    # -- The name of the service account to use
     name: "path-sa"
   securityContext:
+    # -- File system group for the PATH containers
     fsGroup: 1001
+    # -- User ID for running PATH containers
     runAsUser: 1001
+    # -- Group ID for running PATH containers
     runAsGroup: 1001
 
 image:
+  # -- Docker image repository for PATH
   repository: ghcr.io/buildwithgrove/path
   # TODO_MVP(@adshmh): change to "latest" once the PATH repo CI's docker image push job is updated to use the correct tag.
+  # -- Docker image tag for PATH
   tag: main
+  # -- Image pull policy specifically for the PATH container
   pullPolicy: Always
+# -- Number of PATH replicas to deploy
 replicas: 1
 
 path:
   ## HPA cannot be enabled if replicas are declared in the values file. Either use one or the other depending on your needs!
   horizontalPodAutoscaler:
+    # -- Whether to enable Horizontal Pod Autoscaler for PATH
     enabled: false
+  # -- Resource limits and requests for PATH container
   resources:
     {}
     # limits:
@@ -34,16 +48,23 @@ path:
     #   memory: 800Mi
   ## Port supports the creation of Kubernetes services resources which are tied to the ports
   ## exposed in this configuration.
+  # -- Port configurations for PATH services
   ports:
     - name: http
+      # -- HTTP port number for the PATH service
       port: 3069
+      # -- Protocol for the HTTP service
       protocol: TCP
       service:
+        # -- Kubernetes service type for the HTTP endpoint
         type: ClusterIP
     - name: metrics
+      # -- Metrics port number for the PATH service
       port: 9090
+      # -- Protocol for the metrics service
       protocol: TCP
       service:
+        # -- Kubernetes service type for the metrics endpoint
         type: ClusterIP
   # The PATH service uses the `/healthz` endpoint to check if the service is ready,
   # which uses the response from the QoS service to determine whether to send a
@@ -52,34 +73,49 @@ path:
   # When using PATH with large numbers of services enabled, the QoS service
   # may take a long time to return a healthy response. Therefore, it is expected
   # that the readinessProbe may take a large number of attempts to succeed.
+  # -- Readiness probe configuration for PATH
   readinessProbe:
+    # -- Number of attempts before considering the PATH pod not ready
     failureThreshold: 600 # Set to high value to account for the potential long response time of the QoS service.
     httpGet:
+      # -- Path for the readiness probe
       path: /healthz
+      # -- Port for the readiness probe
       port: 3069
+      # -- HTTP scheme for the readiness probe
       scheme: HTTP
+  # -- Liveness probe configuration for PATH
   livenessProbe:
+    # -- Number of attempts before considering the PATH pod not alive
     failureThreshold: 600 # Set to high value to account for the potential long response time of the QoS service.
     httpGet:
+      # -- Path for the liveness probe
       path: /healthz
+      # -- Port for the liveness probe
       port: 3069
+      # -- HTTP scheme for the liveness probe
       scheme: HTTP
+  # -- Additional labels to add to PATH pods
   additionalLabels: {}
+  # -- Additional annotations to add to PATH pods
   additionalAnnotations: {}
 ## Configuration for PATH
 ## PATH requires a config file at /app/config/.config.yaml
 ## Choose one of the following options to provide this configuration:
+# -- Configuration options for PATH
 config:
   ## TODO_FUTURE(@HebertCL): consider dropping the enabled field and using fromSecret/fromConfig fields if defined.
   #
   # Option 1: Use an existing Secret (recommended for security)
   fromSecret:
+    # -- Whether to use an existing Secret for PATH configuration
     enabled: false
     # name: "path-config-secret"       # Name of the existing Secret
     # key: ".config.yaml"              # Key in the Secret containing the configuration
 
   # Option 2: Use an existing ConfigMap
   fromConfigMap:
+    # -- Whether to use an existing ConfigMap for PATH configuration
     enabled: false
     # name: "path-config"              # Name of the existing ConfigMap
     # key: ".config.yaml"              # Key in the ConfigMap containing the configuration
@@ -87,7 +123,9 @@ config:
 ## Additional manifests and additional yaml manifests provide the ability to include
 ## resources which are not provided by the chart itself. This allow to manage those
 ## resources within the chart itself.
+# -- List of additional Kubernetes manifests to include
 additionalManifests: []
+# -- YAML string of additional manifests to include
 additionalYamlManifests: ""
 
 ###########################################################################
@@ -95,6 +133,7 @@ additionalYamlManifests: ""
 ###########################################################################
 
 guard:
+  # -- Whether to enable GUARD component with PATH
   enabled: false
   # TODO_DOCUMENT(@commoddity): Embed the `gateway-helm` values.yaml fields
   # referenced below into the `guard` section of the Docusaurus docs.
@@ -115,20 +154,16 @@ guard:
   #         level:
   #           default: warn
 
+  # -- The full name override for the GUARD component
   fullnameOverride: guard
   global:
     # -- The name of the service that the PATH service is deployed to.
     serviceName: path-http
-    # -- The port that the PATH service runs on in the cluster.
-    # This is the port that Envoy Gateway will forward requests to.
+    # -- The port that the PATH service runs on in the cluster. This is the port that Envoy Gateway will forward requests to.
     port: 3069
-    # -- CONTROLLED TRAFFIC SHIFTING --
-    # -- This variable must correspond to the name of the Middleware Service
-    # -- that is deployed in the same namespace as PATH/GUARD.
+    # -- This variable must correspond to the name of the Middleware Service that is deployed in the same namespace as PATH/GUARD.
     middlewareServiceName: middleware-http
-    # -- CONTROLLED TRAFFIC SHIFTING --
-    # -- The port that the Middleware service runs on in the cluster.
-    # -- This is the port that Envoy Gateway will forward requests to.
+    # -- The port that the Middleware service runs on in the cluster. This is the port that Envoy Gateway will forward requests to.
     middlewarePort: 3000
   gateway:
     # -- The port that Envoy Gateway will listen on.
@@ -136,16 +171,12 @@ guard:
 
   # ---- Service routing settings ----
 
-  # -- domain will be used for matching HTTPRoutes by subdomain,
-  # as defined in the `httproute-subdomain.yaml` template.
-  # For example, hostnames will be created for `<SERVICE_ID>.localhost`.
+  # -- Domain will be used for matching HTTPRoutes by subdomain, as defined in the `httproute-subdomain.yaml` template. For example, hostnames will be created for `<SERVICE_ID>.localhost`.
   domain: localhost
   # IMPORTANT: For production deployments, the `domain` field should be
   # overridden with the actual domain name for the PATH service.
 
-  # -- List of services that will be routed by Envoy Gateway to the PATH backend.
-  # These services will be used to construct HTTPRoutes for each service. All
-  # services enabled for a PATH deployment must be listed here.
+  # -- List of services that will be routed by Envoy Gateway to the PATH backend. These services will be used to construct HTTPRoutes for each service. All services enabled for a PATH deployment must be listed here.
   services:
     # Configurations:
     # - serviceId [REQUIRED]: The authorative service ID of the service.
@@ -165,7 +196,6 @@ guard:
       aliases:
         - eth
         - eth-mainnet
-      # -- CONTROLLED TRAFFIC SHIFTING --
       # Provide configuration for splitting traffic between
       # the PATH and Middleware backends.
       trafficSplitting:
@@ -177,7 +207,6 @@ guard:
       aliases:
         - polygon
         - polygon-mainnet
-      # -- CONTROLLED TRAFFIC SHIFTING --
       # Provide configuration for splitting traffic between
       # the PATH and Middleware backends.
       trafficSplitting:
@@ -193,8 +222,7 @@ guard:
   # TODO_IMPROVE(@commoddity): Add support for additional authorization flows.
   # For example, JWT, OIDC, Basic Auth, etc.
 
-  # -- The type of authorization flow to use. Currently supports `apiKey` and `groveLegacy`.
-  # `apiKey` is enabled by default.
+  # -- The type of authorization flow to use. Currently supports `apiKey` and `groveLegacy`. `apiKey` is enabled by default.
   auth:
     # -- Configuration for the API key authorization flow.
     apiKey:
@@ -202,10 +230,7 @@ guard:
       enabled: true
       # -- The header key to use for API key authentication.
       headerKey: authorization
-      # -- An array of API keys authorized to access the PATH service.
-      # A default API key is provided for local development.
-      # IMPORTANT: For production deployments, the `apiKeys` field should be
-      # overridden with the actual API keys authorized to access the PATH service.
+      # -- An array of API keys authorized to access the PATH service. A default API key is provided for local development. IMPORTANT: For production deployments, the `apiKeys` field should be overridden with the actual API keys authorized to access the PATH service.
       apiKeys:
         - test_api_key
 
@@ -215,42 +240,61 @@ guard:
 
 # Integrated Observability Stack (WATCH)
 observability:
+  # -- Whether to enable the integrated observability stack (WATCH)
   enabled: true # Set to false to disable the WATCH chart
 
   # Configuration passed to the WATCH subchart
   watch:
     # Service details from parent chart for automatic ServiceMonitor configuration
     appServiceDetails:
+      # -- Name of the metrics service for monitoring
       name: "{{ .Release.Name }}-metrics" # This refers to the PATH metrics service name
+      # -- Port name for the metrics service
       port: metrics
+      # -- Namespace where the metrics service is deployed
       namespace: "{{ .Release.Namespace }}"
     # Configure component monitoring
     dashboards:
+      # -- Namespace where dashboards will be deployed
       namespace: monitoring
       path:
+        # -- Whether to enable PATH dashboards
         enabled: true
+        # -- Folder name for PATH dashboards in Grafana
         folderName: "PATH"
       guard:
+        # -- Whether to enable GUARD dashboards
         enabled: false # Only enable GUARD dashboards if using GUARD
     # ServiceMonitor configuration
     serviceMonitors:
+      # -- Namespace where ServiceMonitors will be deployed
       namespace: monitoring
       path:
+        # -- Whether to enable PATH ServiceMonitor
         enabled: true
         selector:
           matchLabels:
+            # -- Label selector for PATH service
             app.kubernetes.io/name: path
         endpoints:
           - port: metrics
+            # -- Scrape interval for Prometheus
             interval: 15s
+            # -- Path for metrics endpoint
             path: /metrics
       guard:
+        # -- Whether to enable GUARD ServiceMonitor
         enabled: false # Only enable GUARD monitoring if using GUARD
     # External monitoring configuration (used when kube-prometheus-stack.enabled=false)
     externalMonitoring:
+      # -- Namespace where Grafana is deployed
       grafanaNamespace: "monitoring"
       prometheusSelectorLabels:
+        # -- Labels to select Prometheus instance
         app.kubernetes.io/part-of: watch-monitoring
+# -- Log level for PATH
 logs:
+  # -- Log level (info, debug, warn, error)
   level: info
+  # -- Log format (plain, json)
   format: plain

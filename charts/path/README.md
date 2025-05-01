@@ -1,317 +1,85 @@
-# PATH Helm Chart <!-- omit in toc -->
-
-![Version: 0.1.9](https://img.shields.io/badge/Version-0.1.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.16](https://img.shields.io/badge/AppVersion-0.0.16-informational?style=flat-square)
-
-A canonical Helm chart for deploying PATH (PATH API and Tooling Harness) service with integrated observability.
-
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-  - [Installation Prerequisites](#installation-prerequisites)
-  - [Configuration Prerequisites](#configuration-prerequisites)
-  - [Create Namespaces](#create-namespaces)
-- [Configuration Requirements](#configuration-requirements)
-- [Deployment Options](#deployment-options)
-  - [Option 1: Using the Helper Script (Recommended for Configuration)](#option-1-using-the-helper-script-recommended-for-configuration)
-  - [Option 2: Manual Installation](#option-2-manual-installation)
-- [Accessing PATH](#accessing-path)
-- [Accessing Grafana Dashboards](#accessing-grafana-dashboards)
-  - [1. Forward the Grafana port](#1-forward-the-grafana-port)
-  - [2. Access Grafana in your browser](#2-access-grafana-in-your-browser)
-  - [3. Log in with default credentials](#3-log-in-with-default-credentials)
-  - [4. Navigate to PATH dashboards](#4-navigate-to-path-dashboards)
-- [Configuration Values](#configuration-values)
-- [Observability Integration](#observability-integration)
-- [Troubleshooting](#troubleshooting)
-  - [Configuration Issues](#configuration-issues)
-  - [PATH Application Issues](#path-application-issues)
-  - [Observability Issues](#observability-issues)
-
-## Overview
-
-**PATH** (PATH API and Tooling Harness) is deployed with **WATCH** (Workload Analytics and Telemetry for Comprehensive Health)
-for comprehensive monitoring, alerting, and visualization capabilities.
-
-## Prerequisites
-
-### Installation Prerequisites
-
-1. [Kubernetes](https://kubernetes.io/releases/download/) 1.16+
-2. [Helm](https://helm.sh/docs/helm/helm_install/) 3.1+
-
-### Configuration Prerequisites
-
-1. Namespace for **PATH** application (e.g., `app`)
-2. Namespace for **WATCH** components (e.g., `monitoring`)
-
-### Create Namespaces
-
-Using `app` and `monitoring` namespaces as an examples:
-
-```bash
-kubectl create namespace app
-kubectl create namespace monitoring
-```
-
-## Configuration Requirements
-
-PATH requires a configuration file to be mounted at `/app/config/.config.yaml` in the container. This Helm chart supports two ways to provide this configuration:
-
-1. **Using a ConfigMap**: Mount the configuration from a Kubernetes ConfigMap
-2. **Using a Secret**: Mount the configuration from a Kubernetes Secret (for sensitive configuration data)
-
-## Deployment Options
-
-You have multiple options for deploying **PATH**:
-
-### Option 1: Using the Helper Script (Recommended for Configuration)
-
-The provided `install-path.sh` script simplifies the process by:
-
-1. Creating a Kubernetes ConfigMap or Secret from a local configuration file
-2. Deploying the PATH Helm chart configured to use that resource
-
-Make the script executable
-
-```bash
-chmod +x install-path.sh
-```
-
-Create a Secret from your local config file and deploy PATH (default):
-
-```bash
-./install-path.sh --config /path/to/your/.config.yaml --namespace app
-```
-
-Or use a ConfigMap instead:
-
-```bash
-./install-path.sh --config /path/to/your/.config.yaml --namespace app --configmap
-```
-
-#### Script Options <!-- omit in toc -->
-
-You can view the script options with:
-
-```bash
-./install-path.sh -h
-```
-
-Which will display:
-
-```bash
-Required:
-  -c, --config FILE            Path to local .config.yaml file
-
-Options:
-  -n, --namespace NAMESPACE    Kubernetes namespace (default: default)
-  -r, --release-name NAME      Helm release name (default: path)
-  -f, --values FILE            Custom Helm values file
-  -m, --configmap              Use a ConfigMap instead of Secret (default: Secret)
-  -h, --help                   Show this help message
-```
-
-### Option 2: Manual Installation
-
-If you prefer to have more control over the installation process, you can manually create the ConfigMap or Secret and then deploy the chart.
-
-#### Step 1: Create the ConfigMap or Secret <!-- omit in toc -->
-
-Create a ConfigMap from your configuration file:
-
-```bash
-kubectl create configmap path-config --from-file=.config.yaml=/path/to/your/.config.yaml -n app
-```
-
-For sensitive configuration data, use a Secret instead:
-
-```bash
-kubectl create secret generic path-config-secret --from-file=.config.yaml=/path/to/your/.config.yaml -n app
-```
-
-#### Step 2: Deploy PATH using Helm <!-- omit in toc -->
-
-There are multiple ways to deploy PATH using Helm, depending on your configuration source.
-
-1. Standard installation with integrated observability:
-
-   ```bash
-   helm install path ./path --namespace app
-   ```
-
-2. Using a ConfigMap for configuration:
-
-   ```bash
-   helm install path ./path \
-     --namespace app \
-     --set config.fromConfigMap.enabled=true \
-     --set config.fromConfigMap.name=path-config
-   ```
-
-3. Using a Secret for configuration:
-
-   ```bash
-   helm install path ./path \
-     --namespace app \
-     --set config.fromSecret.enabled=true \
-     --set config.fromSecret.name=path-config-secret
-   ```
-
-4. Install without observability
-
-   ```bash
-   helm install path ./path --namespace app --set observability.enabled=false
-   ```
-
-5. Install with existing Prometheus stack
-
-   ```bash
-   helm install path ./path --namespace app \
-   --set observability.watch.kube-prometheus-stack.enabled=false \
-   --set observability.watch.externalMonitoring.grafanaNamespace=monitoring
-   ```
-
-## Accessing PATH
-
-:::info
-
-To access PATH, forward the HTTP port `3069`:
-
-```bash
-kubectl port-forward svc/path-http 3069:3069 -n app
-```
-
-The API will be available at `http://localhost:3069`
-
-:::tip Use the following command to verify PATH is serving requests:
-
-```bash
-curl http://localhost:3069/healthz
-{"status":"ready","imageTag":"development","readyStates":{"pokt-morse":true}}
-```
-
-## Accessing Grafana Dashboards
-
-When PATH is installed with observability enabled, you can access the Grafana dashboards to monitor your application.
-
-### 1. Forward the Grafana port
-
-```bash
-kubectl port-forward svc/watch-grafana 3000:80 -n monitoring
-```
-
-### 2. Access Grafana in your browser
-
-Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
-
-### 3. Log in with default credentials
-
-- **Username**: `admin`
-- **Password**: check values.yaml (default is `change-me-in-production`)
-
-If you didn't set a custom password, retrieve it with:
-
-```bash
-kubectl get secret watch-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
-```
-
-### 4. Navigate to PATH dashboards
-
-- Click on Dashboards in the left sidebar
-- Select the "PATH" folder
-
-![Grafana dashboards list](./docs/img/grafana-dashboards-list.png)
-
-- Choose a dashboard to view metrics for your PATH application
-
-![Grafana PATH dashboards list](./docs/img/grafana-path-dashboards.png)
-
-For more detailed instructions on accessing and troubleshooting Grafana, see the [Accessing Grafana Dashboards](accessing-grafana.md) guide.
-
-## Configuration Values
-
-| Key                                    | Type   | Default                       | Description                     |
-| -------------------------------------- | ------ | ----------------------------- | ------------------------------- |
-| `replicas`                             | int    | `1`                           | Number of PATH replicas         |
-| `image.repository`                     | string | `ghcr.io/buildwithgrove/path` | PATH Docker image repository    |
-| `image.tag`                            | string | `main`                        | PATH Docker image tag           |
-| `image.pullPolicy`                     | string | `IfNotPresent`                | Image pull policy               |
-| `observability.enabled`                | bool   | `true`                        | Enable WATCH observability      |
-| `config.fromConfigMap.enabled`         | bool   | `false`                       | Use ConfigMap for configuration |
-| `config.fromConfigMap.name`            | string | `path-config`                 | Name of the ConfigMap           |
-| `config.fromSecret.enabled`            | bool   | `false`                       | Use Secret for configuration    |
-| `config.fromSecret.name`               | string | `path-config-secret`          | Name of the Secret              |
-| `additionalManifests`                  | list   | `[]`                          | Additional Kubernetes manifests |
-| `additionalYamlManifests`              | string | `""`                          | Additional YAML manifests       |
-| `path.resources`                       | object | `{}`                          | Resource limits and requests    |
-| `path.horizontalPodAutoscaler.enabled` | bool   | `false`                       | Enable HPA                      |
-| `path.additionalLabels`                | object | `{}`                          | Additional labels               |
-| `path.additionalAnnotations`           | object | `{}`                          | Additional annotations          |
-
-## Observability Integration
-
-**PATH** integrates with WATCH for observability, featuring:
-
-- Prometheus for metrics collection
-- Grafana for dashboards and visualization
-- Pre-configured dashboards for PATH metrics
-- Cross-namespace monitoring setup
-
-For more details on the observability integration, see the [PATH-WATCH Integration Guide](path-watch-integration.md).
-
-## Troubleshooting
-
-### Configuration Issues
-
-If PATH fails to start or doesn't behave as expected:
-
-1. Verify your ConfigMap or Secret exists and contains the correct configuration:
-
-   ```bash
-   kubectl get configmap path-config -n app
-   kubectl describe configmap path-config -n app
-   ```
-
-2. Check the PATH logs for any configuration-related errors:
-
-   ```bash
-   kubectl logs deployment/path -n app
-   ```
-
-3. Verify the configuration is properly mounted:
-
-   ```bash
-   kubectl exec -it deployment/path -n app -- cat /app/config/.config.yaml
-   ```
-
-### PATH Application Issues
-
-Check **PATH** pod status:
-
-```bash
-kubectl get pods -n app
-kubectl describe pod <pod-name> -n app
-kubectl logs <pod-name> -n app
-```
-
-### Observability Issues
-
-If metrics aren't showing up in Grafana:
-
-1. Check if ServiceMonitor exists:
-
-   ```bash
-   kubectl get servicemonitor -n monitoring | grep path
-   ```
-
-2. Verify PATH metrics are accessible by forwarding the metrics port and curling the metrics endpoint:
-
-   ```bash
-   kubectl port-forward svc/path-metrics 9090:9090 -n app
-   curl localhost:9090/metrics
-   ```
-
-3. Check if Prometheus is scraping metrics by forwarding the Prometheus port and visiting [localhost:9090/targets](http://localhost:9090/targets) in your browser:
-
-   ```bash
-   kubectl port-forward svc/watch-prometheus-server 9090:9090 -n monitoring
-   ```
+# path
+
+![Version: 0.1.22](https://img.shields.io/badge/Version-0.1.22-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.0.24](https://img.shields.io/badge/AppVersion-0.0.24-informational?style=flat-square)
+
+PATH (Path API & Toolkit Harness) is an open source framework for enabling access to a decentralized supply network. It provides various tools and libraries to streamline the integration and interaction with decentralized protocols.
+
+## Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| additionalManifests | list | `[]` | List of additional Kubernetes manifests to include |
+| additionalYamlManifests | string | `""` | YAML string of additional manifests to include |
+| config | object | `{"fromConfigMap":{"enabled":false},"fromSecret":{"enabled":false}}` | Configuration options for PATH |
+| config.fromConfigMap.enabled | bool | `false` | Whether to use an existing ConfigMap for PATH configuration |
+| config.fromSecret.enabled | bool | `false` | Whether to use an existing Secret for PATH configuration |
+| fullnameOverride | string | `"path"` | The full name override for the chart |
+| global.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy for all containers in the deployment |
+| global.securityContext.fsGroup | int | `1001` | File system group for the PATH containers |
+| global.securityContext.runAsGroup | int | `1001` | Group ID for running PATH containers |
+| global.securityContext.runAsUser | int | `1001` | User ID for running PATH containers |
+| global.serviceAccount.create | bool | `true` | Whether to create a service account |
+| global.serviceAccount.name | string | `"path-sa"` | The name of the service account to use |
+| guard.auth | object | `{"apiKey":{"apiKeys":["test_api_key"],"enabled":true,"headerKey":"authorization"}}` | The type of authorization flow to use. Currently supports `apiKey` and `groveLegacy`. `apiKey` is enabled by default. |
+| guard.auth.apiKey | object | `{"apiKeys":["test_api_key"],"enabled":true,"headerKey":"authorization"}` | Configuration for the API key authorization flow. |
+| guard.auth.apiKey.apiKeys | list | `["test_api_key"]` | An array of API keys authorized to access the PATH service. A default API key is provided for local development. IMPORTANT: For production deployments, the `apiKeys` field should be overridden with the actual API keys authorized to access the PATH service. |
+| guard.auth.apiKey.enabled | bool | `true` | Whether to enable API key authentication. |
+| guard.auth.apiKey.headerKey | string | `"authorization"` | The header key to use for API key authentication. |
+| guard.domain | string | `"localhost"` | Domain will be used for matching HTTPRoutes by subdomain, as defined in the `httproute-subdomain.yaml` template. For example, hostnames will be created for `<SERVICE_ID>.localhost`. |
+| guard.enabled | bool | `false` | Whether to enable GUARD component with PATH |
+| guard.fullnameOverride | string | `"guard"` | The full name override for the GUARD component |
+| guard.gateway.port | int | `3070` | The port that Envoy Gateway will listen on. |
+| guard.global.middlewarePort | int | `3000` | The port that the Middleware service runs on in the cluster. This is the port that Envoy Gateway will forward requests to. |
+| guard.global.middlewareServiceName | string | `"middleware-http"` | This variable must correspond to the name of the Middleware Service that is deployed in the same namespace as PATH/GUARD. |
+| guard.global.port | int | `3069` | The port that the PATH service runs on in the cluster. This is the port that Envoy Gateway will forward requests to. |
+| guard.global.serviceName | string | `"path-http"` | The name of the service that the PATH service is deployed to. |
+| guard.services | list | `[{"serviceId":"anvil"},{"aliases":["eth","eth-mainnet"],"serviceId":"F00C","trafficSplitting":{"enabled":false,"weights":{"middleware":50,"path":50}}},{"aliases":["polygon","polygon-mainnet"],"serviceId":"F021","trafficSplitting":{"enabled":false,"weights":{"middleware":50,"path":50}}}]` | List of services that will be routed by Envoy Gateway to the PATH backend. These services will be used to construct HTTPRoutes for each service. All services enabled for a PATH deployment must be listed here. |
+| image.pullPolicy | string | `"Always"` | Image pull policy specifically for the PATH container |
+| image.repository | string | `"ghcr.io/buildwithgrove/path"` | Docker image repository for PATH |
+| image.tag | string | `"main"` | Docker image tag for PATH |
+| logs | object | `{"format":"plain","level":"info"}` | Log level for PATH |
+| logs.format | string | `"plain"` | Log format (plain, json) |
+| logs.level | string | `"info"` | Log level (info, debug, warn, error) |
+| nameOverride | string | `"path"` | The name override for the chart |
+| observability.enabled | bool | `true` | Whether to enable the integrated observability stack (WATCH) |
+| observability.watch.appServiceDetails.name | string | `"{{ .Release.Name }}-metrics"` | Name of the metrics service for monitoring |
+| observability.watch.appServiceDetails.namespace | string | `"{{ .Release.Namespace }}"` | Namespace where the metrics service is deployed |
+| observability.watch.appServiceDetails.port | string | `"metrics"` | Port name for the metrics service |
+| observability.watch.dashboards.guard.enabled | bool | `false` | Whether to enable GUARD dashboards |
+| observability.watch.dashboards.namespace | string | `"monitoring"` | Namespace where dashboards will be deployed |
+| observability.watch.dashboards.path.enabled | bool | `true` | Whether to enable PATH dashboards |
+| observability.watch.dashboards.path.folderName | string | `"PATH"` | Folder name for PATH dashboards in Grafana |
+| observability.watch.externalMonitoring.grafanaNamespace | string | `"monitoring"` | Namespace where Grafana is deployed |
+| observability.watch.externalMonitoring.prometheusSelectorLabels."app.kubernetes.io/part-of" | string | `"watch-monitoring"` | Labels to select Prometheus instance |
+| observability.watch.serviceMonitors.guard.enabled | bool | `false` | Whether to enable GUARD ServiceMonitor |
+| observability.watch.serviceMonitors.namespace | string | `"monitoring"` | Namespace where ServiceMonitors will be deployed |
+| observability.watch.serviceMonitors.path.enabled | bool | `true` | Whether to enable PATH ServiceMonitor |
+| observability.watch.serviceMonitors.path.endpoints[0].interval | string | `"15s"` | Scrape interval for Prometheus |
+| observability.watch.serviceMonitors.path.endpoints[0].path | string | `"/metrics"` | Path for metrics endpoint |
+| observability.watch.serviceMonitors.path.endpoints[0].port | string | `"metrics"` |  |
+| observability.watch.serviceMonitors.path.selector.matchLabels."app.kubernetes.io/name" | string | `"path"` | Label selector for PATH service |
+| path.additionalAnnotations | object | `{}` | Additional annotations to add to PATH pods |
+| path.additionalLabels | object | `{}` | Additional labels to add to PATH pods |
+| path.horizontalPodAutoscaler.enabled | bool | `false` | Whether to enable Horizontal Pod Autoscaler for PATH |
+| path.livenessProbe | object | `{"failureThreshold":600,"httpGet":{"path":"/healthz","port":3069,"scheme":"HTTP"}}` | Liveness probe configuration for PATH |
+| path.livenessProbe.failureThreshold | int | `600` | Number of attempts before considering the PATH pod not alive |
+| path.livenessProbe.httpGet.path | string | `"/healthz"` | Path for the liveness probe |
+| path.livenessProbe.httpGet.port | int | `3069` | Port for the liveness probe |
+| path.livenessProbe.httpGet.scheme | string | `"HTTP"` | HTTP scheme for the liveness probe |
+| path.ports | list | `[{"name":"http","port":3069,"protocol":"TCP","service":{"type":"ClusterIP"}},{"name":"metrics","port":9090,"protocol":"TCP","service":{"type":"ClusterIP"}}]` | Port configurations for PATH services |
+| path.ports[0].port | int | `3069` | HTTP port number for the PATH service |
+| path.ports[0].protocol | string | `"TCP"` | Protocol for the HTTP service |
+| path.ports[0].service.type | string | `"ClusterIP"` | Kubernetes service type for the HTTP endpoint |
+| path.ports[1].port | int | `9090` | Metrics port number for the PATH service |
+| path.ports[1].protocol | string | `"TCP"` | Protocol for the metrics service |
+| path.ports[1].service.type | string | `"ClusterIP"` | Kubernetes service type for the metrics endpoint |
+| path.readinessProbe | object | `{"failureThreshold":600,"httpGet":{"path":"/healthz","port":3069,"scheme":"HTTP"}}` | Readiness probe configuration for PATH |
+| path.readinessProbe.failureThreshold | int | `600` | Number of attempts before considering the PATH pod not ready |
+| path.readinessProbe.httpGet.path | string | `"/healthz"` | Path for the readiness probe |
+| path.readinessProbe.httpGet.port | int | `3069` | Port for the readiness probe |
+| path.readinessProbe.httpGet.scheme | string | `"HTTP"` | HTTP scheme for the readiness probe |
+| path.resources | object | `{}` | Resource limits and requests for PATH container |
+| replicas | int | `1` | Number of PATH replicas to deploy |
+
+----------------------------------------------
+Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)

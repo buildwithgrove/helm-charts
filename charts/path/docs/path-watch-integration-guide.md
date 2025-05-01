@@ -1,13 +1,12 @@
-# PATH Integration with WATCH Using `kube-prometheus-stack` <!-- omit in toc -->
+# PATH Integration with WATCH <!-- omit in toc -->
 
-This document explains how the **PATH** helm chart integrates with the **WATCH** chart that using [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) for monitoring.
+This document explains how to integrate the **PATH** helm chart with the **WATCH** chart (a separate Helm chart that needs to be installed separately) for monitoring using [kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack).
 
 - [Architecture](#architecture)
 - [Usage Scenarios](#usage-scenarios)
-  - [Scenario 1: Full Integrated Stack](#scenario-1-full-integrated-stack)
+  - [Scenario 1: Full Stack with Separate Charts](#scenario-1-full-stack-with-separate-charts)
   - [Scenario 2: PATH with Existing Prometheus Stack](#scenario-2-path-with-existing-prometheus-stack)
   - [Scenario 3: PATH Without Observability](#scenario-3-path-without-observability)
-  - [Scenario 4: PATH with GUARD Monitoring](#scenario-4-path-with-guard-monitoring)
 - [Configuration](#configuration)
 - [Adding Custom Dashboards](#adding-custom-dashboards)
   - [1. Create a Values File with Custom Dashboards](#1-create-a-values-file-with-custom-dashboards)
@@ -40,29 +39,61 @@ flowchart TD
 
 ## Usage Scenarios
 
-### Scenario 1: Full Integrated Stack
+### Scenario 1: Full Stack with Separate Charts
 
-Deploy **PATH** with the full WATCH stack in the monitoring namespace:
+Deploy **PATH** and **WATCH** as separate charts:
+
+1. First, install PATH:
 
 ```bash
-helm install path ./path --namespace app
+helm install path grove/path --namespace app
 ```
 
-This will deploy:
+2. Then, install WATCH in the monitoring namespace:
 
-- PATH in the `app` namespace
-- WATCH with `kube-prometheus-stack` in the `monitoring` namespace
-- ServiceMonitor for **PATH** metrics in the `monitoring` namespace
-- Dashboards for **PATH** in the `monitoring` namespace
+```bash
+helm install watch grove/watch --namespace monitoring
+```
+
+3. Configure WATCH to monitor PATH:
+
+```bash
+helm upgrade watch grove/watch --namespace monitoring \
+  --set serviceMonitors.path.enabled=true \
+  --set serviceMonitors.path.namespace=app \
+  --set serviceMonitors.path.selector.matchLabels."app\.kubernetes\.io/name"=path \
+  --set dashboards.path.enabled=true
+```
 
 ### Scenario 2: PATH with Existing Prometheus Stack
 
 If you already have `kube-prometheus-stack` installed:
 
+1. Install PATH:
+
 ```bash
-helm install path ./path --namespace app \
-  --set observability.watch.kube-prometheus-stack.enabled=false \
-  --set observability.watch.externalMonitoring.grafanaNamespace=monitoring
+helm install path grove/path --namespace app
+```
+
+2. Create ServiceMonitor for PATH manually:
+
+```yaml
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: path
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: path
+  namespaceSelector:
+    matchNames:
+      - app
+  endpoints:
+    - port: metrics
+      interval: 15s
+      path: /metrics
 ```
 
 ### Scenario 3: PATH Without Observability
@@ -70,35 +101,22 @@ helm install path ./path --namespace app \
 If you want to deploy PATH without any observability components:
 
 ```bash
-helm install path ./path --namespace app --set observability.enabled=false
+helm install path grove/path --namespace app
 ```
 
-### Scenario 4: PATH with GUARD Monitoring
-
-If you're using both **PATH** and **GUARD** and want to monitor both:
-
-```bash
-helm install path ./path \
-  --set observability.watch.dashboards.guard.enabled=true \
-  --set observability.watch.serviceMonitors.guard.enabled=true
-```
+No additional configuration is needed as WATCH is now a separate chart.
 
 ## Configuration
 
-The integration is controlled by these key parameters:
+When configuring WATCH to monitor PATH, the following parameters are key:
 
-| Parameter                                                     | Description                    | Default      |
-| ------------------------------------------------------------- | ------------------------------ | ------------ |
-| `observability.enabled`                                       | Enable the WATCH chart         | `true`       |
-| `observability.watch.global.namespace`                        | Namespace for WATCH resources  | `monitoring` |
-| `observability.watch.kube-prometheus-stack.enabled`           | Enable Prometheus stack        | `true`       |
-| `observability.watch.kube-prometheus-stack.namespaceOverride` | Namespace for Prometheus stack | `monitoring` |
-| `observability.watch.dashboards.path.enabled`                 | Enable PATH dashboards         | `true`       |
-| `observability.watch.dashboards.guard.enabled`                | Enable GUARD dashboards        | `false`      |
-| `observability.watch.serviceMonitors.path.enabled`            | Enable PATH ServiceMonitor     | `true`       |
-| `observability.watch.serviceMonitors.namespace`               | Namespace for ServiceMonitors  | `monitoring` |
-
-Note that `serviceMonitor.enabled` is set to `false` in the PATH chart since WATCH now handles all ServiceMonitor configurations.
+| Parameter                            | Description                    | Default      |
+| ------------------------------------ | ------------------------------ | ------------ |
+| `serviceMonitors.path.enabled`       | Enable PATH ServiceMonitor     | `false`      |
+| `serviceMonitors.path.namespace`     | PATH namespace to monitor      | `app`        |
+| `serviceMonitors.path.selector.matchLabels` | Labels to match PATH service | `{"app.kubernetes.io/name": "path"}` |
+| `dashboards.path.enabled`            | Enable PATH dashboards         | `false`      |
+| `dashboards.path.folderName`         | Grafana folder for dashboards  | `"PATH"`     |
 
 ## Adding Custom Dashboards
 
@@ -107,19 +125,17 @@ There are two approaches to add custom dashboards:
 ### 1. Create a Values File with Custom Dashboards
 
 ```yaml
-observability:
-  watch:
+dashboards:
+  custom:
+    enabled: true
     dashboards:
-      custom:
-        enabled: true
-        dashboards:
-          my-dashboard:
-            folderName: "PATH Custom"
-            json: |
-              {
-                "title": "PATH Custom Dashboard",
-                ...
-              }
+      my-dashboard:
+        folderName: "PATH Custom"
+        json: |
+          {
+            "title": "PATH Custom Dashboard",
+            ...
+          }
 ```
 
 ### 2. Create Additional ConfigMaps
@@ -143,8 +159,6 @@ data:
       ...
     }
 ```
-
-For more detailed instructions on adding dashboards, refer to the WATCH chart's [Dashboard Implementation Guide](dashboard-implementation-guide.md).
 
 ## Accessing Dashboards
 
@@ -198,11 +212,17 @@ If dashboards aren't appearing:
 1. Check if the ConfigMaps were created:
 
    ```bash
-   kubectl get configmaps -n <namespace> | grep dashboard
+   kubectl get configmaps -n monitoring -l grafana_dashboard=1
    ```
 
-2. Verify Grafana sidecar logs:
+2. Restart Grafana to detect new dashboards:
 
    ```bash
-   kubectl logs -n <namespace> deployment/<release-name>-grafana -c sidecar
+   kubectl rollout restart deployment watch-grafana -n monitoring
+   ```
+
+3. Check Grafana logs for any dashboard loading errors:
+
+   ```bash
+   kubectl logs -l app.kubernetes.io/name=grafana -n monitoring
    ```

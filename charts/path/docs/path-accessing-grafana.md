@@ -1,6 +1,6 @@
-# Accessing PATH's Grafana Dashboards <!-- omit in toc -->
+# Accessing Grafana Dashboards for PATH <!-- omit in toc -->
 
-This guide provides detailed instructions for accessing the Grafana dashboards deployed by the **PATH** helm chart with **WATCH** observability.
+This guide provides detailed instructions for accessing the Grafana dashboards for **PATH** when using the **WATCH** chart (a separate Helm chart).
 
 - [Understanding the Deployment Architecture](#understanding-the-deployment-architecture)
 - [Accessing Grafana](#accessing-grafana)
@@ -10,8 +10,6 @@ This guide provides detailed instructions for accessing the Grafana dashboards d
     - [Step 3: Log in to Grafana](#step-3-log-in-to-grafana)
   - [Method 2: Kubernetes Ingress (Recommended for Production)](#method-2-kubernetes-ingress-recommended-for-production)
 - [Navigating PATH Dashboards](#navigating-path-dashboards)
-- [Available PATH Metrics](#available-path-metrics)
-- [Customizing Dashboards](#customizing-dashboards)
 - [Troubleshooting](#troubleshooting)
   - [No Data in Dashboards](#no-data-in-dashboards)
   - [Authentication Issues](#authentication-issues)
@@ -19,10 +17,10 @@ This guide provides detailed instructions for accessing the Grafana dashboards d
 
 ## Understanding the Deployment Architecture
 
-When **PATH** is installed with observability enabled:
+When using **PATH** with the separate **WATCH** chart for observability:
 
 - **PATH** is deployed in your application namespace (default `app`)
-- Monitoring components (Prometheus, Grafana) are deployed in the `monitoring` namespace
+- Monitoring components (Prometheus, Grafana) are deployed by **WATCH** in the `monitoring` namespace
 - ServiceMonitors in `monitoring` discover and scrape metrics from **PATH** in the `app` namespace
 
 ```mermaid
@@ -61,10 +59,8 @@ graph TD
 
 #### Step 1: Forward the Grafana port
 
-Assuming the default release name of `path`:
-
 ```bash
-kubectl port-forward svc/path-grafana 3000:80
+kubectl port-forward svc/watch-grafana 3000:80 -n monitoring
 ```
 
 This command forwards your local port 3000 to the Grafana service's port 80.
@@ -78,38 +74,34 @@ Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
 Use the following credentials:
 
 - **Username**: `admin`
-- **Password**: The password specified in your `values.yaml` (default is `change-me-in-production`)
+- **Password**: The password specified in the WATCH chart's `values.yaml`
 
 If you didn't specify a custom password, retrieve it with:
 
 ```bash
-kubectl get secret path-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+kubectl get secret watch-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 ```
 
-<!--- TODO_DOCUMENT(@HebertCL): Document how to use WATCH integrated with an already existing monitoring solution.
--->
 ### Method 2: Kubernetes Ingress (Recommended for Production)
 
 For production environments, you'll likely want to set up an Ingress for Grafana.
 
-1. Add the following to your `values.yaml`:
+1. Add the following to your WATCH chart's `values.yaml`:
 
    ```yaml
-   observability:
-   watch:
-      kube-prometheus-stack:
-         grafana:
-         ingress:
-            enabled: true
-            hosts:
-               - grafana.your-domain.com
-            tls:
-               - hosts:
-                  - grafana.your-domain.com
-               secretName: grafana-tls
+   kube-prometheus-stack:
+     grafana:
+       ingress:
+         enabled: true
+         hosts:
+           - grafana.your-domain.com
+         tls:
+           - hosts:
+              - grafana.your-domain.com
+           secretName: grafana-tls
    ```
 
-2. Install/upgrade your **PATH** chart with these values
+2. Install/upgrade the WATCH chart with these values
 3. Configure your DNS to point to your ingress controller
 4. Access Grafana at [https://grafana.<your-domain>.com](https://grafana.your-domain.com)
 
@@ -127,61 +119,20 @@ After logging in to Grafana:
 
 ![Grafana PATH dashboards list](./img/grafana-path-dashboards.png)
 
-<!--- TODO_DOCUMENT(@adshmh): update the list once the MVP set of dashboards are finalized.
--->
-## Available PATH Metrics
-
-The most important metrics available in the dashboards include:
-
-- **Request Rate**: Number of requests per second
-- **Error Rate**: Percentage of requests resulting in errors
-- **Latency**: Response time percentiles (p50, p95, p99)
-- **Resource Usage**: CPU and memory consumption
-- **Concurrent Connections**: Number of active connections
-
-## Customizing Dashboards
-
-You can create customized dashboards for PATH:
-
-1. Click the "+" icon in the Grafana toolbar
-
-![Adding a new Grafana dashboard](./img/grafana-add-dashboard.png)
-
-2. Select "Dashboard"
-3. Add panels using metrics from the "Prometheus" data source
-4. Use PromQL queries like:
-
-   ```promql
-   sum(rate(http_requests_total{job="path-api"}[5m])) by (path)
-   ```
-
-<!--- TODO_DOCUMENT(@adshmh): add a link to the folder URL, through the following steps:
-    1. Update the WATCH Helm Chart configmap used to define PATH dashboards to assign an easy to read ID.
-    2. Include the resulting dashboard URL here.
--->
-5. Save your dashboard to the "PATH" folder
-
 ## Troubleshooting
 
 ### No Data in Dashboards
 
-If dashboards show "No data".
+If dashboards show "No data":
 
-1. Check if the PATH metrics endpoint is accessible by
+1. Verify that the PATH metrics endpoint is accessible:
 
-   - Forwards the metrics port: and curl the metrics endpoint:
+   ```bash
+   kubectl port-forward svc/path-metrics 9090:9090 -n app
+   curl localhost:9090/metrics
+   ```
 
-     ```bash
-     kubectl port-forward svc/path-metrics 9090:9090 -n app
-     ```
-
-   - Curl the metrics endpoint:
-
-     ```bash
-     curl localhost:9090/metrics
-     ```
-
-2. Verify the ServiceMonitor is configured correctly:
+2. Verify that the ServiceMonitor is correctly configured in the WATCH chart:
 
    ```bash
    kubectl get servicemonitor -n monitoring | grep path
