@@ -117,6 +117,10 @@ spec:
         headers:
         - name: target-service-id
           value: "{{ . | lower }}"
+        {{- if $.Values.regionName }}
+        - name: "Auth-Region" # TODO add to header.yaml as well
+          value: "{{ $.Values.regionName }}"
+        {{- end }} 
 
 {{- end }}
 {{- end }}
