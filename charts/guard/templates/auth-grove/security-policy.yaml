@@ -76,7 +76,7 @@ spec:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
       # eg. f00c-subdomain-route - matches the HTTPRoute resource created in httproute-subdomain.yaml
-      name: {{ .serviceId | lower }}-subdomain-route
+      name: {{ $service.serviceId | lower }}-subdomain-route
   extAuth:
     grpc:
       backendRefs:
