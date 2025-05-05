@@ -71,8 +71,12 @@ spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      # eg. F00C-eth-alias-header-route - matches the HTTPRoute resource created above
+      # eg. F00C-eth-alias-header-route - matches the HTTPRoute resource created in httproute-header.yaml
       name: {{ $service.serviceId | lower }}-{{ $alias | lower }}-alias-header-route
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      # eg. f00c-subdomain-route - matches the HTTPRoute resource created in httproute-subdomain.yaml
+      name: {{ .serviceId | lower }}-subdomain-route
   extAuth:
     grpc:
       backendRefs:
