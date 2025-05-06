@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
       - name: path-auth-data-server
-        image: ghcr.io/buildwithgrove/path-auth-data-server:latest
+        image: ghcr.io/buildwithgrove/path-auth-data-server:{{ default "latest" $padsConfig.imageTag }}
         imagePullPolicy: IfNotPresent
         {{- with $padsConfig.envFrom }}
         envFrom: {{- toYaml . | nindent 10}}

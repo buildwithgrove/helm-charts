@@ -64,8 +64,12 @@ auth:
     enabled: false
     peas:
       enabled: false
+      # -- Image tag for path-external-auth-server, defaults to "latest" if not specified
+      imageTag: "latest"
     pads:
       enabled: false
+      # -- Image tag for path-auth-data-server, defaults to "latest" if not specified
+      imageTag: "latest"
       envFrom:
         - secretRef:
             name: pads-db-connection
