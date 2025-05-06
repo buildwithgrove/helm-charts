@@ -22,11 +22,20 @@ global:
   middlewarePort: 8080
 gateway:
   port: 3070
+# Gateway parent references configuration for HTTPRoutes
+gatewayRef:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: guard-envoy-gateway
 # ** IMPORTANT: update domain value: **
 # ** - domain must be specified in HTTPRoute resources for proper request routing. **
 # ** - domain must match the Host header value in HTTP requests received by GUARD/Envoy Gateway. **
 domain: "example.com"
 # **IMPORTANT: specify at least one service: otherwise no requests will be accepted by Envoy Gateway.
+
+# Optional: Set regionName to add Auth-Region header to requests
+# regionName: "us-east-1"
+
 services:
   # Morse-specific services
   - serviceId: F00C
@@ -55,8 +64,12 @@ auth:
     enabled: false
     peas:
       enabled: false
+      # -- Image tag for path-external-auth-server, defaults to "latest" if not specified
+      imageTag: "latest"
     pads:
       enabled: false
+      # -- Image tag for path-auth-data-server, defaults to "latest" if not specified
+      imageTag: "latest"
       envFrom:
         - secretRef:
             name: pads-db-connection
@@ -67,6 +80,10 @@ auth:
 envoyGateway:
   enabled: true
   serviceType: ClusterIP
+
+# Controls whether to deploy Gateway API resources (Gateway, GatewayClass, EnvoyProxy)
+gatewayResources:
+  enabled: true
 
 middlewareNamespaceReferenceGrant:
   enabled: false

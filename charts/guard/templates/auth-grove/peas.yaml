@@ -44,7 +44,7 @@ spec:
         command: ['sh', '-c', 'until nc -z guard-pads 10002; do echo waiting for PADS; sleep 2; done']
       containers:
       - name: path-external-auth-server
-        image: ghcr.io/buildwithgrove/path-external-auth-server:latest
+        image: ghcr.io/buildwithgrove/path-external-auth-server:{{ default "latest" $peasConfig.imageTag }}
         imagePullPolicy: IfNotPresent
         env: {{- toYaml $peasConfig.env | nindent 10 }}
         ports:

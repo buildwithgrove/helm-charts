@@ -1,3 +1,4 @@
+{{- if .Values.gatewayResources.enabled }}
 # This resources configures a custom Envoy Proxy, to allow specifying ClusterIP as the type of the Envoy Proxy service.
 # See the following link for more details:
 # https://gateway.envoyproxy.io/latest/tasks/operations/customize-envoyproxy/
@@ -18,3 +19,4 @@ spec:
         type: {{ .Values.envoyGateway.serviceType }}
         # The name of the service assigned to GUARD to which all requests should be directed for Authentication/Authorization/Rate Limiting/etc.
         name: {{$gwname}}
+{{- end }}

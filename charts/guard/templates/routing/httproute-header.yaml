@@ -54,8 +54,11 @@ metadata:
 
 spec:
   parentRefs:
-  - kind: Gateway
-    name: {{$gwname}}-envoy-gateway
+  {{- range $.Values.gatewayRef }}
+  - group: {{ .group }}
+    kind: {{ .kind }}
+    name: {{ .name }}
+  {{- end }}
 
   rules:
   # Determine the backend service to route to.
@@ -85,8 +88,11 @@ metadata:
   namespace: {{ $.Values.global.namespace }}
 spec:
   parentRefs:
-  - kind: Gateway
-    name: {{$gwname}}-envoy-gateway
+  {{- range $.Values.gatewayRef }}
+  - group: {{ .group }}
+    kind: {{ .kind }}
+    name: {{ .name }}
+  {{- end }}
 
   rules:
   # Determine the backend service to route to.
@@ -111,6 +117,10 @@ spec:
         headers:
         - name: target-service-id
           value: "{{ . | lower }}"
+        {{- if $.Values.regionName }}
+        - name: "Auth-Region" # TODO add to header.yaml as well
+          value: "{{ $.Values.regionName }}"
+        {{- end }} 
 
 {{- end }}
 {{- end }}

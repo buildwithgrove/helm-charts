@@ -50,8 +50,11 @@ metadata:
 
 spec:
   parentRefs:
-  - kind: Gateway
-    name: {{$gwname}}-envoy-gateway
+  {{- range $.Values.gatewayRef }}
+  - group: {{ .group }}
+    kind: {{ .kind }}
+    name: {{ .name }}
+  {{- end }}
 
   # Match requests based on their subdomain.
   hostnames:
@@ -91,6 +94,10 @@ spec:
             set:
               - name: "target-service-id"
                 value: "{{ .serviceId }}"
+              {{- if $.Values.regionName }}
+              - name: "Auth-Region"
+                value: "{{ $.Values.regionName }}"
+              {{- end }}
       matches:
         - path:
             type: PathPrefix
