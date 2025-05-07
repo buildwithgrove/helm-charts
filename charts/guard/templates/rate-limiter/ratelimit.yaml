@@ -1,0 +1,29 @@
+{{- if and .Values.rateLimit.enabled .Values.rateLimit.plans }}
+{{- $gwname:= default "guard" $.Values.fullnameOverride }}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy 
+metadata:
+  name: {{ $gwname }}-rate-limit-policy
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  targetRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{$gwname}}-envoy-gateway
+  rateLimit:
+    type: Global
+    global:
+      # TODO_IN_THIS_PR: update to 1.4.0-rc.1 to be able to use shared rate limit
+      # shared: true
+      rules:
+{{- range .Values.rateLimit.plans }}
+      - clientSelectors:
+        - headers:
+          - type: Distinct
+            name: {{ .header }}
+        limit:
+          requests: {{ .requests }}
+          unit: {{ .unit }}
+{{- end }}
+{{- end }}

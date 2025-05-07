@@ -7,8 +7,10 @@ version: 0.1.22
 dependencies:
   # TODO: Remove dependencies for internal charts.
   - name: guard
-    version: "0.1.19"
-    repository: "https://buildwithgrove.github.io/helm-charts"
+    # version: "0.1.19"
+    # repository: "https://buildwithgrove.github.io/helm-charts"
+    version: "0.1.20"
+    repository: "file://../guard"
     condition: guard.enabled
   - name: watch
     version: "0.1.11"

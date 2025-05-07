@@ -1,3 +1,26 @@
+# ---- Envoy Gateway ----
+# This section can be used to configure gateway-helm dependency.
+# Uncomment `gateway-helm` below to specify a gateway-helm configuration.
+# Any values from the below `gateway-helm` reference will override the default values.
+#
+# References:
+# - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
+# - https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
+# gateway-helm:
+#   # For example, the default log level may be overridden to `warn` as follows:
+#   config:
+#     apiVersion: gateway.envoyproxy.io/v1alpha1
+#     kind: EnvoyGateway
+#     provider:
+#       type: Kubernetes
+#     gateway:
+#       controllerName: gateway.envoyproxy.io/gatewayclass-controller
+#     rateLimit:
+#       backend:
+#         type: Redis
+#         redis:
+#           url: redis.path.svc.cluster.local:6379
+
 # This file provides only the field names and descriptions, with all default values
 # set by the `guard` field in the PATH Helm Chart's `values.yaml` file.
 #
@@ -76,6 +99,13 @@ auth:
       mountPath: /app/data
       fromSecret:
         secretName: pads-config
+
+rateLimit:
+  enabled: true
+  plans:
+    - header: "Rl-Plan-Free"
+      requests: 10
+      unit: Day
 
 envoyGateway:
   enabled: true

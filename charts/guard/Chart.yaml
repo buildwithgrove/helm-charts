@@ -7,5 +7,5 @@ version: 0.1.20
 dependencies:
   - name: gateway-helm
     repository: oci://docker.io/envoyproxy
-    version: v1.3.1
+    version: v1.4.0-rc.1
     condition: envoyGateway.enabled
