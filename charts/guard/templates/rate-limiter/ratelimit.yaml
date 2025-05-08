@@ -14,8 +14,8 @@ spec:
   rateLimit:
     type: Global
     global:
-      # TODO_IN_THIS_PR: update to 1.4.0-rc.1 to be able to use shared rate limit
-      # shared: true
+      # Ensure that the rate limit is shared across all HTTPRoutes
+      shared: true
       rules:
 {{- range .Values.rateLimit.plans }}
       - clientSelectors:

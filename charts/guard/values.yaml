@@ -1,26 +1,3 @@
-# ---- Envoy Gateway ----
-# This section can be used to configure gateway-helm dependency.
-# Uncomment `gateway-helm` below to specify a gateway-helm configuration.
-# Any values from the below `gateway-helm` reference will override the default values.
-#
-# References:
-# - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
-# - https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
-# gateway-helm:
-#   # For example, the default log level may be overridden to `warn` as follows:
-#   config:
-#     apiVersion: gateway.envoyproxy.io/v1alpha1
-#     kind: EnvoyGateway
-#     provider:
-#       type: Kubernetes
-#     gateway:
-#       controllerName: gateway.envoyproxy.io/gatewayclass-controller
-#     rateLimit:
-#       backend:
-#         type: Redis
-#         redis:
-#           url: redis.path.svc.cluster.local:6379
-
 # This file provides only the field names and descriptions, with all default values
 # set by the `guard` field in the PATH Helm Chart's `values.yaml` file.
 #
@@ -93,19 +70,52 @@ auth:
       enabled: false
       # -- Image tag for path-auth-data-server, defaults to "latest" if not specified
       imageTag: "latest"
-      envFrom:
-        - secretRef:
-            name: pads-db-connection
       mountPath: /app/data
-      fromSecret:
-        secretName: pads-config
+      # The below configuration is required to load the PADS database connection
+      # details from a Kubernetes secret, as in production deployments.
+      # envFrom:
+      #   - secretRef:
+      #       name: pads-db-connection
+      # fromSecret:
+      #   secretName: pads-config
 
+# -- Rate Limit configuration --
 rateLimit:
+  # Set this boolean value to `true` to enable rate limiting.
   enabled: true
+  # All plan details must be defined here. Requests are matched against
+  # the the distinct # of requests per-header as configured below.
+  #
+  # For more details on Envoy Gateway rate limiting, see here:
+  # https://gateway.envoyproxy.io/latest/tasks/traffic/global-rate-limit/#rate-limit-distinct-users-except-admin
   plans:
+    # -- Grove Legacy auth configuration --
+    # ######### VERY IMPORTANT #########
+    # The headers set here must match the headers that are set on requests inside PEAS. See here for details:
+    # https://github.com/buildwithgrove/path-external-auth-server/blob/main/auth/auth_handler.go#L43
+    # PLAN_FREE: 5000 requests per day
     - header: "Rl-Plan-Free"
-      requests: 10
+      requests: 5000
       unit: Day
+
+# ---- Envoy Gateway ----
+# This section can be used to configure gateway-helm dependency.
+# Uncomment `gateway-helm` below to specify a gateway-helm configuration.
+# Any values from the below `gateway-helm` reference will override the default values.
+#
+# References:
+# - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
+# - https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
+gateway-helm:
+  config:
+    envoyGateway:
+      # The below configuration is required to enable rate limiting by updating
+      # Envoy Gateway configuration to use Redis as the rate limit backend.
+      rateLimit:
+        backend:
+          type: Redis
+          redis:
+            url: redis.path.svc.cluster.local:6379
 
 envoyGateway:
   enabled: true

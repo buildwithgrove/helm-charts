@@ -95,9 +95,7 @@ additionalYamlManifests: ""
 ###########################################################################
 
 guard:
-  enabled: false
-  # TODO_DOCUMENT(@commoddity): Embed the `gateway-helm` values.yaml fields
-  # referenced below into the `guard` section of the Docusaurus docs.
+  enabled: true
 
   # ---- Envoy Gateway ----
   # This section can be used to configure gateway-helm dependency.
@@ -107,13 +105,16 @@ guard:
   # References:
   # - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
   # - https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
-  # gateway-helm:
-  #   # For example, the default log level may be overridden to `warn` as follows:
-  #   config:
-  #     envoyGateway:
-  #       logging:
-  #         level:
-  #           default: warn
+  gateway-helm:
+    config:
+      envoyGateway:
+        # The below configuration is required to enable rate limiting by updating
+        # Envoy Gateway configuration to use Redis as the rate limit backend.
+        rateLimit:
+          backend:
+            type: Redis
+            redis:
+              url: redis.path.svc.cluster.local:6379
 
   fullnameOverride: guard
   global:
