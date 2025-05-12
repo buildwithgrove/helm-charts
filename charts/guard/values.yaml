@@ -83,6 +83,10 @@ auth:
 rateLimit:
   # Set this boolean value to `true` to enable rate limiting.
   enabled: true
+  # Control deployment of Redis from this chart
+  redis:
+    # Set to false to use externally deployed Redis
+    enabled: true
   # All plan details must be defined here. Requests are matched against
   # the the distinct # of requests per-header as configured below.
   #
@@ -111,10 +115,15 @@ gateway-helm:
     envoyGateway:
       # The below configuration is required to enable rate limiting by updating
       # Envoy Gateway configuration to use Redis as the rate limit backend.
+      #
+      # DEV_NOTE: If redis.enabled is set to false, update this section to point
+      # to your external Redis deployment.
       rateLimit:
         backend:
           type: Redis
           redis:
+            # This URL points to the Redis service deployed by this chart
+            # in the same `path` namespace as Envoy Gateway.
             url: redis.path.svc.cluster.local:6379
 
 envoyGateway:
@@ -127,3 +136,4 @@ gatewayResources:
 
 middlewareNamespaceReferenceGrant:
   enabled: false
+

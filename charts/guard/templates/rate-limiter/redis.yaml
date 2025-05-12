@@ -1,4 +1,4 @@
-{{- if .Values.rateLimit.enabled }}
+{{- if and .Values.rateLimit.enabled .Values.rateLimit.redis.enabled }}
 ---
 apiVersion: apps/v1
 kind: Deployment

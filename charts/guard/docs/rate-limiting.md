@@ -6,6 +6,7 @@
 - [Rate Limiting Configuration](#rate-limiting-configuration)
     - [Adding new rate limit plans](#adding-new-rate-limit-plans)
     - [Multiple rate limits](#multiple-rate-limits)
+    - [Redis Configuration](#redis-configuration)
 - [Gateway Helm Configuration](#gateway-helm-configuration)
     - [Documentation References](#documentation-references)
 
@@ -81,6 +82,7 @@ The following table describes all available configuration options for rate limit
 | Parameter                    | Description                                              | Default          | Required |
 | ---------------------------- | -------------------------------------------------------- | ---------------- | -------- |
 | `rateLimit.enabled`          | Whether to enable rate limiting                          | `true`           | ✅        |
+| `rateLimit.redis.enabled`    | Whether to deploy Redis from this chart                  | `true`           | ❌        |
 | `rateLimit.plans`            | Array of rate limit plans                                |                  | ✅        |
 | `rateLimit.plans[].header`   | HTTP header to use for identifying rate limit subjects   | `"Rl-Plan-Free"` | ✅        |
 | `rateLimit.plans[].requests` | Number of requests allowed per time unit                 | `5000`           | ✅        |
@@ -91,6 +93,8 @@ The default configuration is as follows:
 ```yaml
 rateLimit:
   enabled: true
+  redis:
+    enabled: true
   plans:
     - header: "Rl-Plan-Free"
       requests: 5000
@@ -145,6 +149,39 @@ plans:
     unit: Second
 ```
 
+### Redis Configuration
+
+The rate limiting feature requires Redis as a backend. By default, the chart will deploy Redis in the same namespace. For production environments, you may want to use an externally managed Redis instance instead.
+
+To use an external Redis instance:
+
+1. Set `rateLimit.redis.enabled` to `false` to disable the deployment of Redis from this chart
+2. Update the `gateway-helm.config.envoyGateway.rateLimit.backend.redis.url` value to point to your external Redis service URL
+3. If using an external Redis service with authentication, you'll need to configure that separately
+
+Example configuration using an external Redis service:
+
+```yaml
+rateLimit:
+  enabled: true
+  redis:
+    enabled: false
+  plans:
+    - header: "Rl-Plan-Free"
+      requests: 5000
+      unit: Day
+
+# Gateway Helm configuration needs to be updated to point to external Redis
+gateway-helm:
+  config:
+    envoyGateway:
+      rateLimit:
+        backend:
+          type: Redis
+          redis:
+            url: my-external-redis.example.com:6379
+```
+
 # Gateway Helm Configuration
 
 The rate limiting configuration must be enabled by applying the following configuration to the `gateway-helm` section of the `values.yaml` file.
@@ -161,8 +198,12 @@ gateway-helm:
         backend:
           type: Redis
           redis:
+            # This URL points to the Redis service deployed by this chart
+            # in the same `path` namespace as Envoy Gateway.
             url: redis.path.svc.cluster.local:6379
 ```
+
+**Note:** If `rateLimit.redis.enabled` is set to `false`, you must update the above Redis URL configuration to point to your external Redis service.
 
 **Note that this configuration should not be modified unless you are changing the namespace that GUARD runs in, which is not recommended.**
 
