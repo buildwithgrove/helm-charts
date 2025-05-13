@@ -1,15 +1,14 @@
 # Rate Limiting <!-- omit in toc -->
 
 - [Introduction](#introduction)
-    - [Header-Based Rate Limiting](#header-based-rate-limiting)
-    - [Setting Header Values](#setting-header-values)
+  - [Header-Based Rate Limiting](#header-based-rate-limiting)
+  - [Setting Header Values](#setting-header-values)
 - [Rate Limiting Configuration](#rate-limiting-configuration)
-    - [Adding new rate limit plans](#adding-new-rate-limit-plans)
-    - [Multiple rate limits](#multiple-rate-limits)
-    - [Redis Configuration](#redis-configuration)
+  - [Adding new rate limit plans](#adding-new-rate-limit-plans)
+  - [Multiple rate limits](#multiple-rate-limits)
+  - [Redis Configuration](#redis-configuration)
 - [Gateway Helm Configuration](#gateway-helm-configuration)
-    - [Documentation References](#documentation-references)
-
+  - [Documentation References](#documentation-references)
 
 # Introduction
 
@@ -38,7 +37,7 @@ The above configuration will enforce the following rate limits for each distinct
 - 1000 requests per hour for the `Rl-Plan-Pro` header
 
 ```bash
-curl http://rpc.grove.city/v1 \ 
+curl http://rpc.grove.city/v1 \
     -H "Rl-Plan-Free: 1a2b3c4d" \
     -d '{"jsonrpc":"2.0","method":"eth_blockNumber","id":1}'
 ```
@@ -59,19 +58,17 @@ graph LR
     Client[Client] -->|Request| Gateway[Envoy Gateway]
     Gateway -->|Set Header| RateLimit[Rate Limit Service]
     RateLimit -->|Forward Allowed Request| Upstream[PATH]
-    
+
     classDef client fill:#f9f,stroke:#333,stroke-width:2px
     classDef gateway fill:#bbf,stroke:#333,stroke-width:2px
     classDef ratelimit fill:#bfb,stroke:#333,stroke-width:2px
     classDef upstream fill:#fbb,stroke:#333,stroke-width:2px
-    
+
     class Client client
     class Gateway gateway
     class RateLimit ratelimit
     class Upstream upstream
 ```
-
-
 
 # Rate Limiting Configuration
 
@@ -81,12 +78,12 @@ The following table describes all available configuration options for rate limit
 
 | Parameter                    | Description                                              | Default          | Required |
 | ---------------------------- | -------------------------------------------------------- | ---------------- | -------- |
-| `rateLimit.enabled`          | Whether to enable rate limiting                          | `true`           | ✅        |
-| `rateLimit.redis.enabled`    | Whether to deploy Redis from this chart                  | `true`           | ❌        |
-| `rateLimit.plans`            | Array of rate limit plans                                |                  | ✅        |
-| `rateLimit.plans[].header`   | HTTP header to use for identifying rate limit subjects   | `"Rl-Plan-Free"` | ✅        |
-| `rateLimit.plans[].requests` | Number of requests allowed per time unit                 | `5000`           | ✅        |
-| `rateLimit.plans[].unit`     | Time unit for the rate limit (Second, Minute, Hour, Day) | `Day`            | ✅        |
+| `rateLimit.enabled`          | Whether to enable rate limiting                          | `true`           | ✅       |
+| `rateLimit.redis.enabled`    | Whether to deploy Redis from this chart                  | `true`           | ❌       |
+| `rateLimit.plans`            | Array of rate limit plans                                |                  | ✅       |
+| `rateLimit.plans[].header`   | HTTP header to use for identifying rate limit subjects   | `"Rl-Plan-Free"` | ✅       |
+| `rateLimit.plans[].requests` | Number of requests allowed per time unit                 | `5000`           | ✅       |
+| `rateLimit.plans[].unit`     | Time unit for the rate limit (Second, Minute, Hour, Day) | `Day`            | ✅       |
 
 The default configuration is as follows:
 

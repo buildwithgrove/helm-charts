@@ -26,6 +26,7 @@ With this configuration, GUARD will:
 3. Forward the request to the appropriate backend service
 
 **URL Examples:**
+
 - `https://F00C.path.example.com/v1` → Routes to PATH with `target-service-id: F00C`
 - `https://eth.path.example.com/v1` → Routes to PATH with `target-service-id: F00C`
 - `https://eth-mainnet.path.example.com/v1` → Routes to PATH with `target-service-id: F00C`
@@ -40,6 +41,7 @@ Header-based routing directs traffic based on the `target-service-id` header in 
 Using the same services configuration as above, header-based routing enables clients to specify the target service in the header:
 
 **URL and Header Examples:**
+
 - `https://path.example.com/v1` with header `-H "target-service-id: F00C"` → Routes to PATH with `target-service-id: F00C`
 - `https://path.example.com/v1` with header `-H "target-service-id: eth"` → Routes to PATH with `target-service-id: F00C`
 - `https://path.example.com/v1` with header `-H "target-service-id: polygon"` → Routes to PATH with `target-service-id: F021`
@@ -51,7 +53,7 @@ Using the same services configuration as above, header-based routing enables cli
 ```bash
 # Route to ETH service using subdomain
 curl https://eth.path.example.com/v1
-  -H "Authorization: test_api_key"  
+  -H "Authorization: test_api_key"
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
 
@@ -60,7 +62,7 @@ curl https://eth.path.example.com/v1
 ```bash
 # Route to ETH service using header
 curl https://path.example.com/v1
-  -H "Target-Service-Id: eth" 
-  -H "Authorization: test_api_key" 
+  -H "Target-Service-Id: eth"
+  -H "Authorization: test_api_key"
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
