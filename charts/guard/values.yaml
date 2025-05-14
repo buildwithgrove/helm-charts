@@ -66,10 +66,6 @@ auth:
       enabled: false
       # -- Image tag for path-external-auth-server, defaults to "latest" if not specified
       imageTag: "latest"
-    pads:
-      enabled: false
-      # -- Image tag for path-auth-data-server, defaults to "latest" if not specified
-      imageTag: "latest"
       mountPath: /app/data
       # The below configuration is required to load the PADS database connection
       # details from a Kubernetes secret, as in production deployments.
