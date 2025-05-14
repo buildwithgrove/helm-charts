@@ -95,8 +95,10 @@ rateLimit:
   plans:
     # -- Grove Legacy auth configuration --
     # ######### VERY IMPORTANT #########
-    # The headers set here must match the headers that are set on requests inside PEAS. See here for details:
-    # https://github.com/buildwithgrove/path-external-auth-server/blob/main/auth/auth_handler.go#L43
+    # If you are not authorizing Grove Portal requests,
+    # this is VERY unlikely to fit your exact use-case.
+    # The headers set here must match the headers that are set on requests inside PEAS:
+    #   - https://github.com/buildwithgrove/path-external-auth-server/blob/main/ratelimit/ratelimit.go
     # PLAN_FREE: 5000 requests per day
     - header: "Rl-Plan-Free"
       requests: 5000
