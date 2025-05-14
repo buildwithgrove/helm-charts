@@ -1,12 +1,33 @@
-## Routing Capabilities
+# Routing <!-- omit in toc -->
 
-GUARD provides two primary routing methods:
+## Quick Introduction <!-- omit in toc -->
 
-### Subdomain-Based Routing
+- GUARD supports two routing methods:
+  - **Subdomain-Based Routing**
+  - **Header-Based Routing**
+- All routing is configured in `httproute-subdomain.yaml` or `httproute-header.yaml`
+- See examples below for reference
 
-Subdomain-based routing directs traffic based on the subdomain in the request URL. This type of routing is configured in the `httproute-subdomain.yaml` template.
+## Table of Contents <!-- omit in toc -->
 
-**Example Configuration:**
+- [Subdomain-Based Routing](#subdomain-based-routing)
+  - [Subdomain-Based URL Examples](#subdomain-based-url-examples)
+- [Header-Based Routing](#header-based-routing)
+  - [Header Routing Examples](#header-routing-examples)
+- [Routed Request Examples](#routed-request-examples)
+  - [Subdomain Routing (curl)](#subdomain-routing-curl)
+  - [Header Routing (curl)](#header-routing-curl)
+
+---
+
+## Subdomain-Based Routing
+
+GUARD subdomain routing:
+
+- Routes traffic based on the subdomain in the request URL
+- Is configured in `httproute-subdomain.yaml`
+
+Example services config:
 
 ```yaml
 services:
@@ -19,50 +40,59 @@ services:
       - polygon
 ```
 
-With this configuration, GUARD will:
+With this config, GUARD will:
 
-1. Create routes for each service ID and its aliases
-2. Set the `target-service-id` header to the canonical service ID
-3. Forward the request to the appropriate backend service
+- Create routes for each `serviceId` and its `aliases`
+- Set the `target-service-id` header to the canonical `serviceId`
+- Forward the request to the correct backend
 
-**URL Examples:**
+### Subdomain-Based URL Examples
 
-- `https://F00C.path.example.com/v1` → Routes to PATH with `target-service-id: F00C`
-- `https://eth.path.example.com/v1` → Routes to PATH with `target-service-id: F00C`
-- `https://eth-mainnet.path.example.com/v1` → Routes to PATH with `target-service-id: F00C`
-- `https://polygon.path.example.com/v1` → Routes to PATH with `target-service-id: F021`
+| URL                                       | Routed Service | Header Set                |
+| ----------------------------------------- | -------------- | ------------------------- |
+| `https://F00C.path.example.com/v1`        | PATH (`F00C`)  | `target-service-id: F00C` |
+| `https://eth.path.example.com/v1`         | PATH (`F00C`)  | `target-service-id: F00C` |
+| `https://eth-mainnet.path.example.com/v1` | PATH (`F00C`)  | `target-service-id: F00C` |
+| `https://polygon.path.example.com/v1`     | PATH (`F021`)  | `target-service-id: F021` |
 
-### Header-Based Routing
+---
 
-Header-based routing directs traffic based on the `target-service-id` header in the request. This type of routing is configured in the `httproute-header.yaml` template.
+## Header-Based Routing
 
-**Example Configuration:**
+GUARD header-based routing:
 
-Using the same services configuration as above, header-based routing enables clients to specify the target service in the header:
+- Routes traffic based on the `target-service-id` HTTP header
+- Is configured in `httproute-header.yaml`
+- Uses the same `services` config as above
+- Client specifies the target service in the header
 
-**URL and Header Examples:**
+### Header Routing Examples
 
-- `https://path.example.com/v1` with header `-H "target-service-id: F00C"` → Routes to PATH with `target-service-id: F00C`
-- `https://path.example.com/v1` with header `-H "target-service-id: eth"` → Routes to PATH with `target-service-id: F00C`
-- `https://path.example.com/v1` with header `-H "target-service-id: polygon"` → Routes to PATH with `target-service-id: F021`
+| URL                           | Header Example                    | Routed Service | Header Set                |
+| ----------------------------- | --------------------------------- | -------------- | ------------------------- |
+| `https://path.example.com/v1` | `-H "target-service-id: F00C"`    | PATH (`F00C`)  | `target-service-id: F00C` |
+| `https://path.example.com/v1` | `-H "target-service-id: eth"`     | PATH (`F00C`)  | `target-service-id: F00C` |
+| `https://path.example.com/v1` | `-H "target-service-id: polygon"` | PATH (`F021`)  | `target-service-id: F021` |
 
-### Route Examples
+---
 
-**Example 1: Using curl with subdomain routing**
+## Routed Request Examples
+
+### Subdomain Routing (curl)
 
 ```bash
 # Route to ETH service using subdomain
-curl https://eth.path.example.com/v1
-  -H "Authorization: test_api_key"
+curl https://eth.path.example.com/v1 \
+  -H "Authorization: test_api_key" \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
 
-**Example 2: Using curl with header routing**
+### Header Routing (curl)
 
 ```bash
 # Route to ETH service using header
-curl https://path.example.com/v1
-  -H "Target-Service-Id: eth"
-  -H "Authorization: test_api_key"
+curl https://path.example.com/v1 \
+  -H "Target-Service-Id: eth" \
+  -H "Authorization: test_api_key" \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
