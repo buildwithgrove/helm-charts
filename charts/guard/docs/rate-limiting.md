@@ -1,25 +1,26 @@
 # Rate Limiting <!-- omit in toc -->
 
+## Table of Contents <!-- omit in toc -->
+
 - [Introduction](#introduction)
-    - [Header-Based Rate Limiting](#header-based-rate-limiting)
-    - [Setting Header Values](#setting-header-values)
+- [Header-Based Rate Limiting](#header-based-rate-limiting)
+  - [Example of Rate Limited Request](#example-of-rate-limited-request)
+  - [Setting Header Values](#setting-header-values)
 - [Rate Limiting Configuration](#rate-limiting-configuration)
-    - [Adding new rate limit plans](#adding-new-rate-limit-plans)
-    - [Multiple rate limits](#multiple-rate-limits)
-    - [Redis Configuration](#redis-configuration)
+  - [Default Configuration](#default-configuration)
+  - [Adding new rate limit plans](#adding-new-rate-limit-plans)
+  - [Multiple rate limits per plan](#multiple-rate-limits-per-plan)
+  - [Redis Configuration](#redis-configuration)
 - [Gateway Helm Configuration](#gateway-helm-configuration)
-    - [Documentation References](#documentation-references)
+- [Documentation References](#documentation-references)
 
+## Introduction
 
-# Introduction
-
-GUARD utilizes Envoy Gateway's Global Rate Limiting functionality, which may be configured in GUARD's `values.yaml` file.
-
-- [GUARD values.yaml](https://github.com/buildwithgrove/helm-charts/blob/main/charts/guard/values.yaml)
+GUARD utilizes Envoy Gateway's Global Rate Limiting functionality, which may be configured in [GUARD's `values.yaml` file](https://github.com/buildwithgrove/helm-charts/blob/main/charts/guard/values.yaml).
 
 This configuration uses Redis as the rate limit backend and allows a simplified configuration of rate limits.
 
-### Header-Based Rate Limiting
+## Header-Based Rate Limiting
 
 Rate limits are enforced using the distinct values of a provided HTTP header.
 
@@ -37,17 +38,23 @@ The above configuration will enforce the following rate limits for each distinct
 - 30 requests per second for the `Rl-Plan-Free` header
 - 1000 requests per hour for the `Rl-Plan-Pro` header
 
+### Example of Rate Limited Request
+
+Here is an example of a request that would be rate limited:
+
 ```bash
-curl http://rpc.grove.city/v1 \ 
+curl http://rpc.grove.city/v1 \
     -H "Rl-Plan-Free: 1a2b3c4d" \
     -d '{"jsonrpc":"2.0","method":"eth_blockNumber","id":1}'
 ```
 
+In this example, a user identified by the `Rl-Plan-Free` with a header value of `1a2b3c4d` will be able to make 5000 requests per day. Any requests after that will be rate limited until the end of the day.
+
 ### Setting Header Values
 
-Header values must be set on each request downstream of the rate limit service. Envoy's configuration provides a number of ways to set headers on requests.
+Header values must be set on each request downstream of the rate limit service.
 
-For example:
+Envoy's configuration provides a number of ways to set headers on requests. For example:
 
 - [Envoy Gateway HTTP Request Header Modification](https://gateway.envoyproxy.io/docs/tasks/traffic/http-request-headers/)
 - [Envoy Gateway Custom External Authorization](https://gateway.envoyproxy.io/docs/tasks/security/ext-auth/)
@@ -59,34 +66,34 @@ graph LR
     Client[Client] -->|Request| Gateway[Envoy Gateway]
     Gateway -->|Set Header| RateLimit[Rate Limit Service]
     RateLimit -->|Forward Allowed Request| Upstream[PATH]
-    
-    classDef client fill:#f9f,stroke:#333,stroke-width:2px
-    classDef gateway fill:#bbf,stroke:#333,stroke-width:2px
-    classDef ratelimit fill:#bfb,stroke:#333,stroke-width:2px
-    classDef upstream fill:#fbb,stroke:#333,stroke-width:2px
-    
+
+    classDef client fill:#f9f,stroke:#333,stroke-width:2px,color:black
+    classDef gateway fill:#bbf,stroke:#333,stroke-width:2px,color:black
+    classDef ratelimit fill:#bfb,stroke:#333,stroke-width:2px,color:black
+    classDef upstream fill:#fbb,stroke:#333,stroke-width:2px,color:black
+
     class Client client
     class Gateway gateway
     class RateLimit ratelimit
     class Upstream upstream
 ```
 
+## Rate Limiting Configuration
 
-
-# Rate Limiting Configuration
-
-In the GUARD Helm Chart, the rate limiting configuration is located in the `values.yaml` file
+In the GUARD Helm Chart, the rate limiting configuration is located in the `values.yaml` file.
 
 The following table describes all available configuration options for rate limiting:
 
 | Parameter                    | Description                                              | Default          | Required |
 | ---------------------------- | -------------------------------------------------------- | ---------------- | -------- |
-| `rateLimit.enabled`          | Whether to enable rate limiting                          | `true`           | ✅        |
-| `rateLimit.redis.enabled`    | Whether to deploy Redis from this chart                  | `true`           | ❌        |
-| `rateLimit.plans`            | Array of rate limit plans                                |                  | ✅        |
-| `rateLimit.plans[].header`   | HTTP header to use for identifying rate limit subjects   | `"Rl-Plan-Free"` | ✅        |
-| `rateLimit.plans[].requests` | Number of requests allowed per time unit                 | `5000`           | ✅        |
-| `rateLimit.plans[].unit`     | Time unit for the rate limit (Second, Minute, Hour, Day) | `Day`            | ✅        |
+| `rateLimit.enabled`          | Whether to enable rate limiting                          | `true`           | ✅       |
+| `rateLimit.redis.enabled`    | Whether to deploy Redis from this chart                  | `true`           | ❌       |
+| `rateLimit.plans`            | Array of rate limit plans                                |                  | ✅       |
+| `rateLimit.plans[].header`   | HTTP header to use for identifying rate limit subjects   | `"Rl-Plan-Free"` | ✅       |
+| `rateLimit.plans[].requests` | Number of requests allowed per time unit                 | `5000`           | ✅       |
+| `rateLimit.plans[].unit`     | Time unit for the rate limit (Second, Minute, Hour, Day) | `Day`            | ✅       |
+
+### Default Configuration
 
 The default configuration is as follows:
 
@@ -103,23 +110,11 @@ rateLimit:
 
 With this configuration, GUARD will limit the number of requests per day to 5000 for each unique value of the `Rl-Plan-Free` header.
 
-In order for rate limits to be applied, the HTTP header specified in the `header` field must be set on the request.
-
-For example, the following request will be rate limited:
-
-```bash
-curl http://rpc.grove.city/v1 \
-    -H "Rl-Plan-Free: 1a2b3c4d" \
-    -d '{"jsonrpc":"2.0","method":"eth_blockNumber","id":1}'
-```
-
-In this example, a user identified by the `Rl-Plan-Free` with a header value of `1a2b3c4d` will be able to make 5000 requests per day. Any requests after that will be rate limited until the end of the day.
-
 ### Adding new rate limit plans
 
-To add new rate limiting tiers, you can add new entries to the `plans` array.
+To add new rate limit plans, one can add new entries to the `plans` array.
 
-For example, to add a new rate limiting tier for 1000 requests per hour for users identified by the `Rl-Plan-Pro` header, you can add the following:
+For example, to add a new rate limit plan for 1000 requests per hour for users identified by the `Rl-Plan-Pro` header, one would add the following to the `values.yaml` file:
 
 ```yaml
 plans:
@@ -131,13 +126,16 @@ plans:
     unit: Hour
 ```
 
-With this configuration, GUARD will limit the number of requests per hour to 1000 for each unique value of the `Rl-Plan-Pro` header.
+With this configuration:
 
-For example, a user identified by the `Rl-Plan-Pro` with a header value of `1a2b3c4d` will be able to make 1000 requests per hour. Any requests after that will be rate limited until the end of the hour.
+- Requests with the header `Rl-Plan-Free: XXX` would be limited to 5000 requests per day
+- Requests with the header `Rl-Plan-Pro: XXX` would be limited to 1000 requests per hour
 
-### Multiple rate limits
+### Multiple rate limits per plan
 
-Additional rate limits may also be applied to the same plan. For example, the following configuration will create a new rate limit for the `Rl-Plan-Free` header with a limit of 30 requests per second.
+Additional rate limits can be applied to the same plan.
+
+For example, the following configuration will create a new rate limit for the `Rl-Plan-Free` header with a limit of 30 requests per second.
 
 ```yaml
 plans:
@@ -149,9 +147,13 @@ plans:
     unit: Second
 ```
 
+With this configuration, requests with the header `Rl-Plan-Free: XXX` would be limited to 5000 requests per day **AND** 30 requests per second.
+
 ### Redis Configuration
 
-The rate limiting feature requires Redis as a backend. By default, the chart will deploy Redis in the same namespace. For production environments, you may want to use an externally managed Redis instance instead.
+The rate limiting feature requires Redis as a backend.
+
+By default, the chart will deploy Redis in the same namespace. For production environments, you may want to use an externally managed Redis instance instead.
 
 To use an external Redis instance:
 
@@ -182,13 +184,9 @@ gateway-helm:
             url: my-external-redis.example.com:6379
 ```
 
-# Gateway Helm Configuration
+## Gateway Helm Configuration
 
 The rate limiting configuration must be enabled by applying the following configuration to the `gateway-helm` section of the `values.yaml` file.
-
-This section overrides the default values of the Envoy Gateway Helm charts, which is a dependency of the GUARD chart.
-
-By default, the `gateway-helm` value in the GUARD `values.yaml` file is set to a valid configuration to enable using Redis as the rate limit backend.
 
 ```yaml
 gateway-helm:
@@ -203,24 +201,35 @@ gateway-helm:
             url: redis.path.svc.cluster.local:6379
 ```
 
-**Note:** If `rateLimit.redis.enabled` is set to `false`, you must update the above Redis URL configuration to point to your external Redis service.
+This section overrides the default values of the Envoy Gateway Helm charts, which is a dependency of the GUARD chart.
 
-**Note that this configuration should not be modified unless you are changing the namespace that GUARD runs in, which is not recommended.**
+By default, the `gateway-helm` value in the GUARD `values.yaml` file is set to a valid configuration to enable using Redis as the rate limit backend.
 
-_In the case that the namespace is modified, the `gateway-helm.config.envoyGateway.rateLimit.backend.redis.url` value of `redis.<NAMESPACE>.svc.cluster.local:6379` must be updated to the correct Redis service URL, where `<NAMESPACE>` is the namespace that GUARD runs in._
+:::note Disabling Redis
 
-### Documentation References
+If `rateLimit.redis.enabled` is set to `false`, you must update the above Redis URL configuration to point to your external Redis service.
+:::
 
-- For information on the Envoy Gateway Helm Chart's possible configurations, see the following:
+:::warning Modifying Namespace
 
-  - [Envoy Gateway Helm Chart Values](https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values)
-  - [Envoy Gateway Helm Chart Values Template](https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml)
+This configuration should not be modified unless you are changing the namespace that GUARD runs in, **which is not recommended**.
 
-- For information on the Envoy Gateway rate limiting configuration, see the following:
+In the case that the namespace is modified, the `gateway-helm.config.envoyGateway.rateLimit.backend.redis.url` value of `redis.<NAMESPACE>.svc.cluster.local:6379` must be updated to the correct Redis service URL, where `<NAMESPACE>` is the namespace that GUARD runs in.
 
-  - [Envoy Gateway Rate Limiting](https://gateway.envoyproxy.io/docs/tasks/traffic/global-rate-limit/)
+:::
 
-- For detailed information on the Envoy Proxy rate limiting configuration, see the following:
+## Documentation References
 
-  - [Envoy Proxy Rate Limit HTTP Filter](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/rate_limit_filter)
-  - [Envoy Proxy Rate Limit Repo](https://github.com/envoyproxy/ratelimit)
+For information on the Envoy Gateway Helm Chart's possible configurations, see the following:
+
+- [Envoy Gateway Helm Chart Values](https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values)
+- [Envoy Gateway Helm Chart Values Template](https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml)
+
+For information on the Envoy Gateway rate limiting configuration, see the following:
+
+- [Envoy Gateway Rate Limiting](https://gateway.envoyproxy.io/docs/tasks/traffic/global-rate-limit/)
+
+For detailed information on the Envoy Proxy rate limiting configuration, see the following:
+
+- [Envoy Proxy Rate Limit HTTP Filter](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/rate_limit_filter)
+- [Envoy Proxy Rate Limit Repo](https://github.com/envoyproxy/ratelimit)
