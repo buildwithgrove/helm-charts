@@ -7,6 +7,5 @@ version: 0.1.20
 dependencies:
   - name: gateway-helm
     repository: oci://docker.io/envoyproxy
-    # TODO_TECHDEBT(@commoddity): Update to release version when v1.4.0 is released
-    version: v1.4.0-rc.2
+    version: v1.4.0
     condition: envoyGateway.enabled
