@@ -29,6 +29,7 @@ curl http://rpc.grove.city/v1 \
 - [How Rate Limiting Works](#how-rate-limiting-works)
 - [Header-Based Rate Limiting](#header-based-rate-limiting)
   - [Example Rate-Limited Request](#example-rate-limited-request)
+  - [Rate Limit Response Headers](#rate-limit-response-headers)
   - [Setting Header Values](#setting-header-values)
 - [Rate Limiting Configuration](#rate-limiting-configuration)
   - [Default Configuration](#default-configuration)
@@ -37,6 +38,7 @@ curl http://rpc.grove.city/v1 \
   - [Redis Configuration](#redis-configuration)
     - [Using External Redis](#using-external-redis)
 - [Gateway Helm Configuration](#gateway-helm-configuration)
+  - [Enabling X-RateLimit Headers](#enabling-x-ratelimit-headers)
 - [Common Tasks](#common-tasks)
 - [Documentation References](#documentation-references)
 
@@ -75,6 +77,26 @@ curl http://rpc.grove.city/v1 \
 
 - User with `Rl-Plan-Free: 1a2b3c4d` can make 5000 requests/day.
 - Exceeding this will result in HTTP 429 responses.
+
+### Rate Limit Response Headers
+
+When a request is rate limited, Envoy includes the following headers in the response:
+
+```
+X-Envoy-RateLimited: true
+X-RateLimit-Limit: 5000, 5000;w=86400
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 3600
+```
+
+These headers provide information about rate limits:
+
+- `X-Envoy-RateLimited`: Indicates the request was rate limited
+- `X-RateLimit-Limit`: Shows the request quota for the current time window
+- `X-RateLimit-Remaining`: Indicates how many requests remain in the current window
+- `X-RateLimit-Reset`: Indicates the number of seconds until the rate limit resets
+
+When multiple rate limits apply (e.g., 5000/day AND 30/second), the headers will display information for the window closest to its limit.
 
 ### Setting Header Values
 
@@ -216,6 +238,21 @@ gateway-helm:
 
 - By default, this points to the Redis deployed by the chart in the same namespace.
 
+### Enabling X-RateLimit Headers
+
+To configure Envoy to include rate limit headers in responses, add the following to your `gateway-helm` configuration:
+
+```yaml
+gateway-helm:
+  config:
+    envoyGateway:
+      extensionServices:
+        rateLimit:
+          enableXRateLimitHeaders: DRAFT_VERSION_03
+```
+
+This enables the standard rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`) according to the [draft RFC specification](https://datatracker.ietf.org/doc/html/draft-polli-ratelimit-headers-03).
+
 :::note Disabling Redis
 
 If `rateLimit.redis.enabled` is `false`, update the above URL to your external Redis.
@@ -234,6 +271,7 @@ If you change the namespace, update the Redis URL to `redis.<NAMESPACE>.svc.clus
 - **Change rate limits:** Edit the `plans` array
 - **Switch to external Redis:** See [Redis Configuration](#redis-configuration)
 - **Change namespace:** Update Redis URL in `gateway-helm` config
+- **Enable rate limit headers:** See [Enabling X-RateLimit Headers](#enabling-x-ratelimit-headers)
 
 ## Documentation References
 
@@ -241,4 +279,5 @@ If you change the namespace, update the Redis URL to `redis.<NAMESPACE>.svc.clus
 - [Envoy Gateway Helm Chart Values Template](https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml)
 - [Envoy Gateway Rate Limiting](https://gateway.envoyproxy.io/docs/tasks/traffic/global-rate-limit/)
 - [Envoy Proxy Rate Limit HTTP Filter](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/rate_limit_filter)
+- [Envoy Rate Limit Headers Documentation](https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/http/ratelimit/v3/rate_limit.proto)
 - [Envoy Proxy Rate Limit Repo](https://github.com/envoyproxy/ratelimit)

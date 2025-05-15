@@ -84,6 +84,15 @@ If this occurs, please report the issue for prompt troubleshooting and resolutio
 
 Our suggestion, alternatively, is to only update one at a time.
 
+For example, if you are updating the `guard` chart, you should follow this sequence:
+
+1. Increment the `guard` chart version in the [`charts/guard/Chart.yaml`](https://github.com/buildwithgrove/helm-charts/blob/main/charts/guard/Chart.yaml) file according the [SemVer](https://semver.org/) guidelines
+2. Open a PR with the changes and merge to `main`
+3. Once the PR is merged, the CI will automatically create a new release for the Helm chart
+4. Once the release is created, you can update the `path` chart to use the new `guard` chart version
+5. Increment the `path` chart version in the [`charts/path/Chart.yaml`](https://github.com/buildwithgrove/helm-charts/blob/main/charts/path/Chart.yaml) file according the [SemVer](https://semver.org/) guidelines
+6. Open a PR with the changes and merge to `main`
+
 ## ClaudeSync Setup
 
 This repo is setup to use [ClaudeSync](https://github.com/jahwag/ClaudeSync) to help answer questions about the repo.
