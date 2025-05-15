@@ -2,21 +2,21 @@
 
 ## Quick Introduction <!-- omit in toc -->
 
-- GUARD supports two routing methods:
-  - **Subdomain-Based Routing**
-  - **Header-Based Routing**
-- All routing is configured in `httproute-subdomain.yaml` or `httproute-header.yaml`
+- Routing in GUARD is handled through [Kubernetes Gateway API HTTPRoutes](https://gateway-api.sigs.k8s.io/api-types/httproute/)
+- `HTTPRoute` resources are created from the `guard.services` field in [`values.yaml`](https://github.com/buildwithgrove/helm-charts/blob/main/charts/guard/values.yaml#L39) 
+  - These services creates `HTTPRoutes` based on the template files:
+    - [`httproute-subdomain.yaml`](https://github.com/buildwithgrove/helm-charts/blob/main/charts/guard/templates/routing/httproute-subdomain.yaml)
+    - [`httproute-header.yaml`](https://github.com/buildwithgrove/helm-charts/blob/main/charts/guard/templates/routing/httproute-header.yaml)
 - See examples below for reference
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Subdomain-Based Routing](#subdomain-based-routing)
   - [Subdomain-Based URL Examples](#subdomain-based-url-examples)
+  - [Subdomain Routing Example Request (cURL)](#subdomain-routing-example-request-curl)
 - [Header-Based Routing](#header-based-routing)
   - [Header Routing Examples](#header-routing-examples)
-- [Routed Request Examples](#routed-request-examples)
-  - [Subdomain Routing (curl)](#subdomain-routing-curl)
-  - [Header Routing (curl)](#header-routing-curl)
+  - [Header Routing Example Request (cURL)](#header-routing-example-request-curl)
 
 ---
 
@@ -42,11 +42,18 @@ services:
 
 With this config, GUARD will:
 
-- Create routes for each `serviceId` and its `aliases`
+- Create `HTTPRoute` resources for each `serviceId` and its `aliases`
 - Set the `target-service-id` header to the canonical `serviceId`
 - Forward the request to the correct backend
 
 ### Subdomain-Based URL Examples
+
+GUARD subdomain routing:
+
+- Routes traffic based on the subdomain in the request URL
+- Is configured in `httproute-subdomain.yaml`
+- Uses the same `services` config as above
+- Client specifies the target service in the subdomain
 
 | URL                                       | Routed Service | Header Set                |
 | ----------------------------------------- | -------------- | ------------------------- |
@@ -54,6 +61,15 @@ With this config, GUARD will:
 | `https://eth.path.example.com/v1`         | PATH (`F00C`)  | `target-service-id: F00C` |
 | `https://eth-mainnet.path.example.com/v1` | PATH (`F00C`)  | `target-service-id: F00C` |
 | `https://polygon.path.example.com/v1`     | PATH (`F021`)  | `target-service-id: F021` |
+
+### Subdomain Routing Example Request (cURL)
+
+```bash
+# Route to ETH service using subdomain
+curl https://eth.path.example.com/v1 \
+  -H "Authorization: test_api_key" \
+  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+```
 
 ---
 
@@ -74,20 +90,7 @@ GUARD header-based routing:
 | `https://path.example.com/v1` | `-H "target-service-id: eth"`     | PATH (`F00C`)  | `target-service-id: F00C` |
 | `https://path.example.com/v1` | `-H "target-service-id: polygon"` | PATH (`F021`)  | `target-service-id: F021` |
 
----
-
-## Routed Request Examples
-
-### Subdomain Routing (curl)
-
-```bash
-# Route to ETH service using subdomain
-curl https://eth.path.example.com/v1 \
-  -H "Authorization: test_api_key" \
-  -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
-```
-
-### Header Routing (curl)
+### Header Routing Example Request (cURL)
 
 ```bash
 # Route to ETH service using header

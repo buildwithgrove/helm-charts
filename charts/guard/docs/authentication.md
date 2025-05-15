@@ -76,6 +76,13 @@ You can customize this value to match your service.
 
 For each service and routing method (subdomain and header), GUARD creates a SecurityPolicy that:
 
-1. References the appropriate HTTPRoute
+1. References the appropriate [HTTPRoute](https://gateway-api.sigs.k8s.io/api-types/httproute/)
 2. Configures API key extraction from the specified header
 3. Validates the API key against the stored credentials
+
+:::info
+
+For further information on GUARD's routing capabilities, see the [Routing documentation section](routing.md).
+
+:::
+

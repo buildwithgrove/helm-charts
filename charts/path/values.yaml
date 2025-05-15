@@ -1,3 +1,14 @@
+# NOTE: this file contains examples of all values needed to deploy PATH.
+# It is also used to generate a table using helm-docs for the PATH chart.
+# See:
+#   - https://github.com/norwoodj/helm-docs
+#
+# To regenerate the table from this file, run:
+#   make generate_helm_values_docs
+#
+# To view the table in the PATH documentation, see:
+#   - https://path.grove.city/operate/helm/values
+
 # ----------------------------------------------------------------------
 # PATH Specific Configurations
 # ----------------------------------------------------------------------
