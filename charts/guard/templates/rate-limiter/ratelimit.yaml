@@ -28,6 +28,7 @@ spec:
           - type: Distinct
             name: {{ .header }}
         # Ensure that the rate limit is shared across all HTTPRoutes
+        # IMPORTANT: DO NOT CHANGE THIS TO false UNLESS YOU KNOW WHAT YOU ARE DOING
         shared: true
         limit:
           requests: {{ .requests }}
@@ -60,6 +61,7 @@ spec:
           - type: Distinct
             name: "Rl-User-Limit-{{ $limit }}"
         # Ensure that the rate limit is shared across all HTTPRoutes
+        # IMPORTANT: DO NOT CHANGE THIS TO false UNLESS YOU KNOW WHAT YOU ARE DOING
         shared: true
         limit:
           # TODO_TECHDEBT(@commoddity):

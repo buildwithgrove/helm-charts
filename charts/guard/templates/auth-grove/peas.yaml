@@ -1,27 +1,20 @@
-# ######### VERY IMPORTANT #########
-# If you are not authorizing Grove Portal requests,
-# this is VERY unlikely to fit your exact use-case.
+# --------- VERY IMPORTANT ---------
+# Only use if you are authorizing Grove Portal requests.
+#   - Not likely to fit other use-cases.
 #
 # PATH External Authorization Server (PEAS) Helm Chart
-# Used as part of the Grove legacy authorization flow.
+#   - Used for Grove legacy authorization flow.
+#   - Github: https://github.com/buildwithgrove/path-external-auth-server
 #
-# Github Repo: 
-#   - https://github.com/buildwithgrove/path-external-auth-server
-#
-# PEAS is external authorization server designed to authorize requests to the PATH Gateway.
-# This exists due to unique needs for authorizing Portal Apps in the Grove Portal that
-# could not be handled by out-of-the-box Envoy Gateway functionality, hence the need for
-# a custom authorization server implementation.
-#
-# Key characteristics:
+# PEAS is a custom external authorization server for the PATH Gateway:
+#   - Built for unique Grove Portal App needs
+#   - Not handled by default Envoy Gateway features
 #   - Uses gRPC for communication
-#   - Adheres to the specification expected by the Envoy External Authorization HTTP Filter
+#   - Follows Envoy External Authorization HTTP Filter spec
 #
 # References:
-#   - Envoy Gateway External Authorization:
-#     https://gateway.envoyproxy.io/docs/tasks/security/ext-auth/
-#   - Envoy Proxy External Authorization Filter:
-#     https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter
+#   - Envoy Gateway Ext Auth: https://gateway.envoyproxy.io/docs/tasks/security/ext-auth/
+#   - Envoy Proxy Ext Authz Filter: https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter
 {{- if .Values.auth.groveLegacy.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
 {{- $peasConfig:= .Values.auth.groveLegacy.peas }}
