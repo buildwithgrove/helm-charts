@@ -1,12 +1,33 @@
-## Routing Capabilities
+# Routing <!-- omit in toc -->
 
-GUARD provides two primary routing methods:
+## Quick Introduction <!-- omit in toc -->
 
-### Subdomain-Based Routing
+- Routing in GUARD is handled through [Kubernetes Gateway API HTTPRoutes](https://gateway-api.sigs.k8s.io/api-types/httproute/)
+- `HTTPRoute` resources are created from the `guard.services` field in [`values.yaml`](https://github.com/buildwithgrove/helm-charts/blob/main/charts/guard/values.yaml#L39) 
+  - These services creates `HTTPRoutes` based on the template files:
+    - [`httproute-subdomain.yaml`](https://github.com/buildwithgrove/helm-charts/blob/main/charts/guard/templates/routing/httproute-subdomain.yaml)
+    - [`httproute-header.yaml`](https://github.com/buildwithgrove/helm-charts/blob/main/charts/guard/templates/routing/httproute-header.yaml)
+- See examples below for reference
 
-Subdomain-based routing directs traffic based on the subdomain in the request URL. This type of routing is configured in the `httproute-subdomain.yaml` template.
+## Table of Contents <!-- omit in toc -->
 
-**Example Configuration:**
+- [Subdomain-Based Routing](#subdomain-based-routing)
+  - [Subdomain-Based URL Examples](#subdomain-based-url-examples)
+  - [Subdomain Routing Example Request (cURL)](#subdomain-routing-example-request-curl)
+- [Header-Based Routing](#header-based-routing)
+  - [Header Routing Examples](#header-routing-examples)
+  - [Header Routing Example Request (cURL)](#header-routing-example-request-curl)
+
+---
+
+## Subdomain-Based Routing
+
+GUARD subdomain routing:
+
+- Routes traffic based on the subdomain in the request URL
+- Is configured in `httproute-subdomain.yaml`
+
+Example services config:
 
 ```yaml
 services:
@@ -19,50 +40,62 @@ services:
       - polygon
 ```
 
-With this configuration, GUARD will:
+With this config, GUARD will:
 
-1. Create routes for each service ID and its aliases
-2. Set the `target-service-id` header to the canonical service ID
-3. Forward the request to the appropriate backend service
+- Create `HTTPRoute` resources for each `serviceId` and its `aliases`
+- Set the `target-service-id` header to the canonical `serviceId`
+- Forward the request to the correct backend
 
-**URL Examples:**
+### Subdomain-Based URL Examples
 
-- `https://F00C.path.example.com/v1` → Routes to PATH with `target-service-id: F00C`
-- `https://eth.path.example.com/v1` → Routes to PATH with `target-service-id: F00C`
-- `https://eth-mainnet.path.example.com/v1` → Routes to PATH with `target-service-id: F00C`
-- `https://polygon.path.example.com/v1` → Routes to PATH with `target-service-id: F021`
+GUARD subdomain routing:
 
-### Header-Based Routing
+- Routes traffic based on the subdomain in the request URL
+- Is configured in `httproute-subdomain.yaml`
+- Uses the same `services` config as above
+- Client specifies the target service in the subdomain
 
-Header-based routing directs traffic based on the `target-service-id` header in the request. This type of routing is configured in the `httproute-header.yaml` template.
+| URL                                       | Routed Service | Header Set                |
+| ----------------------------------------- | -------------- | ------------------------- |
+| `https://F00C.path.example.com/v1`        | PATH (`F00C`)  | `target-service-id: F00C` |
+| `https://eth.path.example.com/v1`         | PATH (`F00C`)  | `target-service-id: F00C` |
+| `https://eth-mainnet.path.example.com/v1` | PATH (`F00C`)  | `target-service-id: F00C` |
+| `https://polygon.path.example.com/v1`     | PATH (`F021`)  | `target-service-id: F021` |
 
-**Example Configuration:**
-
-Using the same services configuration as above, header-based routing enables clients to specify the target service in the header:
-
-**URL and Header Examples:**
-
-- `https://path.example.com/v1` with header `-H "target-service-id: F00C"` → Routes to PATH with `target-service-id: F00C`
-- `https://path.example.com/v1` with header `-H "target-service-id: eth"` → Routes to PATH with `target-service-id: F00C`
-- `https://path.example.com/v1` with header `-H "target-service-id: polygon"` → Routes to PATH with `target-service-id: F021`
-
-### Route Examples
-
-**Example 1: Using curl with subdomain routing**
+### Subdomain Routing Example Request (cURL)
 
 ```bash
 # Route to ETH service using subdomain
-curl https://eth.path.example.com/v1
-  -H "Authorization: test_api_key"
+curl https://eth.path.example.com/v1 \
+  -H "Authorization: test_api_key" \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
 
-**Example 2: Using curl with header routing**
+---
+
+## Header-Based Routing
+
+GUARD header-based routing:
+
+- Routes traffic based on the `target-service-id` HTTP header
+- Is configured in `httproute-header.yaml`
+- Uses the same `services` config as above
+- Client specifies the target service in the header
+
+### Header Routing Examples
+
+| URL                           | Header Example                    | Routed Service | Header Set                |
+| ----------------------------- | --------------------------------- | -------------- | ------------------------- |
+| `https://path.example.com/v1` | `-H "target-service-id: F00C"`    | PATH (`F00C`)  | `target-service-id: F00C` |
+| `https://path.example.com/v1` | `-H "target-service-id: eth"`     | PATH (`F00C`)  | `target-service-id: F00C` |
+| `https://path.example.com/v1` | `-H "target-service-id: polygon"` | PATH (`F021`)  | `target-service-id: F021` |
+
+### Header Routing Example Request (cURL)
 
 ```bash
 # Route to ETH service using header
-curl https://path.example.com/v1
-  -H "Target-Service-Id: eth"
-  -H "Authorization: test_api_key"
+curl https://path.example.com/v1 \
+  -H "Target-Service-Id: eth" \
+  -H "Authorization: test_api_key" \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 ```
