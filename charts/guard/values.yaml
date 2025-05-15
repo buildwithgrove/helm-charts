@@ -90,7 +90,7 @@ auth:
     enabled: false
     peas:
       enabled: false
-      imageTag: "dev"
+      imageTag: "latest"
       mountPath: /app/data
       replicas: 1
       port: 10001
