@@ -38,6 +38,12 @@ domain: "example.com"
 # - Set regionName to add Auth-Region header to requests
 # regionName: "us-east-1"
 
+# GUARD services configuration
+# The services defined here will be used to create HTTPRoutes
+# for each service for both Subdomain and Header-based routing.
+#
+# For more information, see the documentation:
+#   - https://path.grove.city/operate/helm/guard#routing
 services:
   # Morse-specific services
   - serviceId: F00C
@@ -52,15 +58,27 @@ services:
     #  weights:
     #    path: 70
     #    middleware: 30
+    
+# GUARD auth configuration
+# Exactly one auth method must be enabled:
+#   1. API Key (apiKey)
+#   2. Grove Legacy (groveLegacy)
+#
+# IMPORTANT: If both are enabled, k8s will throw an error due to
+# duplicate HTTPRoute resources being created for each service.
+#
+# For more information, see the documentation:
+#   - https://path.grove.city/operate/helm/guard#authentication
 auth:
-  # API Key auth configuration (default)
+  #
+  # 1. API Key auth configuration (default)
   apiKey:
     enabled: true
     headerKey: "authorization"
     apiKeys:
       - test_api_key
 
-  # Grove Legacy auth configuration
+  # 2. Grove Legacy auth configuration (Grove Portal only)
   # VERY IMPORTANT:
   # - Only use if authorizing Grove Portal requests
   # - Otherwise, this likely does not fit your use-case
