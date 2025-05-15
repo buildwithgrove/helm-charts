@@ -64,20 +64,39 @@ auth:
   # VERY IMPORTANT:
   # - Only use if authorizing Grove Portal requests
   # - Otherwise, this likely does not fit your use-case
+  #
+  # DEV_NOTE: This section is intentionally not included in
+  # the PATH chart's `values.yaml` file due to its nature as a
+  # legacy configuration that applies only to the Grove Portal.
   groveLegacy:
     enabled: false
     peas:
       enabled: false
-      # Image tag for path-external-auth-server (defaults to "latest" if not specified)
-      imageTag: "latest"
+      imageTag: "dev"
       mountPath: /app/data
-      # The below configuration is required to load the PADS database connection
-      # details from a Kubernetes secret, as in production deployments.
-      # envFrom:
-      #   - secretRef:
-      #       name: pads-db-connection
+      replicas: 1
+      port: 10001
+      env:
+        # PEAS default port is 10001
+        # - name: PORT
+        #   value: "10001"
+        # Replace this value with your database connection string
+        # - name: POSTGRES_CONNECTION_STRING
+        #   value: "postgres://postgres:postgres@localhost:5432/postgres"
+      # PEAS may load configuration for its database connection in one of two ways.
+      # (uncomment one of the following sections)
+      # 1. From a Kubernetes secret (production)
       # fromSecret:
-      #   secretName: pads-config
+      #   secretName: peas-config
+      # 2. From a ConfigMap (local development)
+      # This is used for local development purposes.
+      # configMap:
+      #   ssl_cert.pem: |
+      #     -----BEGIN CERTIFICATE-----
+      #   ssl_key.pem: |
+      #     -----BEGIN PRIVATE KEY-----
+      #   ssl_root_cert.pem: |
+      #     -----BEGIN CERTIFICATE-----
 
 # Rate Limit configuration
 rateLimit:
@@ -90,13 +109,9 @@ rateLimit:
   # Define all plan details here
   # Requests matched per-header as configured below
   #
-  # More details:
+  # Envoy Gateway Documentation:
   # https://gateway.envoyproxy.io/latest/tasks/traffic/global-rate-limit/#rate-limit-distinct-users-except-admin
   plans:
-    # -- Grove Legacy auth configuration --
-    # ######### VERY IMPORTANT #########
-    # If you are not authorizing Grove Portal requests,
-    # this is VERY unlikely to fit your exact use-case.
     # The headers set here must match the headers that are set on requests inside PEAS:
     #   - https://github.com/buildwithgrove/path-external-auth-server/blob/main/ratelimit/ratelimit.go
     # PLAN_FREE: 5000 requests per day
@@ -136,4 +151,3 @@ gatewayResources:
 # Controls ReferenceGrant for middleware namespace
 middlewareNamespaceReferenceGrant:
   enabled: false
-

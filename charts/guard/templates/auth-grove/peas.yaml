@@ -1,22 +1,27 @@
-# PATH External Authorization Server (PEAS) Helm Chart
-# Used as part of the Grove legacy authorization flow.
-#
 # ######### VERY IMPORTANT #########
 # If you are not authorizing Grove Portal requests,
 # this is VERY unlikely to fit your exact use-case.
 #
-# An external authorization server designed to authorize requests to the PATH Gateway.
+# PATH External Authorization Server (PEAS) Helm Chart
+# Used as part of the Grove legacy authorization flow.
+#
+# Github Repo: 
+#   - https://github.com/buildwithgrove/path-external-auth-server
+#
+# PEAS is external authorization server designed to authorize requests to the PATH Gateway.
 # This exists due to unique needs for authorizing Portal Apps in the Grove Portal that
 # could not be handled by out-of-the-box Envoy Gateway functionality, hence the need for
 # a custom authorization server implementation.
 #
-#
 # Key characteristics:
 #   - Uses gRPC for communication
 #   - Adheres to the specification expected by the Envoy External Authorization HTTP Filter
-# Reference: https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter
-# Github Repo: https://github.com/buildwithgrove/path-external-auth-server
 #
+# References:
+#   - Envoy Gateway External Authorization:
+#     https://gateway.envoyproxy.io/docs/tasks/security/ext-auth/
+#   - Envoy Proxy External Authorization Filter:
+#     https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/ext_authz_filter
 {{- if .Values.auth.groveLegacy.enabled }}
 {{- $name:= include "guard-helm.fullname" . }}
 {{- $peasConfig:= .Values.auth.groveLegacy.peas }}
@@ -55,7 +60,7 @@ spec:
       {{- else }}
       - name: {{$name}}-data
         configMap:
-          name: pads-data
+          name: peas-data
       {{- end }}
 ---
 apiVersion: v1
@@ -76,7 +81,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: pads-data
+  name: peas-data
   namespace: {{ $.Values.global.namespace }}
 data: {{- toYaml $peasConfig.configMap | nindent 4 }}
 {{- end }}
