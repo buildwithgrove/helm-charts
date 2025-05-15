@@ -80,9 +80,4 @@ For each service and routing method (subdomain and header), GUARD creates a Secu
 2. Configures API key extraction from the specified header
 3. Validates the API key against the stored credentials
 
-:::info
-
-For further information on GUARD's routing capabilities, see the [Routing documentation section](routing.md).
-
-:::
-
+**For further information on GUARD's routing capabilities, see the [Routing documentation section](routing.md).**

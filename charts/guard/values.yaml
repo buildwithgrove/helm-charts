@@ -1,7 +1,8 @@
 #
-# - This file provides only field names and descriptions
-# - All default values set by `guard` in PATH Helm Chart's `values.yaml`
-# - See: https://github.com/buildwithgrove/helm-charts/blob/main/charts/path/values.yaml
+# Usage Notes:
+# - Provides only field names and descriptions
+# - All default values are set by `guard` in PATH Helm Chart's `values.yaml`
+# - Reference: https://github.com/buildwithgrove/helm-charts/blob/main/charts/path/values.yaml
 #
 fullnameOverride: guard
 global:
@@ -9,12 +10,14 @@ global:
   serviceName: path-http
   port: 3069
   # CONTROLLED TRAFFIC SHIFTING:
-  # - Must match Middleware Service's namespace.
+  # - Must match Middleware Service's namespace
   middlewareNamespace: middleware
+
   # CONTROLLED TRAFFIC SHIFTING:
   # - Must match Middleware Service name in PATH/GUARD namespace
   # - Defined in `charts/path/values.yaml`
   middlewareServiceName: middleware-http
+
   # CONTROLLED TRAFFIC SHIFTING:
   # - Must match Middleware Service port in PATH/GUARD namespace
   # - Defined in `charts/path/values.yaml`
@@ -22,22 +25,31 @@ global:
 gateway:
   port: 3070
 # Gateway parent references for HTTPRoutes
+# - Used for HTTPRoute parentRefs
+# - Update as needed for your deployment
+
 gatewayRef:
   - group: gateway.networking.k8s.io
     kind: Gateway
     name: guard-envoy-gateway
 # IMPORTANT:
-# - Update domain value
+# - Update `domain` value
 # - Must be specified in HTTPRoute resources for routing
 # - Must match Host header in HTTP requests to GUARD/Envoy Gateway
+
 domain: "example.com"
 # IMPORTANT:
 # - Specify at least one service or Envoy Gateway will not accept requests
 
 # Optional:
-# - Set regionName to add Auth-Region header to requests
+# - Set `regionName` to add Auth-Region header to requests
 # regionName: "us-east-1"
 
+# GUARD services configuration
+# - Services defined here will be used to create HTTPRoutes for each service
+#   - Supports both Subdomain and Header-based routing
+# - For more information, see:
+#   - https://path.grove.city/operate/helm/guard#routing
 services:
   # Morse-specific services
   - serviceId: F00C
@@ -47,61 +59,90 @@ services:
     # TODO_MVP(@adshmh):
     # - Required by Grove for migration to PATH
     # - Remove once migration is completed
-    #trafficSplitting:
-    #  enabled: true
-    #  weights:
-    #    path: 70
-    #    middleware: 30
+    # trafficSplitting:
+    #   enabled: true
+    #   weights:
+    #     path: 70
+    #     middleware: 30
+
+# GUARD auth configuration
+# Exactly one auth method must be enabled:
+# - API Key (apiKey)
+# - Grove Legacy (groveLegacy)
+#
+# IMPORTANT:
+# - If both are enabled, k8s will throw an error due to duplicate HTTPRoute resources being created for each service.
+#
+# For more information, see:
+#   - https://path.grove.city/operate/helm/guard#authentication
 auth:
-  # API Key auth configuration (default)
+  #
+  # 1. API Key auth configuration (default)
   apiKey:
     enabled: true
     headerKey: "authorization"
     apiKeys:
       - test_api_key
 
-  # Grove Legacy auth configuration
+  # 2. Grove Legacy auth configuration (Grove Portal only)
   # VERY IMPORTANT:
   # - Only use if authorizing Grove Portal requests
   # - Otherwise, this likely does not fit your use-case
+  #
+  # DEV_NOTE:
+  # - This section is intentionally not included in the PATH chart's `values.yaml` file
+  # - Applies only to the Grove Portal as a legacy configuration
   groveLegacy:
     enabled: false
     peas:
       enabled: false
-      # Image tag for path-external-auth-server (defaults to "latest" if not specified)
-      imageTag: "latest"
-    pads:
-      enabled: false
-      # Image tag for path-auth-data-server (defaults to "latest" if not specified)
       imageTag: "latest"
       mountPath: /app/data
-      # Required to load PADS DB connection details from Kubernetes secret (as in production):
-      # envFrom:
-      #   - secretRef:
-      #       name: pads-db-connection
-      # fromSecret:
-      #   secretName: pads-config
+      replicas: 1
+      port: 10001
+      env:
+        # PEAS default port is 10001
+        # - name: PORT
+        #   value: "10001"
+        # Replace this value with your database connection string
+        # - name: POSTGRES_CONNECTION_STRING
+        #   value: "postgres://postgres:postgres@localhost:5432/postgres"
+      # PEAS may load configuration for its database connection in one of two ways:
+      #   1. From a Kubernetes secret (production)
+      #      fromSecret:
+      #        secretName: peas-config
+      #   2. From a ConfigMap (local development)
+      #      (used for local development purposes)
+      #      configMap:
+      #        ssl_cert.pem: |
+      #          -----BEGIN CERTIFICATE-----
+      #        ssl_key.pem: |
+      #          -----BEGIN PRIVATE KEY-----
+      #        ssl_root_cert.pem: |
+      #          -----BEGIN CERTIFICATE-----
 
 # Rate Limit configuration
+# - Controls rate limiting for requests
+# - Redis can be deployed or use external
+# - Define all plan details below
+# - Requests are matched per-header as configured
+#
+# Envoy Gateway Documentation:
+# - https://gateway.envoyproxy.io/latest/tasks/traffic/global-rate-limit/#rate-limit-distinct-users-except-admin
 rateLimit:
-  # Set to true to enable rate limiting.
+  # Set to true to enable rate limiting
   enabled: true
+
   # Redis deployment control
   redis:
     # Set to false to use external Redis
     enabled: true
-  # Define all plan details here
-  # Requests matched per-header as configured below
-  #
-  # More details:
-  # https://gateway.envoyproxy.io/latest/tasks/traffic/global-rate-limit/#rate-limit-distinct-users-except-admin
+
+  # Rate limit plans
   plans:
-    # Grove Legacy auth configuration
-    # VERY IMPORTANT:
-    # - Only use if authorizing Grove Portal requests
-    # - Headers here must match those set on requests inside PEAS:
-    #   - https://github.com/buildwithgrove/path-external-auth-server/blob/main/ratelimit/ratelimit.go
-    # PLAN_FREE: 5000 requests/day
+    # The headers set here must match the headers that are set on requests inside PEAS:
+    # - https://github.com/buildwithgrove/path-external-auth-server/blob/main/ratelimit/ratelimit.go
+    # PLAN_FREE: 5000 requests per day
     - header: "Rl-Plan-Free"
       requests: 5000
       unit: Day
@@ -114,6 +155,7 @@ rateLimit:
 # References:
 # - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
 # - https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
+
 gateway-helm:
   config:
     envoyGateway:

@@ -14,8 +14,6 @@ spec:
   rateLimit:
     type: Global
     global:
-      # Ensure that the rate limit is shared across all HTTPRoutes
-      shared: true
       rules:
       # Rules are created based on plans defined in:
       #   - `rateLimit.plans` section of the `values.yaml` file
@@ -29,6 +27,9 @@ spec:
         - headers:
           - type: Distinct
             name: {{ .header }}
+        # Ensure that the rate limit is shared across all HTTPRoutes
+        # IMPORTANT: DO NOT CHANGE THIS TO false UNLESS YOU KNOW WHAT YOU ARE DOING
+        shared: true
         limit:
           requests: {{ .requests }}
           unit: {{ .unit }}
@@ -59,6 +60,9 @@ spec:
         - headers:
           - type: Distinct
             name: "Rl-User-Limit-{{ $limit }}"
+        # Ensure that the rate limit is shared across all HTTPRoutes
+        # IMPORTANT: DO NOT CHANGE THIS TO false UNLESS YOU KNOW WHAT YOU ARE DOING
+        shared: true
         limit:
           # TODO_TECHDEBT(@commoddity):
           #   - Envoy Gateway currently only supports rate limiting in a maximum unit of `Day`

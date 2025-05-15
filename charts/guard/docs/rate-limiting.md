@@ -109,12 +109,12 @@ graph LR
 
 | Parameter                    | Description                                | Default          | Required |
 | ---------------------------- | ------------------------------------------ | ---------------- | -------- |
-| `rateLimit.enabled`          | Enable rate limiting                       | `true`           | ✅       |
-| `rateLimit.redis.enabled`    | Deploy Redis from this chart               | `true`           | ❌       |
-| `rateLimit.plans`            | Array of rate limit plans                  |                  | ✅       |
-| `rateLimit.plans[].header`   | Header for identifying rate limit subjects | `"Rl-Plan-Free"` | ✅       |
-| `rateLimit.plans[].requests` | Requests allowed per time unit             | `5000`           | ✅       |
-| `rateLimit.plans[].unit`     | Time unit (Second, Minute, Hour, Day)      | `Day`            | ✅       |
+| `rateLimit.enabled`          | Enable rate limiting                       | `true`           | ✅        |
+| `rateLimit.redis.enabled`    | Deploy Redis from this chart               | `true`           | ❌        |
+| `rateLimit.plans`            | Array of rate limit plans                  |                  | ✅        |
+| `rateLimit.plans[].header`   | Header for identifying rate limit subjects | `"Rl-Plan-Free"` | ✅        |
+| `rateLimit.plans[].requests` | Requests allowed per time unit             | `5000`           | ✅        |
+| `rateLimit.plans[].unit`     | Time unit (Second, Minute, Hour, Day)      | `Day`            | ✅        |
 
 ### Default Configuration
 
