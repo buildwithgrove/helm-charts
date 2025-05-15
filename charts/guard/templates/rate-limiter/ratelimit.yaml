@@ -2,7 +2,7 @@
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: BackendTrafficPolicy 
+kind: BackendTrafficPolicy
 metadata:
   name: {{ $gwname }}-rate-limit-policy
   namespace: {{ $.Values.global.namespace }}
@@ -17,6 +17,13 @@ spec:
       # Ensure that the rate limit is shared across all HTTPRoutes
       shared: true
       rules:
+      # Rules are created based on plans defined in:
+      #   - `rateLimit.plans` section of the `values.yaml` file
+      #
+      # Example plan rule:
+      #   - header: "Rl-Plan-Free"
+      #   - requests: 5000
+      #   - unit: Day
 {{- range .Values.rateLimit.plans }}
       - clientSelectors:
         - headers:
@@ -25,5 +32,54 @@ spec:
         limit:
           requests: {{ .requests }}
           unit: {{ .unit }}
+{{- end }}
+# -- Grove Legacy auth configuration --
+# ######### VERY IMPORTANT #########
+#
+# This section is only relevant if you are authorizing Grove Portal requests.
+#   - If not, this is VERY unlikely to fit your use-case.
+#
+# What this section does:
+#   - Creates N rules for matching Rate Limit headers set inside PEAS
+#   - See: https://github.com/buildwithgrove/path-external-auth-server/blob/main/ratelimit/ratelimit.go
+#
+# Example headers created:
+#   - Rl-User-Limit-1: 1 million requests per month
+#   - Rl-User-Limit-2: 2 million requests per month
+#   - ...
+#   - Rl-User-Limit-60: 60 million requests per month
+#
+# Why 60?
+#   - Handles all increments up to 60 million requests/month (covers all current user-specified monthly user limits in the Portal)
+#   - Envoy Gateway allows a maximum of 64 rules (see: https://github.com/envoyproxy/gateway/issues/5696)
+{{- if and .Values.rateLimit.enabled .Values.auth.groveLegacy.enabled }}
+{{- range $i := until 60 }}
+{{- $limit := add $i 1 }}
+      - clientSelectors:
+        - headers:
+          - type: Distinct
+            name: "Rl-User-Limit-{{ $limit }}"
+        limit:
+          # TODO_TECHDEBT(@commoddity):
+          #   - Envoy Gateway currently only supports rate limiting in a maximum unit of `Day`
+          #   - Divide the monthly limit by 30 as a workaround
+          #
+          # When the following Issue is solved, update as follows:
+          #   - Remove the division by 30
+          #   - Update the unit to `Month`
+          #
+          # Github references:
+          #   - Issue: https://github.com/envoyproxy/gateway/issues/6019
+          #   - Pull request: https://github.com/envoyproxy/gateway/pull/4495
+          #
+          # Daily relay limit calculation:
+          #   - (limit * 1,000,000) / 30 = <daily relay limit>
+          #   - Examples:
+          #       - Rl-User-Limit-1: ceil(1,000,000 ÷ 30) = ceil(33,333.33...) = 33,334
+          #       - Rl-User-Limit-2: ceil(2,000,000 ÷ 30) = ceil(66,666.66...) = 66,667
+          #       - Rl-User-Limit-60: ceil(60,000,000 ÷ 30) = ceil(2,000,000) = 2,000,000
+          requests: {{ ceil (div (mul $limit 1000000) 30) }}
+          unit: Day
+{{- end }}
 {{- end }}
 {{- end }}

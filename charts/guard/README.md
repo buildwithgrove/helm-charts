@@ -17,8 +17,8 @@
 
 1. **Authentication** - Verifies API keys and manages user access
 2. **Service Routing** - Creates the appropriate `HTTPRoute` resources for the services configured in the Helm values file.
-3. **Defense Mechanisms** - Implements rate limiting and security policies 
-  
+3. **Defense Mechanisms** - Implements rate limiting and security policies
+
 GUARD uses Envoy Gateway as its underlying proxy technology and is deployed using Helm.
 
 ```mermaid
@@ -70,7 +70,7 @@ Envoy Gateway is an open source project for managing Envoy Proxy as a standalone
 ```mermaid
 graph TD
     User(["External User"]) -->|"HTTP Request<br>Port 3070"| GUARD_SVC
-    
+
     subgraph Kubernetes_Cluster["GUARD Resources Overview"]
         subgraph Control_Plane["Envoy Gateway Resources"]
             GC["GatewayClass"]
@@ -79,24 +79,24 @@ graph TD
             HR["HTTPRoute<br>Service Routes"]
             SP["SecurityPolicy<br>Auth Rules"]
             EP_POD["Envoy Proxy Pod"]
-            
+
             G -->|References| GC
             G -->|References| EP
             HR -->|Applied to| EP_POD
             SP -->|Applied to| EP_POD
             G -->|Provisions| EP_POD
         end
-        
+
         subgraph Services["Services"]
             GUARD_SVC["guard<br>ClusterIP<br>Port: 3070"]
             PATH_SVC["path-http<br>ClusterIP<br>Port: 3069"]
         end
-        
-        
+
+
         subgraph Backend["Application Services"]
             PATH_POD["PATH Service Pod"]
         end
-        
+
         GUARD_SVC -->|Routes to| EP_POD
         EP_POD -->|Authorized Request| PATH_SVC
         PATH_SVC -->|Routes to| PATH_POD
@@ -148,14 +148,16 @@ See the [PATH README](../path/README.md#deployment-options) for more information
 GUARD provides several key features for managing access to your services:
 
 1. **Flexible Routing**
+
    - Subdomain-based routing
    - Header-based routing
    - Custom path configurations
 
 2. **Authentication Methods**
+
    - API key authentication
    - Grove legacy authentication
-  
+
 3. **Defense Mechanisms**
    - Request validation
    - Rate limiting

@@ -1,39 +1,41 @@
-# This file provides only the field names and descriptions, with all default values
-# set by the `guard` field in the PATH Helm Chart's `values.yaml` file.
 #
-# See: https://github.com/buildwithgrove/helm-charts/blob/main/charts/path/values.yaml
+# - This file provides only field names and descriptions
+# - All default values set by `guard` in PATH Helm Chart's `values.yaml`
+# - See: https://github.com/buildwithgrove/helm-charts/blob/main/charts/path/values.yaml
+#
 fullnameOverride: guard
 global:
   namespace: path
   serviceName: path-http
   port: 3069
-  # -- CONTROLLED TRAFFIC SHIFTING --
-  # This variable must correspond to the Middleware Service's namespace.
+  # CONTROLLED TRAFFIC SHIFTING:
+  # - Must match Middleware Service's namespace.
   middlewareNamespace: middleware
-  # -- CONTROLLED TRAFFIC SHIFTING --
-  # This variable must correspond to the name of the Middleware Service
-  # that is deployed in the same namespace as PATH/GUARD.
-  # Defined in `charts/path/values.yaml`
+  # CONTROLLED TRAFFIC SHIFTING:
+  # - Must match Middleware Service name in PATH/GUARD namespace
+  # - Defined in `charts/path/values.yaml`
   middlewareServiceName: middleware-http
-  # -- CONTROLLED TRAFFIC SHIFTING --
-  # This variable must correspond to the port of the Middleware Service
-  # in the same namespace as PATH/GUARD.
-  # Defined in `charts/path/values.yaml`
+  # CONTROLLED TRAFFIC SHIFTING:
+  # - Must match Middleware Service port in PATH/GUARD namespace
+  # - Defined in `charts/path/values.yaml`
   middlewarePort: 8080
 gateway:
   port: 3070
-# Gateway parent references configuration for HTTPRoutes
+# Gateway parent references for HTTPRoutes
 gatewayRef:
   - group: gateway.networking.k8s.io
     kind: Gateway
     name: guard-envoy-gateway
-# ** IMPORTANT: update domain value: **
-# ** - domain must be specified in HTTPRoute resources for proper request routing. **
-# ** - domain must match the Host header value in HTTP requests received by GUARD/Envoy Gateway. **
+# IMPORTANT:
+# - Update domain value
+# - Must be specified in HTTPRoute resources for routing
+# - Must match Host header in HTTP requests to GUARD/Envoy Gateway
 domain: "example.com"
-# **IMPORTANT: specify at least one service: otherwise no requests will be accepted by Envoy Gateway.
+# IMPORTANT:
+# - Specify at least one service or Envoy Gateway will not accept requests
 
-# Optional: Set regionName to add Auth-Region header to requests
+# Optional:
+# - Set regionName to add Auth-Region header to requests
 # regionName: "us-east-1"
 
 services:
@@ -42,66 +44,72 @@ services:
     aliases:
       - eth
       - eth-mainnet
-    # TODO_MVP(@adshmh): Required by Grove for migration to PATH. Remove once the migration is completed.
+    # TODO_MVP(@adshmh):
+    # - Required by Grove for migration to PATH
+    # - Remove once migration is completed
     #trafficSplitting:
     #  enabled: true
     #  weights:
     #    path: 70
     #    middleware: 30
 auth:
-  # -- API Key auth configuration (default) --
+  # API Key auth configuration (default)
   apiKey:
     enabled: true
     headerKey: "authorization"
     apiKeys:
       - test_api_key
 
-  # -- Grove Legacy auth configuration --
-  # ######### VERY IMPORTANT #########
-  # If you are not authorizing Grove Portal requests,
-  # this is VERY unlikely to fit your exact use-case.
+  # Grove Legacy auth configuration
+  # VERY IMPORTANT:
+  # - Only use if authorizing Grove Portal requests
+  # - Otherwise, this likely does not fit your use-case
   groveLegacy:
     enabled: false
     peas:
       enabled: false
-      # -- Image tag for path-external-auth-server, defaults to "latest" if not specified
+      # Image tag for path-external-auth-server (defaults to "latest" if not specified)
       imageTag: "latest"
     pads:
       enabled: false
-      # -- Image tag for path-auth-data-server, defaults to "latest" if not specified
+      # Image tag for path-auth-data-server (defaults to "latest" if not specified)
       imageTag: "latest"
       mountPath: /app/data
-      # The below configuration is required to load the PADS database connection
-      # details from a Kubernetes secret, as in production deployments.
+      # Required to load PADS DB connection details from Kubernetes secret (as in production):
       # envFrom:
       #   - secretRef:
       #       name: pads-db-connection
       # fromSecret:
       #   secretName: pads-config
 
-# -- Rate Limit configuration --
+# Rate Limit configuration
 rateLimit:
-  # Set this boolean value to `true` to enable rate limiting.
+  # Set to true to enable rate limiting.
   enabled: true
-  # All plan details must be defined here. Requests are matched against
-  # the the distinct # of requests per-header as configured below.
+  # Redis deployment control
+  redis:
+    # Set to false to use external Redis
+    enabled: true
+  # Define all plan details here
+  # Requests matched per-header as configured below
   #
-  # For more details on Envoy Gateway rate limiting, see here:
+  # More details:
   # https://gateway.envoyproxy.io/latest/tasks/traffic/global-rate-limit/#rate-limit-distinct-users-except-admin
   plans:
-    # -- Grove Legacy auth configuration --
-    # ######### VERY IMPORTANT #########
-    # The headers set here must match the headers that are set on requests inside PEAS. See here for details:
-    # https://github.com/buildwithgrove/path-external-auth-server/blob/main/auth/auth_handler.go#L43
-    # PLAN_FREE: 5000 requests per day
+    # Grove Legacy auth configuration
+    # VERY IMPORTANT:
+    # - Only use if authorizing Grove Portal requests
+    # - Headers here must match those set on requests inside PEAS:
+    #   - https://github.com/buildwithgrove/path-external-auth-server/blob/main/ratelimit/ratelimit.go
+    # PLAN_FREE: 5000 requests/day
     - header: "Rl-Plan-Free"
       requests: 5000
       unit: Day
 
-# ---- Envoy Gateway ----
-# This section can be used to configure gateway-helm dependency.
-# Uncomment `gateway-helm` below to specify a gateway-helm configuration.
-# Any values from the below `gateway-helm` reference will override the default values.
+# Envoy Gateway configuration
+# - Use this section to configure gateway-helm dependency
+# - Uncomment `gateway-helm` to specify config
+# - Values here override defaults
 #
 # References:
 # - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
@@ -109,21 +117,24 @@ rateLimit:
 gateway-helm:
   config:
     envoyGateway:
-      # The below configuration is required to enable rate limiting by updating
-      # Envoy Gateway configuration to use Redis as the rate limit backend.
+      # Required to enable rate limiting via Redis backend
+      # DEV_NOTE: If redis.enabled is false, update this to point to external Redis
       rateLimit:
         backend:
           type: Redis
           redis:
+            # URL for Redis service deployed by this chart in `path` namespace (used by Envoy Gateway)
             url: redis.path.svc.cluster.local:6379
 
+# Envoy Gateway configuration
 envoyGateway:
   enabled: true
   serviceType: ClusterIP
 
-# Controls whether to deploy Gateway API resources (Gateway, GatewayClass, EnvoyProxy)
+# Controls deployment of Gateway API resources (Gateway, GatewayClass, EnvoyProxy)
 gatewayResources:
   enabled: true
 
+# Controls ReferenceGrant for middleware namespace
 middlewareNamespaceReferenceGrant:
   enabled: false

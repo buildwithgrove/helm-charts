@@ -1,6 +1,6 @@
-##########################################################################
-# -------------------- PATH Specific Configurations -------------------- #
-##########################################################################
+# ----------------------------------------------------------------------
+# PATH Specific Configurations
+# ----------------------------------------------------------------------
 nameOverride: path
 fullnameOverride: path
 global:
@@ -15,13 +15,16 @@ global:
 
 image:
   repository: ghcr.io/buildwithgrove/path
-  # TODO_MVP(@adshmh): change to "latest" once the PATH repo CI's docker image push job is updated to use the correct tag.
+  # TODO_MVP(@adshmh):
+  # - Change to "latest" once PATH repo CI's docker image push job is updated to use the correct tag.
   tag: main
   pullPolicy: Always
 replicas: 1
 
 path:
-  ## HPA cannot be enabled if replicas are declared in the values file. Either use one or the other depending on your needs!
+  # IMPORTANT:
+  # - HPA cannot be enabled if replicas are declared in the values file.
+  # - Use either HPA or replicas, not both, depending on your needs.
   horizontalPodAutoscaler:
     enabled: false
   resources:
@@ -32,8 +35,8 @@ path:
     # requests:
     #   cpu: 1.8
     #   memory: 800Mi
-  ## Port supports the creation of Kubernetes services resources which are tied to the ports
-  ## exposed in this configuration.
+  # Ports:
+  # - Used to create Kubernetes service resources tied to the ports exposed below.
   ports:
     - name: http
       port: 3069
@@ -45,13 +48,12 @@ path:
       protocol: TCP
       service:
         type: ClusterIP
-  # The PATH service uses the `/healthz` endpoint to check if the service is ready,
-  # which uses the response from the QoS service to determine whether to send a
-  # 503 (Service Unavailable) or 200 (OK) status code.
-  #
-  # When using PATH with large numbers of services enabled, the QoS service
-  # may take a long time to return a healthy response. Therefore, it is expected
-  # that the readinessProbe may take a large number of attempts to succeed.
+  # Health Checks:
+  # - PATH uses `/healthz` endpoint for readiness/liveness.
+  # - Response depends on QoS service status:
+  #   - 503 (Service Unavailable) or 200 (OK).
+  # - If many services are enabled, QoS may take longer to report healthy.
+  # - Expect readinessProbe to require many attempts in such cases.
   readinessProbe:
     failureThreshold: 600 # Set to high value to account for the potential long response time of the QoS service.
     httpGet:
@@ -66,11 +68,12 @@ path:
       scheme: HTTP
   additionalLabels: {}
   additionalAnnotations: {}
-## Configuration for PATH
-## PATH requires a config file at /app/config/.config.yaml
-## Choose one of the following options to provide this configuration:
+# PATH Configuration
+# - Requires config file at /app/config/.config.yaml
+# - Choose one of the following options to provide this configuration:
 config:
-  ## TODO_FUTURE(@HebertCL): consider dropping the enabled field and using fromSecret/fromConfig fields if defined.
+  # TODO_FUTURE(@HebertCL):
+  # - Consider dropping the enabled field and using fromSecret/fromConfig fields if defined.
   #
   # Option 1: Use an existing Secret (recommended for security)
   fromSecret:
@@ -84,32 +87,33 @@ config:
     # name: "path-config"              # Name of the existing ConfigMap
     # key: ".config.yaml"              # Key in the ConfigMap containing the configuration
 
-## Additional manifests and additional yaml manifests provide the ability to include
-## resources which are not provided by the chart itself. This allow to manage those
-## resources within the chart itself.
+# Additional manifests:
+# - Use to include resources not provided by the chart itself.
+# - Allows management of those resources within the chart.
 additionalManifests: []
 additionalYamlManifests: ""
 
-###########################################################################
-# -------------------- GUARD Specific Configurations -------------------- #
-###########################################################################
+# ----------------------------------------------------------------------
+# GUARD Specific Configurations
+# ----------------------------------------------------------------------
 
 guard:
   enabled: true
 
   # ---- Envoy Gateway ----
-  # This section can be used to configure gateway-helm dependency.
-  # Uncomment `gateway-helm` below to specify a gateway-helm configuration.
-  # Any values from the below `gateway-helm` reference will override the default values.
-  #
-  # References:
-  # - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
-  # - https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
+  # Envoy Gateway:
+  # - Configure gateway-helm dependency here.
+  # - Uncomment `gateway-helm` to specify configuration.
+  # - Values below override gateway-helm defaults.
+  # - References:
+  #   - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
+  #   - https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
   gateway-helm:
     config:
       envoyGateway:
-        # The below configuration is required to enable rate limiting by updating
-        # Envoy Gateway configuration to use Redis as the rate limit backend.
+        # Rate Limiting:
+        # - Required to enable rate limiting.
+        # - Updates Envoy Gateway config to use Redis as backend.
         rateLimit:
           backend:
             type: Redis
@@ -118,45 +122,42 @@ guard:
 
   fullnameOverride: guard
   global:
-    # -- The name of the service that the PATH service is deployed to.
+    # PATH Service:
+    # - serviceName: Name of the PATH service deployed.
+    # - port: Cluster port for PATH service (forwarded by Envoy Gateway).
+    # CONTROLLED TRAFFIC SHIFTING:
+    # - middlewareServiceName: Name of Middleware Service in same namespace as PATH/GUARD.
+    # - middlewarePort: Cluster port for Middleware service (forwarded by Envoy Gateway).
     serviceName: path-http
-    # -- The port that the PATH service runs on in the cluster.
-    # This is the port that Envoy Gateway will forward requests to.
     port: 3069
-    # -- CONTROLLED TRAFFIC SHIFTING --
-    # -- This variable must correspond to the name of the Middleware Service
-    # -- that is deployed in the same namespace as PATH/GUARD.
     middlewareServiceName: middleware-http
-    # -- CONTROLLED TRAFFIC SHIFTING --
-    # -- The port that the Middleware service runs on in the cluster.
-    # -- This is the port that Envoy Gateway will forward requests to.
     middlewarePort: 3000
   gateway:
-    # -- The port that Envoy Gateway will listen on.
+    # Envoy Gateway listen port
     port: 3070
 
   # ---- Service routing settings ----
 
-  # -- domain will be used for matching HTTPRoutes by subdomain,
-  # as defined in the `httproute-subdomain.yaml` template.
-  # For example, hostnames will be created for `<SERVICE_ID>.localhost`.
+  # Domain:
+  # - Used for matching HTTPRoutes by subdomain (see `httproute-subdomain.yaml`).
+  # - Hostnames created as `<SERVICE_ID>.localhost`.
   domain: localhost
-  # IMPORTANT: For production deployments, the `domain` field should be
-  # overridden with the actual domain name for the PATH service.
+  # IMPORTANT:
+  # - For production, override `domain` with actual PATH service domain.
 
-  # -- List of services that will be routed by Envoy Gateway to the PATH backend.
-  # These services will be used to construct HTTPRoutes for each service. All
-  # services enabled for a PATH deployment must be listed here.
+  # Services:
+  # - List of services routed by Envoy Gateway to PATH backend.
+  # - Used to construct HTTPRoutes for each service.
+  # - All enabled services for PATH deployment must be listed here.
   services:
     # Configurations:
-    # - serviceId [REQUIRED]: The authorative service ID of the service.
-    # - aliases [OPTIONAL]: A list of aliases for the service.
-    #
-    # For example:
-    # - anvil.localhost -> "target-service-id: anvil"
-    # - F00C.path.grove.city -> "target-service-id: F00C"
-    # - eth.path.grove.city -> "target-service-id: F00C"
-    # - polygon.path.grove.city -> "target-service-id: F021"
+    # - serviceId [REQUIRED]: Authoritative service ID.
+    # - aliases [OPTIONAL]: Aliases for the service.
+    # Examples:
+    #   - anvil.localhost -> target-service-id: anvil
+    #   - F00C.path.grove.city -> target-service-id: F00C
+    #   - eth.path.grove.city -> target-service-id: F00C
+    #   - polygon.path.grove.city -> target-service-id: F021
 
     # Shannon Example Service ID (with no aliases)
     - serviceId: anvil
@@ -187,53 +188,53 @@ guard:
           path: 50
           middleware: 50
 
-  # GUARD may be configured to use one or more authorization flows.
-  # The following authorization flows are supported:
-  # - API Key
-  # - Grove Legacy (not shown in the below config)
-  # TODO_IMPROVE(@commoddity): Add support for additional authorization flows.
-  # For example, JWT, OIDC, Basic Auth, etc.
+  # GUARD Authorization Flows:
+  # - Supported: API Key, Grove Legacy (not shown below)
+  # TODO_IMPROVE(@commoddity):
+  # - Add support for additional flows (e.g., JWT, OIDC, Basic Auth, etc.)
 
-  # -- The type of authorization flow to use. Currently supports `apiKey` and `groveLegacy`.
-  # `apiKey` is enabled by default.
+  # Authorization Type:
+  # - Supported: `apiKey`, `groveLegacy` (default: `apiKey`)
   auth:
     # -- Configuration for the API key authorization flow.
     apiKey:
-      # -- Whether to enable API key authentication.
+      # API Key Auth:
+      # - enabled: Enable API key authentication.
+      # - headerKey: Header for API key.
+      # - apiKeys: List of authorized API keys.
+      #   - Default provided for local development.
+      #   - IMPORTANT: Override in production with actual API keys.
       enabled: true
-      # -- The header key to use for API key authentication.
       headerKey: authorization
-      # -- An array of API keys authorized to access the PATH service.
-      # A default API key is provided for local development.
-      # IMPORTANT: For production deployments, the `apiKeys` field should be
-      # overridden with the actual API keys authorized to access the PATH service.
       apiKeys:
         - test_api_key
 
-###########################################################################
-# -------------------- WATCH Specific Configurations -------------------- #
-###########################################################################
+# ----------------------------------------------------------------------
+# WATCH (Integrated Observability Stack) Specific Configurations
+# ----------------------------------------------------------------------
 
-# Integrated Observability Stack (WATCH)
+# Integrated Observability Stack (WATCH):
 observability:
-  enabled: true # Set to false to disable the WATCH chart
+  # Set to false to disable the WATCH chart
+  enabled: true
 
   # Configuration passed to the WATCH subchart
   watch:
-    # Service details from parent chart for automatic ServiceMonitor configuration
+    # Service details for automatic ServiceMonitor configuration
     appServiceDetails:
-      name: "{{ .Release.Name }}-metrics" # This refers to the PATH metrics service name
+      name: "{{ .Release.Name }}-metrics" # Refers to PATH metrics service name
       port: metrics
       namespace: "{{ .Release.Namespace }}"
-    # Configure component monitoring
+    # Component Monitoring Dashboards
     dashboards:
       namespace: monitoring
       path:
         enabled: true
         folderName: "PATH"
       guard:
-        enabled: false # Only enable GUARD dashboards if using GUARD
-    # ServiceMonitor configuration
+        # Only enable GUARD dashboards if using GUARD
+        enabled: false
+    # ServiceMonitor Configuration
     serviceMonitors:
       namespace: monitoring
       path:
@@ -246,8 +247,9 @@ observability:
             interval: 15s
             path: /metrics
       guard:
-        enabled: false # Only enable GUARD monitoring if using GUARD
-    # External monitoring configuration (used when kube-prometheus-stack.enabled=false)
+        # Only enable GUARD monitoring if using GUARD
+        enabled: false
+    # External Monitoring (when kube-prometheus-stack.enabled=false)
     externalMonitoring:
       grafanaNamespace: "monitoring"
       prometheusSelectorLabels:
