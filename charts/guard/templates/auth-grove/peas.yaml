@@ -39,6 +39,9 @@ spec:
       - name: path-external-auth-server
         image: ghcr.io/buildwithgrove/path-external-auth-server:{{ default "latest" $peasConfig.imageTag }}
         imagePullPolicy: IfNotPresent
+        {{- with $peasConfig.envFrom }}
+        envFrom: {{- toYaml . | nindent 10}}
+        {{- end }}
         env: {{- toYaml $peasConfig.env | nindent 10 }}
         ports:
         - containerPort: {{ $peasConfig.port }}
