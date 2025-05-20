@@ -8,9 +8,11 @@ metadata:
   namespace: {{ $.Values.global.namespace }}
 spec:
   targetRefs:
-  - group: gateway.networking.k8s.io
-    kind: Gateway
-    name: {{$gwname}}-envoy-gateway
+  {{- range $.Values.gatewayRef }}
+  - group: {{ .group }}
+    kind: {{ .kind }}
+    name: {{ .name }}
+  {{- end }}
   rateLimit:
     type: Global
     global:
