@@ -129,7 +129,7 @@ guard:
           backend:
             type: Redis
             redis:
-              url: redis.path.svc.cluster.local:6379
+              url: redis:6379
 
   fullnameOverride: guard
   global:

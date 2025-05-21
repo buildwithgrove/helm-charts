@@ -131,12 +131,12 @@ graph LR
 
 | Parameter                    | Description                                | Default          | Required |
 | ---------------------------- | ------------------------------------------ | ---------------- | -------- |
-| `rateLimit.enabled`          | Enable rate limiting                       | `true`           | ✅        |
-| `rateLimit.redis.enabled`    | Deploy Redis from this chart               | `true`           | ❌        |
-| `rateLimit.plans`            | Array of rate limit plans                  |                  | ✅        |
-| `rateLimit.plans[].header`   | Header for identifying rate limit subjects | `"Rl-Plan-Free"` | ✅        |
-| `rateLimit.plans[].requests` | Requests allowed per time unit             | `5000`           | ✅        |
-| `rateLimit.plans[].unit`     | Time unit (Second, Minute, Hour, Day)      | `Day`            | ✅        |
+| `rateLimit.enabled`          | Enable rate limiting                       | `true`           | ✅       |
+| `rateLimit.redis.enabled`    | Deploy Redis from this chart               | `true`           | ❌       |
+| `rateLimit.plans`            | Array of rate limit plans                  |                  | ✅       |
+| `rateLimit.plans[].header`   | Header for identifying rate limit subjects | `"Rl-Plan-Free"` | ✅       |
+| `rateLimit.plans[].requests` | Requests allowed per time unit             | `5000`           | ✅       |
+| `rateLimit.plans[].unit`     | Time unit (Second, Minute, Hour, Day)      | `Day`            | ✅       |
 
 ### Default Configuration
 
@@ -233,7 +233,7 @@ gateway-helm:
         backend:
           type: Redis
           redis:
-            url: redis.path.svc.cluster.local:6379
+            url: redis:6379
 ```
 
 - By default, this points to the Redis deployed by the chart in the same namespace.

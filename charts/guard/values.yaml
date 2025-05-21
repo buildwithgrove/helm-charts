@@ -166,7 +166,7 @@ gateway-helm:
           type: Redis
           redis:
             # URL for Redis service deployed by this chart in `path` namespace (used by Envoy Gateway)
-            url: redis.path.svc.cluster.local:6379
+            url: redis:6379
 
 # Envoy Gateway configuration
 envoyGateway:
