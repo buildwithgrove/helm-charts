@@ -16,6 +16,22 @@ entries:
   guard:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2025-05-23T20:43:12.264885966Z"
+    dependencies:
+    - condition: envoyGateway.enabled
+      name: gateway-helm
+      repository: oci://docker.io/envoyproxy
+      version: v1.4.0
+    description: A Helm chart for development and production deployments of GUARD
+      (Gateway Utilities for Authentication, Routing & Defense)
+    digest: 30189276a7fd59a7183aa989f1f30dedd913bde45e6c9d497896a586496e90af
+    name: guard
+    type: application
+    urls:
+    - https://github.com/buildwithgrove/helm-charts/releases/download/guard-0.1.26/guard-0.1.26.tgz
+    version: 0.1.26
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2025-05-23T04:31:40.87548527Z"
     dependencies:
     - condition: envoyGateway.enabled
@@ -717,4 +733,4 @@ entries:
     urls:
     - https://buildwithgrove.github.io/helm-charts/watch-0.1.8.tgz
     version: 0.1.8
-generated: "2025-05-23T04:31:41.10279871Z"
+generated: "2025-05-23T20:43:12.414591925Z"
