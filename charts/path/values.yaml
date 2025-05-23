@@ -137,12 +137,12 @@ guard:
     # - serviceName: Name of the PATH service deployed.
     # - port: Cluster port for PATH service (forwarded by Envoy Gateway).
     # CONTROLLED TRAFFIC SHIFTING:
-    # - middlewareServiceName: Name of Middleware Service in same namespace as PATH/GUARD.
-    # - middlewarePort: Cluster port for Middleware service (forwarded by Envoy Gateway).
+    # - shannonServiceName: Name of Middleware Service in same namespace as PATH/GUARD.
+    # - shannonPort: Cluster port for Middleware service (forwarded by Envoy Gateway).
     serviceName: path-http
     port: 3069
-    middlewareServiceName: middleware-http
-    middlewarePort: 3000
+    shannonServiceName: middleware-http
+    shannonPort: 3000
   gateway:
     # Envoy Gateway listen port
     port: 3070
