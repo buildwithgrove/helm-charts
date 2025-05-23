@@ -102,18 +102,11 @@ spec:
 
         {{- end }}
       filters:
-        # Custom filter to rewrite all /v1/* paths to just /v1 for the Shannon service
-        # We cannot use URLRewrite directly, must use ExtensionRef to custom HTTPRouteFilter
-        # - type: ExtensionRef
-        #   extensionRef:
-        #     group: gateway.envoyproxy.io
-        #     kind: HTTPRouteFilter
-        #     name: {{ include "guard-helm.name" $ }}-shannon-url-rewrite
-        - type: URLRewrite
-          urlRewrite:
-            path:
-              type: ReplaceFullPath
-              replaceFullPath: /v1 # Makes sure ALL requests go to /v1 only.
+        # - type: URLRewrite
+        #   urlRewrite:
+        #     path:
+        #       type: ReplaceFullPath
+        #       replaceFullPath: /v1 # Makes sure ALL requests go to /v1 only.
         - type: RequestHeaderModifier
           requestHeaderModifier:
             set:
