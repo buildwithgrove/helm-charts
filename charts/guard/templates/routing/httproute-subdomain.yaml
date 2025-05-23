@@ -102,11 +102,11 @@ spec:
 
         {{- end }}
       filters:
-        - type: URLRewrite
-          urlRewrite:
-            path:
-              type: ReplaceFullPath
-              replaceFullPath: /v1 # Makes sure ALL requests go to /v1 only.
+        # Custom filter to rewrite all /v1/* paths to just /v1 for the Shannon service
+        - type: gateway.envoyproxy.io/HTTPRouteFilter
+          gateway.envoyproxy.io/HTTPRouteFilter:
+            name: {{ include "guard-helm.name" . }}-shannon-url-rewrite
+            namespace: {{ $.Values.global.namespace }}
         - type: RequestHeaderModifier
           requestHeaderModifier:
             set:
