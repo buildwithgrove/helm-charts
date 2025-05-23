@@ -87,6 +87,14 @@ spec:
           namespace: {{ $.Values.global.middlewareNamespace }}
           port: {{ $.Values.global.middlewarePort }}
           weight: {{ $ts.weights.middleware }}
+          {{- if .shannonServiceId }}
+          filters:
+          - type: RequestHeaderModifier
+            requestHeaderModifier:
+              set:
+              - name: target-service-id
+                value: "{{ .shannonServiceId }}"
+          {{- end }}
         {{- end }}
       filters:
         - type: RequestHeaderModifier

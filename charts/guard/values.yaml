@@ -53,6 +53,7 @@ domain: "example.com"
 services:
   # Morse-specific services
   - serviceId: F00C
+    shannonServiceId: eth
     aliases:
       - eth
       - eth-mainnet
