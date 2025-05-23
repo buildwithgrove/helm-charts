@@ -83,9 +83,9 @@ spec:
         # -- CONTROLLED TRAFFIC SHIFTING --
         # If traffic splitting is enabled, set a second backendRef for the Middleware backend.
         {{- if eq $ts.enabled true }}
-        - name: {{ $.Values.global.middlewareServiceName }}
-          namespace: {{ $.Values.global.middlewareNamespace }}
-          port: {{ $.Values.global.middlewarePort }}
+        - name: {{ $.Values.global.shannonServiceName }}
+          namespace: {{ $.Values.global.shannonNamespace }}
+          port: {{ $.Values.global.shannonPort }}
           weight: {{ $ts.weights.middleware }}
           {{- if .shannonServiceId }}
           filters:

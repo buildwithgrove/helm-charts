@@ -11,17 +11,17 @@ global:
   port: 3069
   # CONTROLLED TRAFFIC SHIFTING:
   # - Must match Middleware Service's namespace
-  middlewareNamespace: middleware
+  shannonNamespace: middleware
 
   # CONTROLLED TRAFFIC SHIFTING:
   # - Must match Middleware Service name in PATH/GUARD namespace
   # - Defined in `charts/path/values.yaml`
-  middlewareServiceName: middleware-http
+  shannonServiceName: middleware-http
 
   # CONTROLLED TRAFFIC SHIFTING:
   # - Must match Middleware Service port in PATH/GUARD namespace
   # - Defined in `charts/path/values.yaml`
-  middlewarePort: 8080
+  shannonPort: 8080
 gateway:
   port: 3070
 # Gateway parent references for HTTPRoutes
@@ -179,5 +179,5 @@ gatewayResources:
   enabled: true
 
 # Controls ReferenceGrant for middleware namespace
-middlewareNamespaceReferenceGrant:
+shannonNamespaceReferenceGrant:
   enabled: false

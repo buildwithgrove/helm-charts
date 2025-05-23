@@ -1,10 +1,10 @@
-{{- if .Values.middlewareNamespaceReferenceGrant.enabled }}
+{{- if .Values.shannonNamespaceReferenceGrant.enabled }}
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
 metadata:
   name: allow-middleware-reference
   # To the Middleware Service's namespace
-  namespace: {{ $.Values.global.middlewareNamespace }}
+  namespace: {{ $.Values.global.shannonNamespace }}
 spec: 
   # From the PATH namespace
   from:
@@ -15,5 +15,5 @@ spec:
   to:
   - group: ""
     kind: Service
-    name: {{ $.Values.global.middlewareServiceName }}
+    name: {{ $.Values.global.shannonServiceName }}
 {{- end }}
