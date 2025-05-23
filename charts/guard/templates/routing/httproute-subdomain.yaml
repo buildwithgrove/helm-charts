@@ -99,6 +99,11 @@ spec:
               set:
               - name: target-service-id
                 value: "{{ .shannonServiceId }}"
+          - type: URLRewrite
+            urlRewrite:
+              path:
+                type: ReplaceFullPath
+                replaceFullPath: /v1 # Makes sure ALL requests go to /v1 only.
         {{- end }}
       filters:
         - type: RequestHeaderModifier
