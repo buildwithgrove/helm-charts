@@ -80,6 +80,12 @@ spec:
           {{- if eq $ts.enabled true }}
           weight: {{ $ts.weights.path }}
           {{- end }}
+          filters:
+          - type: RequestHeaderModifier
+            requestHeaderModifier:
+              set:
+              - name: target-service-id
+                value: "{{ .serviceId }}"
         # -- CONTROLLED TRAFFIC SHIFTING --
         # If traffic splitting is enabled, set a second backendRef for the Middleware backend.
         {{- if eq $ts.enabled true }}
@@ -87,21 +93,18 @@ spec:
           namespace: {{ $.Values.global.shannonNamespace }}
           port: {{ $.Values.global.shannonPort }}
           weight: {{ $ts.weights.middleware }}
-          {{- if .shannonServiceId }}
           filters:
           - type: RequestHeaderModifier
             requestHeaderModifier:
               set:
               - name: target-service-id
                 value: "{{ .shannonServiceId }}"
-          {{- end }}
+
         {{- end }}
       filters:
         - type: RequestHeaderModifier
           requestHeaderModifier:
             set:
-              - name: "target-service-id"
-                value: "{{ .serviceId }}"
               {{- if $.Values.regionName }}
               - name: "Auth-Region"
                 value: "{{ $.Values.regionName }}"
