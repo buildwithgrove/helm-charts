@@ -175,6 +175,7 @@ guard:
 
     # Morse Example Service IDs (with aliases)
     - serviceId: F00C
+      shannonServiceId: eth
       aliases:
         - eth
         - eth-mainnet
