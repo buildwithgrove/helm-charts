@@ -103,9 +103,12 @@ spec:
         {{- end }}
       filters:
         # Custom filter to rewrite all /v1/* paths to just /v1 for the Shannon service
+        # We cannot use native rewrite here: Failed to process route rule 0 backendRef 1: Specific filter is not
+        # supported within BackendRef, only RequestHeaderModifier, ResponseHeaderModifier
+        # and gateway.envoyproxy.io/HTTPRouteFilter are supported.
         - type: gateway.envoyproxy.io/HTTPRouteFilter
           gateway.envoyproxy.io/HTTPRouteFilter:
-            name: {{ include "guard-helm.name" . }}-shannon-url-rewrite
+            name: {{ include "guard-helm.name" $ }}-shannon-url-rewrite
             namespace: {{ $.Values.global.namespace }}
         - type: RequestHeaderModifier
           requestHeaderModifier:

@@ -2,7 +2,7 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: HTTPRouteFilter
 metadata:
-  name: {{ include "guard-helm.name" . }}-shannon-url-rewrite
+  name: {{ include "guard-helm.name" $ }}-shannon-url-rewrite
   namespace: {{ .Values.global.namespace }}
 spec:
   urlRewrite:
