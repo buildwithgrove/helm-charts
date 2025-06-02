@@ -57,9 +57,9 @@ services:
     # trafficSplitting:
     #   enabled: true
     #   weights:
-    #     path: 70
+    #     path: 60
     #     shannonBeta: 30
-    #     shannonMainnet: 30
+    #     shannonMainnet: 20
 
 # GUARD auth configuration
 # Exactly one auth method must be enabled:
