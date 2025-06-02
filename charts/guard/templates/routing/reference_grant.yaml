@@ -4,7 +4,7 @@ kind: ReferenceGrant
 metadata:
   name: allow-middleware-reference
   # To the Middleware Service's namespace
-  namespace: {{ $.Values.global.shannonNamespace }}
+  namespace: {{ $.Values.global.shannonBetaNamespace }}
 spec: 
   # From the PATH namespace
   from:
@@ -15,5 +15,5 @@ spec:
   to:
   - group: ""
     kind: Service
-    name: {{ $.Values.global.shannonServiceName }}
+    name: {{ $.Values.global.shannonBetaServiceName }}
 {{- end }}

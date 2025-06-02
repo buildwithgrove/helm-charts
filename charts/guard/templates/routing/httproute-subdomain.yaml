@@ -78,7 +78,7 @@ spec:
           # -- CONTROLLED TRAFFIC SHIFTING --
           # If traffic splitting is enabled, set the weight for the PATH backend.
           {{- if eq $ts.enabled true }}
-          weight: {{ $ts.weights.path }}
+          weight: {{ default 0 $ts.weights.path }}
           {{- end }}
           filters:
           - type: RequestHeaderModifier
@@ -89,10 +89,20 @@ spec:
         # -- CONTROLLED TRAFFIC SHIFTING --
         # If traffic splitting is enabled, set a second backendRef for the Middleware backend.
         {{- if eq $ts.enabled true }}
-        - name: {{ $.Values.global.shannonServiceName }}
-          namespace: {{ $.Values.global.shannonNamespace }}
-          port: {{ $.Values.global.shannonPort }}
-          weight: {{ $ts.weights.middleware }}
+        - name: {{ $.Values.global.shannonBetaServiceName }}
+          namespace: {{ $.Values.global.shannonBetaNamespace }}
+          port: {{ $.Values.global.shannonBetaPort }}
+          weight: {{ default 0 $ts.weights.shannonBeta }}
+          filters:
+          - type: RequestHeaderModifier
+            requestHeaderModifier:
+              set:
+              - name: target-service-id
+                value: "{{ .shannonServiceId }}"
+        - name: {{ $.Values.global.shannonMainnetServiceName }}
+          namespace: {{ $.Values.global.shannonMainnetNamespace }}
+          port: {{ $.Values.global.shannonMainnetPort }}
+          weight: {{ default 0 $ts.weights.shannonMainnet }}
           filters:
           - type: RequestHeaderModifier
             requestHeaderModifier:
