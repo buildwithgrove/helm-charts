@@ -32,6 +32,15 @@ image:
   pullPolicy: Always
 replicas: 1
 
+# Deployment strategy configuration
+# RollingUpdate is the default strategy in Kubernetes
+# See: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 25%
+    maxUnavailable: 25%
+
 path:
   # IMPORTANT:
   # - HPA cannot be enabled if replicas are declared in the values file.

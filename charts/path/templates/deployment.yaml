@@ -16,8 +16,10 @@ metadata:
     {{- end }}
 spec:
   replicas: {{ .Values.replicas }}
-  strategy:
-    type: {{ default "Recreate" $.Values.strategy }}
+  {{- if .Values.strategy }}
+  strategy: 
+    {{- toYaml .Values.strategy | nindent 4 }}
+  {{- end }}
   selector:
     matchLabels:
       deploymentname: {{ include "path.fullname" . }}

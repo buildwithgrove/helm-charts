@@ -9,19 +9,16 @@ global:
   namespace: path
   serviceName: path-http
   port: 3069
-  # CONTROLLED TRAFFIC SHIFTING:
-  # - Must match Middleware Service's namespace
-  shannonNamespace: middleware
 
-  # CONTROLLED TRAFFIC SHIFTING:
-  # - Must match Middleware Service name in PATH/GUARD namespace
-  # - Defined in `charts/path/values.yaml`
-  shannonServiceName: middleware-http
+  # Settings for traffic shifting
+  shannonBetaNamespace: middleware
+  shannonMainnetNamespace: middleware
 
-  # CONTROLLED TRAFFIC SHIFTING:
-  # - Must match Middleware Service port in PATH/GUARD namespace
-  # - Defined in `charts/path/values.yaml`
-  shannonPort: 8080
+  shannonBetaServiceName: middleware-http
+  shannonMainnetServiceName: shannon-mainnet-http
+
+  shannonBetaPort: 8080
+  shannonMainnetPort: 8080
 gateway:
   port: 3070
 # Gateway parent references for HTTPRoutes
@@ -57,14 +54,12 @@ services:
     aliases:
       - eth
       - eth-mainnet
-    # TODO_MVP(@adshmh):
-    # - Required by Grove for migration to PATH
-    # - Remove once migration is completed
     # trafficSplitting:
     #   enabled: true
     #   weights:
-    #     path: 70
-    #     middleware: 30
+    #     path: 60
+    #     shannonBeta: 30
+    #     shannonMainnet: 20
 
 # GUARD auth configuration
 # Exactly one auth method must be enabled:
