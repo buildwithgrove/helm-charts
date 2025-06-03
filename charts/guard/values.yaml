@@ -10,15 +10,6 @@ global:
   serviceName: path-http
   port: 3069
 
-# Optional health check configuration
-# - Override settings for health check endpoint
-# - Defaults to global values when not specified
-# healthCheck:
-#   serviceName: path-http       # Service to target for health checks (defaults to global.serviceName)
-#   namespace: path             # Namespace for health check service (defaults to global.namespace)
-#   port: 3069                  # Port for health check service (defaults to global.port)
-#   path: "/healthz"           # Path for health checks (defaults to "/healthz")
-
   # Settings for traffic shifting
   shannonBetaNamespace: middleware
   shannonMainnetNamespace: middleware
@@ -28,6 +19,25 @@ global:
 
   shannonBetaPort: 8080
   shannonMainnetPort: 8080
+
+# Optional health check configuration
+# - Override settings for health check endpoint
+# - Defaults to global values when not specified
+# healthCheck:
+#   serviceName: path-http       # Service to target for health checks (defaults to global.serviceName)
+#   namespace: path             # Namespace for health check service (defaults to global.namespace)
+#   port: 3069                  # Port for health check service (defaults to global.port)
+#   path: "/healthz"           # Path for health checks (defaults to "/healthz")
+
+# Optional disqualified endpoints configuration
+# - Override settings for the disqualified endpoints route
+# - Defaults to global values when not specified
+# disqualifiedEndpoints:
+#   serviceName: path-http       # Service to target (defaults to global.serviceName)
+#   namespace: path             # Namespace for the service (defaults to global.namespace)
+#   port: 3069                  # Port for the service (defaults to global.port)
+#   path: "/disqualified_endpoints" # Path for the route (defaults to "/disqualified_endpoints")
+
 gateway:
   port: 3070
 # Gateway parent references for HTTPRoutes
