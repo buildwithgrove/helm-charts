@@ -10,6 +10,15 @@ global:
   serviceName: path-http
   port: 3069
 
+# Optional health check configuration
+# - Override settings for health check endpoint
+# - Defaults to global values when not specified
+# healthCheck:
+#   serviceName: path-http       # Service to target for health checks (defaults to global.serviceName)
+#   namespace: path             # Namespace for health check service (defaults to global.namespace)
+#   port: 3069                  # Port for health check service (defaults to global.port)
+#   path: "/healthz"           # Path for health checks (defaults to "/healthz")
+
   # Settings for traffic shifting
   shannonBetaNamespace: middleware
   shannonMainnetNamespace: middleware
