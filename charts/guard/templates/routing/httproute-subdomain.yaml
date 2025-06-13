@@ -71,6 +71,8 @@ spec:
     # This is to prevent nil pointer errors when the traffic splitting
     # configuration is not set for a service.
     {{- $ts := default dict .trafficSplitting }}
+    # Route for /v1/{auth-token}/{endpoint} - rewrite to /{endpoint}
+    # This handles patterns like /v1/765112fe/status -> /status
     - backendRefs:
         - name: {{ $.Values.global.serviceName }}
           namespace: {{ $.Values.global.namespace }}
@@ -109,7 +111,64 @@ spec:
               set:
               - name: target-service-id
                 value: "{{ .shannonServiceId }}"
-
+        {{- end }}
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: gateway.envoyproxy.io
+            kind: HTTPRouteFilter
+            name: {{ .serviceId | lower }}-auth-token-strip
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              {{- if $.Values.regionName }}
+              - name: "Auth-Region"
+                value: "{{ $.Values.regionName }}"
+              {{- end }}
+      matches:
+        - path:
+            type: RegularExpression
+            value: "^/v1/[^/]+/.+"
+    # Fallback route for direct /v1 paths (no auth token)
+    # This preserves existing behavior for paths like /v1/status
+    - backendRefs:
+        - name: {{ $.Values.global.serviceName }}
+          namespace: {{ $.Values.global.namespace }}
+          port: {{ $.Values.global.port }}
+          # -- CONTROLLED TRAFFIC SHIFTING --
+          # If traffic splitting is enabled, set the weight for the PATH backend.
+          {{- if eq $ts.enabled true }}
+          weight: {{ default 0 $ts.weights.path }}
+          {{- end }}
+          filters:
+          - type: RequestHeaderModifier
+            requestHeaderModifier:
+              set:
+              - name: target-service-id
+                value: "{{ .serviceId }}"
+        # -- CONTROLLED TRAFFIC SHIFTING --
+        # If traffic splitting is enabled, set a second backendRef for the Middleware backend.
+        {{- if eq $ts.enabled true }}
+        - name: {{ $.Values.global.shannonBetaServiceName }}
+          namespace: {{ $.Values.global.shannonBetaNamespace }}
+          port: {{ $.Values.global.shannonBetaPort }}
+          weight: {{ default 0 $ts.weights.shannonBeta }}
+          filters:
+          - type: RequestHeaderModifier
+            requestHeaderModifier:
+              set:
+              - name: target-service-id
+                value: "{{ .shannonServiceId }}"
+        - name: {{ $.Values.global.shannonMainnetServiceName }}
+          namespace: {{ $.Values.global.shannonMainnetNamespace }}
+          port: {{ $.Values.global.shannonMainnetPort }}
+          weight: {{ default 0 $ts.weights.shannonMainnet }}
+          filters:
+          - type: RequestHeaderModifier
+            requestHeaderModifier:
+              set:
+              - name: target-service-id
+                value: "{{ .shannonServiceId }}"
         {{- end }}
       filters:
         - type: RequestHeaderModifier
@@ -123,5 +182,20 @@ spec:
         - path:
             type: PathPrefix
             value: /v1
+
+---
+# HTTPRouteFilter for auth token stripping
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: HTTPRouteFilter
+metadata:
+  name: {{ .serviceId | lower }}-auth-token-strip
+  namespace: {{ $.Values.global.namespace }}
+spec:
+  urlRewrite:
+    path:
+      type: ReplaceRegexMatch
+      replaceRegexMatch:
+        pattern: '^/v1/[^/]+/(.*)$'
+        substitution: '/\1'
 
 {{ end }}
