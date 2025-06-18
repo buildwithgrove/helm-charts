@@ -1,6 +1,6 @@
 fullnameOverride: fullname
 deployments:
-  heimdall:             # <- STATEFULSET_NAME
+  heimdall: # <- STATEFULSET_NAME
     # replicas: 1
     horizontalPodAutoscaler:
       enabled: true
@@ -23,8 +23,8 @@ deployments:
           repository: heimdall/image
           tag: heimdall.tag
         command:
-          - 'sh'
-          - '-c'
+          - "sh"
+          - "-c"
           - |
             # rm -rf /data/config
             if [ ! -d /data/config ]; then
@@ -43,8 +43,8 @@ deployments:
           - name: GENESIS_URL
             value: https://raw.githubusercontent.com/maticnetwork/heimdall/master/builder/files/genesis-mainnet-v1.json
         command:
-          - 'sh'
-          - '-c'
+          - "sh"
+          - "-c"
           - |
             if [ ! -f $GENESIS_FILE ]; then
               echo "Genesis not exist, downloading it."
@@ -69,8 +69,8 @@ deployments:
           - name: GENESIS_FILE
             value: "/data/config/genesis.json"
         envFrom:
-        - secretRef:
-            name: some-secret
+          - secretRef:
+              name: some-secret
         command:
           - heimdalld
           - --home=/data
@@ -103,9 +103,9 @@ deployments:
                     - path: /
                       pathType: ImplementationSpecific
               tls:
-               - secretName: chart-example-tls
-                 hosts:
-                   - chart-example.local
+                - secretName: chart-example-tls
+                  hosts:
+                    - chart-example.local
         startupProbe:
           tcpSocket:
             port: 1317
@@ -121,9 +121,9 @@ deployments:
     dnsConfig:
       searches:
         - qos.svc.eu-southwest1-prod.v2.pokt.network
-        - svc.eu-southwest1-prod.v2.pokt.network 
-        - eu-southwest1-prod.v2.pokt.network 
-        - europe-southwest1-c.c.portal-eu-southwest1-prod.internal 
+        - svc.eu-southwest1-prod.v2.pokt.network
+        - eu-southwest1-prod.v2.pokt.network
+        - europe-southwest1-c.c.portal-eu-southwest1-prod.internal
         - c.portal-eu-southwest1-prod.internal
         - google.internal
       nameservers:
@@ -132,9 +132,9 @@ deployments:
         - name: ndots
           value: "2"
     annotations:
-      deployment-annotations: 'dfgfsdgsdgsdfgsdfgsdfgsdfgdsfgsd'
+      deployment-annotations: "dfgfsdgsdgsdfgsdfgsdfgsdfgdsfgsd"
     podAnnotations:
-      pod-annotations: 'dfgfsdgsdgsdfgsdfgsdfgsdfgdsfgsd'
+      pod-annotations: "dfgfsdgsdgsdfgsdfgsdfgsdfgdsfgsd"
     mountConfigMaps:
       - name: velas-entrypoint
         mountPath: /dat0
@@ -155,15 +155,19 @@ deployments:
         env:
           - name: APP_HOME
             value: "/data"
+          - name: SNAPSHOT_URL
+            value: "https://snapshots.us-nj.poktroll.com/testnet-beta-71758-archival.torrent"
         command:
-          - 'sh'
-          - '-c'
+          - "sh"
+          - "-c"
           - |
             set -ex
-            # If heimdalld container and we need to bootstrap on first run then download the snapshot
-            if [ ! -f "$APP_HOME/bootstrapped" ];
-            then
-              echo "downloading snapshot from ${SNAPSHOT_URL}"
+            if [ ! -f "$APP_HOME/bootstrapped" ]; then
+              echo "downloading snapshot from $SNAPSHOT_URL"
+              apk add --no-cache aria2 zstd
+              aria2c --seed-time=0 "$SNAPSHOT_URL"
+              tar -xf testnet-beta-71758-archival.tar.zst -C "$APP_HOME"
+              touch "$APP_HOME/bootstrapped"
             fi
         securityContext:
           runAsUser: 0
@@ -238,9 +242,9 @@ deployments:
                     - path: /
                       pathType: ImplementationSpecific
               tls:
-               - secretName: chart-example-tls
-                 hosts:
-                   - chart-example.local
+                - secretName: chart-example-tls
+                  hosts:
+                    - chart-example.local
         startupProbe:
           tcpSocket:
             port: 8545
@@ -289,4 +293,3 @@ additionalManifests:
         --maximum-full-snapshots-to-retain 1 \
         --maximum-incremental-snapshots-to-retain 1 \
         --log - &
-
