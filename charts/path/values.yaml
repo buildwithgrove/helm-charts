@@ -19,10 +19,11 @@ global:
   serviceAccount:
     create: true
     name: "path-sa"
-  securityContext:
-    fsGroup: 1001
-    runAsUser: 1001
-    runAsGroup: 1001
+  # Including this in LocalNet causes issues with permissions
+  # securityContext:
+  #   fsGroup: 1001
+  #   runAsUser: 1001
+  #   runAsGroup: 1001
 
 image:
   repository: ghcr.io/buildwithgrove/path
@@ -173,6 +174,7 @@ guard:
     # Configurations:
     # - serviceId [REQUIRED]: Authoritative service ID.
     # - aliases [OPTIONAL]: Aliases for the service.
+    # TODO_TECHDEBT: The examples are outdated with respect to the serviceId format below.
     # Examples:
     #   - anvil.localhost -> target-service-id: anvil
     #   - F00C.path.grove.city -> target-service-id: F00C
@@ -180,34 +182,98 @@ guard:
     #   - polygon.path.grove.city -> target-service-id: F021
 
     # Shannon Example Service ID (with no aliases)
-    - serviceId: anvil
-
-    # Morse Example Service IDs (with aliases)
-    - serviceId: F00C
-      shannonServiceId: eth
+    - serviceId: arb-one
+      aliases:
+        - arb
+        - arb-mainnet
+    - serviceId: arb-sep-test
+    - serviceId: avax
+    - serviceId: avax-dfk
+    - serviceId: base
+    - serviceId: base-test
+    - serviceId: bera
+    - serviceId: blast
+    - serviceId: boba
+    - serviceId: bsc
+    - serviceId: celo
+    - serviceId: eth
       aliases:
         - eth
         - eth-mainnet
-      # -- CONTROLLED TRAFFIC SHIFTING --
-      # Provide configuration for splitting traffic between
-      # the PATH and Middleware backends.
-      trafficSplitting:
-        enabled: false
-        weights:
-          path: 50
-          middleware: 50
-    - serviceId: F021
+    - serviceId: eth-hol-test
+    - serviceId: eth-sep-test
+    - serviceId: evmos
+    - serviceId: fantom
+    - serviceId: fraxtal
+    - serviceId: fuse
+    - serviceId: gnosis
+    - serviceId: harmony
+    - serviceId: ink
+    - serviceId: iotex
+    - serviceId: kaia
+    - serviceId: kava
+    - serviceId: linea
+    - serviceId: mantle
+    - serviceId: metis
+    - serviceId: moonbeam
+    - serviceId: moonriver
+    - serviceId: near
+    - serviceId: oasys
+    - serviceId: op
+    - serviceId: op-sep-test
+    - serviceId: opbnb
+    - serviceId: osmosis
+    - serviceId: pocket
+    - serviceId: pocket-beta1
+    - serviceId: pocket-beta2
+    - serviceId: pocket-beta3
+    - serviceId: pocket-beta4
+    - serviceId: pocket-beta5
+    - serviceId: poly
       aliases:
-        - polygon
-        - polygon-mainnet
-      # -- CONTROLLED TRAFFIC SHIFTING --
-      # Provide configuration for splitting traffic between
-      # the PATH and Middleware backends.
-      trafficSplitting:
-        enabled: false
-        weights:
-          path: 50
-          middleware: 50
+        - poly
+        - poly-mainnet
+    - serviceId: poly-amoy-test
+    - serviceId: poly-zkevm
+    - serviceId: radix
+    - serviceId: scroll
+    - serviceId: sei
+    - serviceId: solana
+    - serviceId: sonic
+    - serviceId: sui
+    - serviceId: taiko
+    - serviceId: taiko-hek-test
+    - serviceId: tron
+    - serviceId: xrpl-evm-test
+    - serviceId: zklink-nova
+    - serviceId: zksync-era
+
+    # Morse Example Service IDs (with aliases)
+    # - serviceId: F00C
+    #   shannonServiceId: eth
+    #   aliases:
+    #     - eth
+    #     - eth-mainnet
+    #   # -- CONTROLLED TRAFFIC SHIFTING --
+    #   # Provide configuration for splitting traffic between
+    #   # the PATH and Middleware backends.
+    #   trafficSplitting:
+    #     enabled: false
+    #     weights:
+    #       path: 50
+    #       middleware: 50
+    # - serviceId: F021
+    #   aliases:
+    #     - polygon
+    #     - polygon-mainnet
+    #   # -- CONTROLLED TRAFFIC SHIFTING --
+    #   # Provide configuration for splitting traffic between
+    #   # the PATH and Middleware backends.
+    #   trafficSplitting:
+    #     enabled: false
+    #     weights:
+    #       path: 50
+    #       middleware: 50
 
   # GUARD Authorization Flows:
   # - Supported: API Key, Grove Legacy (not shown below)
