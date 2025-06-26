@@ -31,11 +31,11 @@ Example services config:
 
 ```yaml
 services:
-  - serviceId: F00C
+  - serviceId: eth
     aliases:
       - eth
       - eth-mainnet
-  - serviceId: F021
+  - serviceId: polygon
     aliases:
       - polygon
 ```
@@ -57,10 +57,9 @@ GUARD subdomain routing:
 
 | URL                                       | Routed Service | Header Set                |
 | ----------------------------------------- | -------------- | ------------------------- |
-| `https://F00C.path.example.com/v1`        | PATH (`F00C`)  | `target-service-id: F00C` |
-| `https://eth.path.example.com/v1`         | PATH (`F00C`)  | `target-service-id: F00C` |
-| `https://eth-mainnet.path.example.com/v1` | PATH (`F00C`)  | `target-service-id: F00C` |
-| `https://polygon.path.example.com/v1`     | PATH (`F021`)  | `target-service-id: F021` |
+| `https://eth.path.example.com/v1`         | PATH (`eth`)   | `target-service-id: eth` |
+| `https://eth-mainnet.path.example.com/v1` | PATH (`eth`)   | `target-service-id: eth` |
+| `https://polygon.path.example.com/v1`     | PATH (`polygon`) | `target-service-id: polygon` |
 
 ### Subdomain Routing Example Request (cURL)
 
@@ -86,9 +85,8 @@ GUARD header-based routing:
 
 | URL                           | Header Example                    | Routed Service | Header Set                |
 | ----------------------------- | --------------------------------- | -------------- | ------------------------- |
-| `https://path.example.com/v1` | `-H "target-service-id: F00C"`    | PATH (`F00C`)  | `target-service-id: F00C` |
-| `https://path.example.com/v1` | `-H "target-service-id: eth"`     | PATH (`F00C`)  | `target-service-id: F00C` |
-| `https://path.example.com/v1` | `-H "target-service-id: polygon"` | PATH (`F021`)  | `target-service-id: F021` |
+| `https://path.example.com/v1` | `-H "target-service-id: eth"`     | PATH (`eth`)   | `target-service-id: eth` |
+| `https://path.example.com/v1` | `-H "target-service-id: polygon"` | PATH (`polygon`) | `target-service-id: polygon` |
 
 ### Header Routing Example Request (cURL)
 

@@ -68,7 +68,7 @@ domain: "example.com"
 
 # Optional:
 # - Set `regionName` to add Auth-Region header to requests
-# regionName: "us-east-1"
+regionName: "localdev"
 
 # GUARD services configuration
 # - Services defined here will be used to create HTTPRoutes for each service
@@ -76,9 +76,7 @@ domain: "example.com"
 # - For more information, see:
 #   - https://path.grove.city/operate/helm/guard#routing
 # services:
-# Morse-specific services
-# - serviceId: F00C
-#   shannonServiceId: eth
+# - serviceId: eth
 #   aliases:
 #     - eth
 #     - eth-mainnet
