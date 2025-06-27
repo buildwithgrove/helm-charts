@@ -68,7 +68,7 @@ domain: "example.com"
 
 # Optional:
 # - Set `regionName` to add Auth-Region header to requests
-regionName: "localdev"
+# regionName: ""
 
 # GUARD services configuration
 # - Services defined here will be used to create HTTPRoutes for each service
