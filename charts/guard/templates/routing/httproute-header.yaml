@@ -1,43 +1,36 @@
 # HTTPRoute Generator for Services
 #
 # Generates HTTPRoute resources for each service in the `services` list, configuring routing
-# based on the subdomain of the request.
+# based on the target-service-id header.
 #
 # Ref: https://gateway.envoyproxy.io/latest/api/gateway_api/httproute/
 #
 # Routing behavior:
-#   - Creates an HTTPRoute for each authoritative service ID
-#   - Creates additional HTTPRoutes for each service alias
+#   - Creates one HTTPRoute per service that handles both the service ID and all aliases
 #   - Routes requests based on the `target-service-id` header
+#   - For aliases, modifies the header to use the authoritative service ID
 #
 # Example configuration, as defined in `values.yaml` at `guard.services`:
 # services:
-#   - serviceId: F00C
+#   - serviceId: eth
 #     aliases:
-#       - eth
 #       - eth-mainnet
-#   - serviceId: F021
+#   - serviceId: polygon
 #     aliases:
-#       - polygon
+#       - matic
 #
 # This configuration would match requests to:
 #   - https://rpc.path.com/v1
 # For any of the following headers:
-#   -H "target-service-id: F00C"        -> "target-service-id: F00C"
-#   -H "target-service-id: eth"         -> "target-service-id: F00C"
-#   -H "target-service-id: eth-mainnet" -> "target-service-id: F00C"
+#   -H "target-service-id: eth"         -> "target-service-id: eth"
+#   -H "target-service-id: eth-mainnet" -> "target-service-id: eth"
 #
-#   -H "target-service-id: F021"        -> "target-service-id: F021"
-#   -H "target-service-id: polygon"     -> "target-service-id: F021"
+#   -H "target-service-id: polygon"     -> "target-service-id: polygon"
+#   -H "target-service-id: matic"       -> "target-service-id: polygon"
 #
 # In the case of a match based on an alias, the header
 # will be set to the authoritative service ID.
-#
-# For each service, multiple HTTPRoute resources are created:
-#   - One HTTPRoute for the authoritative service ID
-#   - One additional HTTPRoute for EACH service alias
 
-# Create an HTTPRoute resource for each authoritative service ID.
 {{- $gwname:= default "guard" $.Values.fullnameOverride }}
 {{- $name:= include "guard-helm.fullname" . }}
 
@@ -48,7 +41,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 
 metadata:
-  # eg. F00C-header-route
+  # eg. eth-header-route
   name: {{ $service.serviceId | lower }}-header-route
   namespace: {{ $.Values.global.namespace }}
 
@@ -61,7 +54,7 @@ spec:
   {{- end }}
 
   rules:
-  # Determine the backend service to route to.
+  # Rule for the service ID itself (no header modification needed)
   - backendRefs:
     - name: {{ $.Values.global.serviceName }}
       namespace: {{ $.Values.global.namespace }}
@@ -75,54 +68,34 @@ spec:
       - name: target-service-id
         value: "{{ $service.serviceId }}"
 
-# If the service has aliases, create an HTTPRoute resource for each alias.
-{{- if $service.aliases }}
-{{- range $service.aliases }}
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-
-metadata:
-  # eg. F00C-eth-alias-header-route
-  name: {{ $service.serviceId | lower }}-{{ . | lower }}-alias-header-route
-  namespace: {{ $.Values.global.namespace }}
-spec:
-  parentRefs:
-  {{- range $.Values.gatewayRef }}
-  - group: {{ .group }}
-    kind: {{ .kind }}
-    name: {{ .name }}
-  {{- end }}
-
-  rules:
-  # Determine the backend service to route to.
+  # Rule for aliases (requires header modification)
+  {{- if $service.aliases }}
   - backendRefs:
     - name: {{ $.Values.global.serviceName }}
       namespace: {{ $.Values.global.namespace }}
       port: {{ $.Values.global.port }}
+    
     filters:
-    # Ensure the request header "target-service-id" is set to the authoritative service ID.
+    # Ensure the request header "target-service-id" is set to the authoritative service ID
     - type: RequestHeaderModifier
       requestHeaderModifier:
         set:
         - name: "target-service-id"
           value: "{{ $service.serviceId }}"
+        {{- if $.Values.regionName }}
+        - name: "Auth-Region"
+          value: "{{ $.Values.regionName }}"
+        {{- end }}
 
     matches:
-      # Match any path prefix that starts with "/v1"
-      - path:
-          type: PathPrefix
-          value: /v1
-        # Match any `target-service-id` header value that matches the alias.
-        headers:
-        - name: target-service-id
-          value: "{{ . | lower }}"
-        {{- if $.Values.regionName }}
-        - name: "Auth-Region" # TODO add to header.yaml as well
-          value: "{{ $.Values.regionName }}"
-        {{- end }} 
-
-{{- end }}
-{{- end }}
+    {{- range $service.aliases }}
+    - path:
+        type: PathPrefix
+        value: /v1
+      headers:
+      - name: target-service-id
+        value: "{{ . | lower }}"
+    {{- end }}
+  {{- end }}
 
 {{- end }}

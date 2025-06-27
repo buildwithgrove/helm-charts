@@ -11,7 +11,7 @@
 #
 # Example configuration:
 # services:
-#   - serviceId: F00C
+#   - serviceId: eth
 #     aliases:
 #       - eth
 #       - eth-mainnet
@@ -19,11 +19,10 @@
 # This configuration would match requests to:
 #   - https://<ALIAS OR SERVICE_ID>.path.grove.city/v1
 # For example:
-#   - https://F00C.path.grove.city/v1
 #   - https://eth.path.grove.city/v1
 #   - https://eth-mainnet.path.grove.city/v1
 #
-# All these requests would receive the header "target-service-id: F00C"
+# All these requests would receive the header "target-service-id: eth"
 #
 # -- CONTROLLED TRAFFIC SHIFTING --
 # DEV_NOTE: Only subdomain routes split traffic to Middleware as the Middleware
@@ -44,7 +43,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 
 metadata:
-  # eg. F00C-subdomain-route
+  # eg. eth-subdomain-route
   name: {{ .serviceId | lower }}-subdomain-route
   namespace: {{ $.Values.global.namespace }}
 
@@ -98,7 +97,7 @@ spec:
             requestHeaderModifier:
               set:
               - name: target-service-id
-                value: "{{ .shannonServiceId }}"
+                value: "{{ .serviceId }}"
         - name: {{ $.Values.global.shannonMainnetServiceName }}
           namespace: {{ $.Values.global.shannonMainnetNamespace }}
           port: {{ $.Values.global.shannonMainnetPort }}
@@ -108,7 +107,7 @@ spec:
             requestHeaderModifier:
               set:
               - name: target-service-id
-                value: "{{ .shannonServiceId }}"
+                value: "{{ .serviceId }}"
 
         {{- end }}
       filters:

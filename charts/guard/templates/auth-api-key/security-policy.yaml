@@ -13,7 +13,7 @@
 # are authorized through the API Key authorization flow.
 
 # Create a security policy for the subdomain route.
-# eg. F00C-subdomain-auth-policy
+# eg. eth-subdomain-auth-policy
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
@@ -24,7 +24,7 @@ spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      # eg. F00C-subdomain-route - matches the HTTPRoute resource created above
+      # eg. eth-subdomain-route - matches the HTTPRoute resource created above
       name: {{ $service.serviceId | lower }}-subdomain-route
   apiKeyAuth:
     credentialRefs:
@@ -36,17 +36,18 @@ spec:
       - {{ $apiKeyConfig.headerKey }}
 
 # Create a security policy for the header route.
-# eg. F00C-header-auth-policy
+# eg. eth-header-auth-policy
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
   name: {{ $service.serviceId | lower }}-header-auth-policy
+  namespace: {{ $.Values.global.namespace }}
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      # eg. F00C-header-route - matches the HTTPRoute resource created above
+      # eg. eth-header-route - matches the HTTPRoute resource created above
       name: {{ $service.serviceId | lower }}-header-route
   apiKeyAuth:
     credentialRefs:
@@ -56,36 +57,6 @@ spec:
     extractFrom:
     - headers:
       - {{ $apiKeyConfig.headerKey }}
-
-# If the service has aliases, create a SecurityPolicy resource for each alias.
-{{- if $service.aliases }}
-{{- range $service.aliases }}
-{{- $alias := . }}
-
-# Create a security policy for the alias header route.
-# eg. F00C-eth-alias-auth-policy
----
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: SecurityPolicy
-metadata:
-  name: {{ $service.serviceId | lower }}-{{ $alias | lower }}-alias-header-auth-policy
-spec:
-  targetRefs:
-    - group: gateway.networking.k8s.io
-      kind: HTTPRoute
-      # eg. F00C-eth-alias-header-route - matches the HTTPRoute resource created above
-      name: {{ $service.serviceId | lower }}-{{ $alias | lower }}-alias-header-route
-  apiKeyAuth:
-    credentialRefs:
-    - group: ""
-      kind: Secret
-      name: api-keys-secret
-    extractFrom:
-    - headers:
-      - {{ $apiKeyConfig.headerKey }}
-
-{{- end }}
-{{- end }}
 
 {{- end }}
 

@@ -15,7 +15,7 @@
 # are authorized through the PATH External Authorization Server (PEAS).
 
 # Create a security policy for the subdomain route.
-# eg. F00C-subdomain-auth-policy
+# eg. eth-subdomain-auth-policy
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
@@ -26,7 +26,7 @@ spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      # eg. F00C-subdomain-route - matches the HTTPRoute resource created above
+      # eg. eth-subdomain-route - matches the HTTPRoute resource created above
       name: {{ $service.serviceId | lower }}-subdomain-route
   extAuth:
     grpc:
@@ -35,7 +35,7 @@ spec:
           port: 10001
 
 # Create a security policy for the header route.
-# eg. F00C-header-auth-policy
+# eg. eth-header-auth-policy
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
@@ -46,40 +46,13 @@ spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      # eg. F00C-header-route - matches the HTTPRoute resource created above
+      # eg. eth-header-route - matches the HTTPRoute resource created above
       name: {{ $service.serviceId | lower }}-header-route
   extAuth:
     grpc:
       backendRefs:
         - name: {{$name}}-peas
           port: 10001
-
-# If the service has aliases, create a SecurityPolicy resource for each alias.
-{{- if $service.aliases }}
-{{- range $service.aliases }}
-{{- $alias := . }}
-
-# Create a security policy for the alias header route.
-# eg. F00C-eth-alias-auth-policy
----
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: SecurityPolicy
-metadata:
-  name: {{ $service.serviceId | lower }}-{{ $alias | lower }}-alias-header-auth-policy
-  namespace: {{ $.Values.global.namespace }}
-spec:
-  targetRefs:
-    - group: gateway.networking.k8s.io
-      kind: HTTPRoute
-      # eg. F00C-eth-alias-header-route - matches the HTTPRoute resource created in httproute-header.yaml
-      name: {{ $service.serviceId | lower }}-{{ $alias | lower }}-alias-header-route
-  extAuth:
-    grpc:
-      backendRefs:
-        - name: {{$name}}-peas
-          port: 10001
-{{- end }}
-{{- end }}
 
 {{- end }}
 
