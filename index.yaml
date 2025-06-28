@@ -821,6 +821,22 @@ entries:
   watch:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2025-06-28T12:10:00.667502077Z"
+    dependencies:
+    - condition: kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 69.6.0
+    description: Workload Analytics and Telemetry for Comprehensive Health (WATCH)
+      - Observability stack for PATH and GUARD
+    digest: 4f37761d6c34e653d60682c84852e461a5b95a602a4fece6521916c279fde942
+    name: watch
+    type: application
+    urls:
+    - https://github.com/buildwithgrove/helm-charts/releases/download/watch-0.1.12/watch-0.1.12.tgz
+    version: 0.1.12
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2025-03-26T17:25:03.556727885Z"
     dependencies:
     - condition: kube-prometheus-stack.enabled
@@ -851,4 +867,4 @@ entries:
     urls:
     - https://buildwithgrove.github.io/helm-charts/watch-0.1.8.tgz
     version: 0.1.8
-generated: "2025-06-27T00:22:35.377666687Z"
+generated: "2025-06-28T12:10:00.667624737Z"
