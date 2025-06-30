@@ -1,0 +1,111 @@
+# Failover Configuration Examples
+# Reference: https://gateway.envoyproxy.io/latest/api/extension_types/
+
+services:
+  # Example 1: Simple failover with passive health check
+  - serviceId: xrplevm-testnet
+    trafficSplitting:
+      enabled: true
+      weights:
+        path: 0
+        shannonBeta: 0
+        shannonMainnet: 100
+    aliases:
+      - xrpl-evm-testnet
+      - xrpl-evm-test
+    failover:
+      enabled: true
+      fallbackUrl: "http://45.77.195.1:8545"
+      trafficPolicySpec:
+        healthCheck:
+          passive:
+            baseEjectionTime: 30s
+            interval: 10s
+            maxEjectionPercent: 100
+            consecutive5XxErrors: 3
+            consecutiveGatewayErrors: 3
+            consecutiveLocalOriginFailures: 3
+            splitExternalLocalOriginErrors: false
+
+  # Example 2: Active health check with custom path
+  - serviceId: eth-with-active-hc
+    trafficSplitting:
+      enabled: true
+      weights:
+        path: 0
+        shannonBeta: 1
+        shannonMainnet: 99
+    failover:
+      enabled: true
+      fallbackUrl: "https://eth-backup.example.com:443"
+      trafficPolicySpec:
+        healthCheck:
+          active:
+            timeout: 1s
+            interval: 5s
+            unhealthyThreshold: 3
+            healthyThreshold: 2
+            http:
+              path: "/health"
+              method: "GET"
+              expectedStatuses:
+                - 200
+                - 204
+
+  # Example 3: Circuit breaker + retry policy
+  - serviceId: polygon-advanced
+    trafficSplitting:
+      enabled: true
+      weights:
+        path: 0
+        shannonBeta: 0
+        shannonMainnet: 100
+    failover:
+      enabled: true
+      fallbackUrl: "http://polygon-backup.com:8545"
+      backendSpec:
+        circuitBreaker:
+          maxConnections: 1024
+          maxPendingRequests: 64
+          maxRequests: 1024
+          maxRetries: 3
+      trafficPolicySpec:
+        retry:
+          numRetries: 3
+          perTryTimeout: 5s
+          backoffPolicy:
+            baseInterval: 100ms
+            maxInterval: 10s
+        healthCheck:
+          passive:
+            consecutive5XxErrors: 5
+            baseEjectionTime: 60s
+
+  # Example 4: Load balancing policy + timeouts
+  - serviceId: optimism-custom
+    trafficSplitting:
+      enabled: true
+      weights:
+        path: 20
+        shannonBeta: 30
+        shannonMainnet: 50
+    failover:
+      enabled: true
+      fallbackUrl: "http://op-fallback.example.com:8545"
+      backendSpec:
+        loadBalancer:
+          type: LeastRequest
+      trafficPolicySpec:
+        timeout:
+          tcp:
+            connectTimeout: 10s
+          http:
+            requestTimeout: 30s
+        healthCheck:
+          active:
+            timeout: 2s
+            interval: 10s
+            unhealthyThreshold: 2
+            healthyThreshold: 1
+            http:
+              path: "/"
