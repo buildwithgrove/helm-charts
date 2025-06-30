@@ -244,7 +244,11 @@ guard:
     - serviceId: taiko
     - serviceId: taiko-hek-test
     - serviceId: tron
-    - serviceId: xrpl-evm-test
+    - serviceId: xrplevm
+      aliases:
+        - xrpl-evm-testnet
+        - xrpl-evm-test
+    - serviceId: xrplevm-testnet
     - serviceId: zklink-nova
     - serviceId: zksync-era
 
