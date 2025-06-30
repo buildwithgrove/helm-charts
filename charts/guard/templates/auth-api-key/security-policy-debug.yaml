@@ -1,0 +1,20 @@
+{{- if .Values.auth.debug_endpoints }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: debug-endpoints-auth-policy
+  namespace: {{ .Values.global.namespace }}
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: debug-endpoints-route
+  apiKeyAuth:
+    credentialRefs:
+    - group: ""
+      kind: Secret
+      name: {{ .Values.auth.debug_endpoints.api_key_secret_name }}
+    extractFrom:
+    - headers:
+      - authorization
+{{- end }}
