@@ -86,6 +86,12 @@ domain: "example.com"
 #       path: 60
 #       shannonBeta: 30
 #       shannonMainnet: 20
+#     # Optional: External endpoints for traffic splitting
+#     external:
+#       - url: "http://144.202.52.147:8545"
+#         weight: 10
+#       - url: "https://external-provider.com:443"
+#         weight: 5
 #   failover:
 #     enabled: false
 #     fallbackUrl: "http://example.com:8545"

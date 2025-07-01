@@ -35,6 +35,24 @@ spec:
       port: {{ $.Values.global.shannonMainnetPort }}
     weight: {{ $ts.weights.shannonMainnet }}
   {{- end }}
+  # Include external endpoints if configured
+  {{- range $ts.external }}
+  {{- if gt (default 0 .weight) 0 }}
+  - fqdn:
+      hostname: {{ regexReplaceAll "^https?://" .url "" | regexReplaceAll ":.*$" "" }}
+      {{- $url := regexFind ":[0-9]+$" .url }}
+      {{- if $url }}
+      port: {{ trimPrefix ":" $url | int }}
+      {{- else }}
+      {{- if hasPrefix "https://" .url }}
+      port: 443
+      {{- else }}
+      port: 80
+      {{- end }}
+      {{- end }}
+    weight: {{ .weight }}
+  {{- end }}
+  {{- end }}
   {{- else }}
   # Traffic splitting disabled, use only the main service
   - fqdn:
