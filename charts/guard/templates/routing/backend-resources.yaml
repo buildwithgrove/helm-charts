@@ -90,7 +90,7 @@ spec:
 {{- $ts := default dict .trafficSplitting }}
 {{- if and (eq $ts.enabled true) $ts.external }}
 {{- range $index, $external := $ts.external }}
-{{- if gt (default 0 $external.weight) 0 }}
+{{- if gt (default 0 ($external.weight | int)) 0 }}
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: Backend
