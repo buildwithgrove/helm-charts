@@ -43,8 +43,8 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 
 metadata:
-  # eg. guard-subdomain-eth
-  name: {{ $.Values.fullnameOverride | default "guard" }}-subdomain-{{ .serviceId }}
+  # eg. eth-subdomain-route
+  name: {{ .serviceId | lower }}-subdomain-route
   namespace: {{ $.Values.global.namespace }}
 
 spec:
