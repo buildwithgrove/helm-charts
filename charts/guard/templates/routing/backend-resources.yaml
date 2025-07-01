@@ -98,7 +98,7 @@ metadata:
   name: {{ $.serviceId }}-external-{{ $index }}
   namespace: {{ $.Values.global.namespace | default "path" }}
   labels:
-    {{- include "guard.labels" $ | nindent 4 }}
+    {{- include "guard-helm.labels" $ | nindent 4 }}
     service-id: {{ $.serviceId }}
 spec:
   endpoints:
