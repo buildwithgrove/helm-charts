@@ -88,9 +88,11 @@ domain: "example.com"
 #       shannonMainnet: 20
 #     # Optional: External endpoints for traffic splitting
 #     external:
-#       - url: "http://144.202.52.147:8545"
+#       - hostname: "144.202.52.147"
+#         port: 8545
 #         weight: 10
-#       - url: "https://external-provider.com:443"
+#       - hostname: "external-provider.com"
+#         port: 443
 #         weight: 5
 #   failover:
 #     enabled: false
