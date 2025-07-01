@@ -104,7 +104,7 @@ metadata:
 spec:
   endpoints:
   - fqdn:
-      hostname: {{ regexReplaceAll "^https?://" $external.url "" | regexReplaceAll ":.*$" "" }}
+      hostname: {{ $external.url | regexReplaceAll "^https?://" "" | regexReplaceAll ":.*$" "" }}
       {{- $url := regexFind ":[0-9]+$" $external.url }}
       {{- if $url }}
       port: {{ trimPrefix ":" $url | int }}

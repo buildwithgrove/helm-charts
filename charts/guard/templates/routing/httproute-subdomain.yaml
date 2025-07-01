@@ -135,11 +135,12 @@ spec:
               - name: target-service-id
                 value: "{{ .serviceId }}"
         # Include external endpoints via Backend resources
+        {{- $service := . }}
         {{- range $index, $external := $ts.external }}
         {{- if gt (default 0 ($external.weight | int)) 0 }}
         - group: gateway.envoyproxy.io
           kind: Backend
-          name: {{ $.serviceId }}-external-{{ $index }}
+          name: {{ $service.serviceId }}-external-{{ $index }}
           namespace: {{ $.Values.global.namespace }}
           weight: {{ $external.weight | int }}
           filters:
@@ -147,7 +148,7 @@ spec:
             requestHeaderModifier:
               set:
               - name: target-service-id
-                value: "{{ $.serviceId }}"
+                value: "{{ $service.serviceId }}"
         {{- end }}
         {{- end }}
         {{- end }}
