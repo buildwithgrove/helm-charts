@@ -87,6 +87,7 @@ spec:
   {{- toYaml .failover.backendSpec | nindent 2 }}
   {{- end }}
 {{- end }}
+{{- $service := . }}
 {{- $ts := default dict .trafficSplitting }}
 {{- if and (eq $ts.enabled true) $ts.external }}
 {{- range $index, $external := $ts.external }}
@@ -95,11 +96,11 @@ spec:
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: Backend
 metadata:
-  name: {{ $.serviceId }}-external-{{ $index }}
+  name: {{ $service.serviceId }}-external-{{ $index }}
   namespace: {{ $.Values.global.namespace | default "path" }}
   labels:
     {{- include "guard-helm.labels" $ | nindent 4 }}
-    service-id: {{ $.serviceId }}
+    service-id: {{ $service.serviceId }}
 spec:
   endpoints:
   - fqdn:
