@@ -103,9 +103,15 @@ metadata:
     service-id: {{ $service.serviceId }}
 spec:
   endpoints:
+  {{- if $external.ip }}
+  - ip:
+      address: {{ $external.ip }}
+      port: {{ $external.port }}
+  {{- else }}
   - fqdn:
       hostname: {{ $external.hostname }}
       port: {{ $external.port }}
+  {{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
