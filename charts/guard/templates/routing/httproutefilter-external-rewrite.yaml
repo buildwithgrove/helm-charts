@@ -21,8 +21,10 @@ metadata:
 spec:
   urlRewrite:
     path:
-      type: ReplacePrefixMatch
-      replacePrefixMatch: "/"
+      type: ReplaceRegexMatch
+      replaceRegexMatch:
+        pattern: "^/v1/[^/]+"
+        substitution: ""
 {{- end }}
 {{- end }}
 {{- end }}
