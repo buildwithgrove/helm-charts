@@ -23,8 +23,8 @@ spec:
     path:
       type: ReplaceRegexMatch
       replaceRegexMatch:
-        pattern: "^/v1/[^/]+"
-        substitution: ""
+        pattern: "^/v1/[^/]+$"
+        substitution: "/"
 {{- end }}
 {{- end }}
 {{- end }}
