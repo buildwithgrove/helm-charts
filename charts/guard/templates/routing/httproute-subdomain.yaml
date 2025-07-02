@@ -149,12 +149,11 @@ spec:
               set:
               - name: target-service-id
                 value: "{{ $service.serviceId }}"
-          # Add URLRewrite filter only for external backends
-          - type: URLRewrite
-            urlRewrite:
-              path:
-                type: ReplacePrefixMatch
-                replacePrefixMatch: /
+          - type: ExtensionRef
+            extensionRef:
+              group: gateway.envoyproxy.io
+              kind: HTTPRouteFilter
+              name: {{ $service.serviceId }}-external-{{ $index }}-rewrite
         {{- end }}
         {{- end }}
         {{- end }}
