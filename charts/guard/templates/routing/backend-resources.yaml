@@ -94,6 +94,7 @@ spec:
       hostname: {{ $external.hostname }}
       port: {{ $external.port }}
   {{- end }}
+  appProtocol: HTTP
 {{- end }}
 {{- end }}
 {{- end }}

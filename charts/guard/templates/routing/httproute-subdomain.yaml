@@ -149,11 +149,6 @@ spec:
               set:
               - name: target-service-id
                 value: "{{ $service.serviceId }}"
-          - type: ExtensionRef
-            extensionRef:
-              group: gateway.envoyproxy.io
-              kind: HTTPRouteFilter
-              name: {{ $service.serviceId }}-external-{{ $index }}-rewrite
         {{- end }}
         {{- end }}
         {{- end }}
