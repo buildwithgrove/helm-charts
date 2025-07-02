@@ -1,0 +1,62 @@
+# Traffic Splitting with External Endpoints
+# This example shows how to configure traffic splitting with external IP addresses and hostnames
+#
+# When requests are sent to external backends, the /v1/<appid> prefix is automatically
+# stripped. For example:
+#   - Request to: https://xrpl-evm-testnet.rpc.grove.city/v1/0caa84c4
+#   - Forwarded to external backend as: http://45.77.195.1:8545/
+#
+services:
+  # Example with IP address
+  - serviceId: xrplevm-testnet
+    trafficSplitting:
+      enabled: true
+      weights:
+        path: 0
+        shannonBeta: 0
+        shannonMainnet: 50
+      external:
+        # Using IP address
+        - ip: "45.77.195.1"
+          port: 8545
+          weight: 50
+    aliases:
+      - xrpl-evm-testnet
+      - xrpl-evm-test
+
+  # Example with hostname
+  - serviceId: eth-mainnet
+    trafficSplitting:
+      enabled: true
+      weights:
+        path: 25
+        shannonBeta: 25
+        shannonMainnet: 25
+      external:
+        # Using hostname
+        - hostname: "eth-backup.example.com"
+          port: 8545
+          weight: 25
+    aliases:
+      - ethereum
+      - eth
+
+  # Example with multiple external endpoints
+  - serviceId: polygon-multi
+    trafficSplitting:
+      enabled: true
+      weights:
+        path: 20
+        shannonBeta: 20
+        shannonMainnet: 20
+      external:
+        # Mix of IP and hostname
+        - ip: "192.168.1.100"
+          port: 8545
+          weight: 20
+        - hostname: "polygon-backup.example.com"
+          port: 443
+          weight: 20
+    aliases:
+      - polygon
+      - matic

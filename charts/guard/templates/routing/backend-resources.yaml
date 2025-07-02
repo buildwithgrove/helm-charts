@@ -1,0 +1,102 @@
+{{- if .Values.services }}
+{{- range .Values.services }}
+{{- if and .failover .failover.enabled }}
+{{- $ts := default dict .trafficSplitting }}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: {{ .serviceId }}-primary
+  namespace: {{ $.Values.global.namespace | default "path" }}
+  labels:
+    {{- include "guard.labels" $ | nindent 4 }}
+    service-id: {{ .serviceId }}
+spec:
+  endpoints:
+  {{- if eq $ts.enabled true }}
+  # Include PATH service if weight > 0
+  {{- if gt (default 0 $ts.weights.path) 0 }}
+  - fqdn:
+      hostname: {{ $.Values.global.serviceName | default "path-http" }}.{{ $.Values.global.namespace | default "path" }}.svc.cluster.local
+      port: {{ $.Values.global.port | default 3069 }}
+    weight: {{ $ts.weights.path }}
+  {{- end }}
+  # Include Shannon Beta service if weight > 0  
+  {{- if gt (default 0 $ts.weights.shannonBeta) 0 }}
+  - fqdn:
+      hostname: {{ $.Values.global.shannonBetaServiceName }}.{{ $.Values.global.shannonBetaNamespace }}.svc.cluster.local
+      port: {{ $.Values.global.shannonBetaPort }}
+    weight: {{ $ts.weights.shannonBeta }}
+  {{- end }}
+  # Include Shannon Mainnet service if weight > 0
+  {{- if gt (default 0 $ts.weights.shannonMainnet) 0 }}
+  - fqdn:
+      hostname: {{ $.Values.global.shannonMainnetServiceName }}.{{ $.Values.global.shannonMainnetNamespace }}.svc.cluster.local
+      port: {{ $.Values.global.shannonMainnetPort }}
+    weight: {{ $ts.weights.shannonMainnet }}
+  {{- end }}
+  {{- else }}
+  # Traffic splitting disabled, use only the main service
+  - fqdn:
+      hostname: {{ $.Values.global.serviceName | default "path-http" }}.{{ $.Values.global.namespace | default "path" }}.svc.cluster.local
+      port: {{ $.Values.global.port | default 3069 }}
+  {{- end }}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: {{ .serviceId }}-fallback
+  namespace: {{ $.Values.global.namespace | default "path" }}
+  labels:
+    {{- include "guard.labels" $ | nindent 4 }}
+    service-id: {{ .serviceId }}
+spec:
+  fallback: true
+  endpoints:
+  - fqdn:
+      hostname: {{ regexReplaceAll "^https?://" .failover.fallbackUrl "" | regexReplaceAll ":.*$" "" }}
+      {{- $url := regexFind ":[0-9]+$" .failover.fallbackUrl }}
+      {{- if $url }}
+      port: {{ trimPrefix ":" $url | int }}
+      {{- else }}
+      {{- if hasPrefix "https://" .failover.fallbackUrl }}
+      port: 443
+      {{- else }}
+      port: 80
+      {{- end }}
+      {{- end }}
+  {{- if .failover.backendSpec }}
+  {{- toYaml .failover.backendSpec | nindent 2 }}
+  {{- end }}
+{{- end }}
+{{- $service := . }}
+{{- $ts := default dict .trafficSplitting }}
+{{- if and (eq $ts.enabled true) $ts.external }}
+{{- range $index, $external := $ts.external }}
+{{- if gt (default 0 ($external.weight | int)) 0 }}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: Backend
+metadata:
+  name: {{ $service.serviceId }}-external-{{ $index }}
+  namespace: {{ $.Values.global.namespace | default "path" }}
+  labels:
+    {{- include "guard-helm.labels" $ | nindent 4 }}
+    service-id: {{ $service.serviceId }}
+spec:
+  endpoints:
+  {{- if $external.ip }}
+  - ip:
+      address: {{ $external.ip }}
+      port: {{ $external.port }}
+  {{- else }}
+  - fqdn:
+      hostname: {{ $external.hostname }}
+      port: {{ $external.port }}
+  {{- end }}
+  appProtocol: HTTP
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
