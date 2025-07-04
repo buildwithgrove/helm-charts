@@ -1,3 +1,10 @@
+# TODO_TECHDEBT(@adshmh): Review whether debug endpoints should go through Envoy:
+# - PATH instances have separate state, making correlation impossible
+# - Not available in prod, local development only
+# - Workaround: kubectl port-forward to specific pods
+# - Long-term: Tailscale access
+# - Need: Document port-forward instructions
+#
 {{- if .Values.auth.debug_endpoints }}
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: HTTPRoute
