@@ -70,7 +70,33 @@ spec:
     # This is to prevent nil pointer errors when the traffic splitting
     # configuration is not set for a service.
     {{- $ts := default dict .trafficSplitting }}
+    {{- $failover := default dict .failover }}
     - backendRefs:
+        # -- FAILOVER CONFIGURATION --
+        # If failover is enabled, use Backend resources instead of direct service references
+        {{- if eq $failover.enabled true }}
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: {{ .serviceId }}-primary
+          namespace: {{ $.Values.global.namespace }}
+          filters:
+          - type: RequestHeaderModifier
+            requestHeaderModifier:
+              set:
+              - name: target-service-id
+                value: "{{ .serviceId }}"
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: {{ .serviceId }}-fallback
+          namespace: {{ $.Values.global.namespace }}
+          filters:
+          - type: RequestHeaderModifier
+            requestHeaderModifier:
+              set:
+              - name: target-service-id
+                value: "{{ .serviceId }}"
+        {{- else }}
+        # -- STANDARD TRAFFIC ROUTING --
         - name: {{ $.Values.global.serviceName }}
           namespace: {{ $.Values.global.namespace }}
           port: {{ $.Values.global.port }}
@@ -108,7 +134,24 @@ spec:
               set:
               - name: target-service-id
                 value: "{{ .serviceId }}"
-
+        # Include external endpoints via Backend resources
+        {{- $service := . }}
+        {{- range $index, $external := $ts.external }}
+        {{- if gt (default 0 ($external.weight | int)) 0 }}
+        - group: gateway.envoyproxy.io
+          kind: Backend
+          name: {{ $service.serviceId }}-external-{{ $index }}
+          namespace: {{ $.Values.global.namespace }}
+          weight: {{ $external.weight | int }}
+          filters:
+          - type: RequestHeaderModifier
+            requestHeaderModifier:
+              set:
+              - name: target-service-id
+                value: "{{ $service.serviceId }}"
+        {{- end }}
+        {{- end }}
+        {{- end }}
         {{- end }}
       filters:
         - type: RequestHeaderModifier

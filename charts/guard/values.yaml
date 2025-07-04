@@ -89,12 +89,52 @@ domain: "example.com"
 #   aliases:
 #     - eth
 #     - eth-mainnet
-# trafficSplitting:
-#   enabled: true
-#   weights:
-#     path: 60
-#     shannonBeta: 30
-#     shannonMainnet: 20
+#   trafficSplitting:
+#     enabled: true
+#     weights:
+#       path: 60
+#       shannonBeta: 30
+#       shannonMainnet: 20
+#     # Optional: External endpoints for traffic splitting
+#     external:
+#       - hostname: "144.202.52.147"
+#         port: 8545
+#         weight: 10
+#       - hostname: "external-provider.com"
+#         port: 443
+#         weight: 5
+#   failover:
+#     enabled: false
+#     fallbackUrl: "http://example.com:8545"
+#     # Optional: Custom Backend spec for fallback endpoint
+#     # Reference: https://gateway.envoyproxy.io/latest/api/extension_types/#backend
+#     backendSpec: {}
+#       # Example: Add circuit breaker
+#       # circuitBreaker:
+#       #   maxConnections: 1024
+#       #   maxPendingRequests: 64
+#     # Optional: Custom BackendTrafficPolicy spec for health checking
+#     # Reference: https://gateway.envoyproxy.io/latest/api/extension_types/#backendtrafficpolicy
+#     trafficPolicySpec: {}
+#       # Example: Passive health check (default)
+#       # healthCheck:
+#       #   passive:
+#       #     baseEjectionTime: 30s
+#       #     interval: 10s
+#       #     maxEjectionPercent: 100
+#       #     consecutive5XxErrors: 3
+#       #     consecutiveGatewayErrors: 3
+#       #     consecutiveLocalOriginFailures: 3
+#       #     splitExternalLocalOriginErrors: false
+#       # Example: Active health check
+#       # healthCheck:
+#       #   active:
+#       #     timeout: 1s
+#       #     interval: 3s
+#       #     unhealthyThreshold: 3
+#       #     healthyThreshold: 2
+#       #     http:
+#       #       path: "/healthz"
 
 # GUARD auth configuration
 # Exactly one auth method must be enabled:
@@ -198,6 +238,12 @@ rateLimit:
 # References:
 # - https://github.com/envoyproxy/gateway/tree/main/charts/gateway-helm#values
 # - https://github.com/envoyproxy/gateway/blob/main/charts/gateway-helm/values.tmpl.yaml
+#
+# Failover Configuration API References:
+# - Backend CRD: https://gateway.envoyproxy.io/latest/api/extension_types/#backend
+# - BackendTrafficPolicy CRD: https://gateway.envoyproxy.io/latest/api/extension_types/#backendtrafficpolicy
+# - Health Checking Guide: https://gateway.envoyproxy.io/latest/tasks/traffic/backend-healthchecking/
+# - Failover Guide: https://gateway.envoyproxy.io/latest/tasks/traffic/backend-failover/
 
 gateway-helm:
   config:
@@ -210,6 +256,12 @@ gateway-helm:
           redis:
             # URL for Redis service deployed by this chart in `path` namespace (used by Envoy Gateway)
             url: redis:6379
+      # Enable Backend resources for failover functionality
+      extensionManager:
+        resources:
+          - group: gateway.envoyproxy.io
+            version: v1alpha1
+            kind: Backend
 
 # Envoy Gateway configuration
 envoyGateway:
