@@ -287,7 +287,24 @@ guard:
   # Authorization Type:
   # - Supported: `apiKey`, `groveLegacy` (default: `apiKey`)
   auth:
+    # Debug endpoints authentication configuration
+    # - Presence of this section enables external exposure of PATH's debug endpoints via GUARD
+    # - Creates HTTPRoute and SecurityPolicy for debug endpoints with separate authentication
+    # - Covers both pprof endpoints (served on port 6060) and disqualified_endpoints (served on port 3069)
+    # - Uses API key authentication (separate from main API key auth) for security isolation
+    debug_endpoints:
+      # Kubernetes secret name containing debug API key
+      # Secret should contain 'path-debug-api-key' key with the debug API key value
+      # In local development: created by Tilt from secrets.yaml (value: "test_debug_api_key")
+      # In production: created by external secret management system
+      api_key_secret_name: "path-debug-api-keys"
+
     # -- Configuration for the API key authorization flow.
+    #
+    # TODO_TECHDEBT(@adshmh): Refactor apiKeys field to use K8s secret names instead of plaintext
+    # - Improves security for API key management
+    # - Enables integration with external secret managers (Vault, AWS Secrets Manager)
+    # - The debug endpoints already follow this pattern for consistent auth across all endpoints
     apiKey:
       # API Key Auth:
       # - enabled: Enable API key authentication.
