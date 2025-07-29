@@ -13,11 +13,11 @@ global:
   # Optional health check configuration
   # - Override settings for health check endpoint
   # - Defaults to global values when not specified
-  # healthCheck:
-  #   serviceName: path-http       # Service to target for health checks (defaults to global.serviceName)
-  #   namespace: path             # Namespace for health check service (defaults to global.namespace)
-  #   port: 3069                  # Port for health check service (defaults to global.port)
-  #   path: "/healthz"           # Path for health checks (defaults to "/healthz")
+  healthCheck:
+    serviceName: path-http       # Service to target for health checks (defaults to global.serviceName)
+    namespace: path             # Namespace for health check service (defaults to global.namespace)
+    port: 3069                  # Port for health check service (defaults to global.port)
+    path: "/healthz"           # Path for health checks (defaults to "/healthz")
 
   # Settings for traffic shifting
   shannonBetaNamespace: middleware
@@ -28,6 +28,15 @@ global:
 
   shannonBetaPort: 8080
   shannonMainnetPort: 8080
+
+# Default health check configuration
+# - Can be overridden by parent chart if needed
+# - Uses global values as defaults
+healthCheck:
+  serviceName: # Will default to global.serviceName in template
+  namespace:   # Will default to global.namespace in template
+  port:        # Will default to global.port in template
+  path: "/healthz"
 
 # Optional health check configuration
 # - Override settings for health check endpoint
@@ -138,6 +147,18 @@ domain: "example.com"
 # For more information, see:
 #   - https://path.grove.city/operate/helm/guard#authentication
 auth:
+  # Debug endpoints authentication configuration
+  # - Presence of this section enables external exposure of PATH's debug endpoints via GUARD
+  # - Creates HTTPRoute and SecurityPolicy for debug endpoints with separate authentication
+  # - Covers both pprof endpoints (served on port 6060) and disqualified_endpoints (served on port 3069)
+  # - Uses API key authentication (separate from main API key auth) for security isolation
+  debug_endpoints:
+    # Kubernetes secret name containing debug API key
+    # Secret should contain 'path-debug-api-key' key with the debug API key value
+    # In local development: created by Tilt from secrets.yaml (value: "test_debug_api_key")
+    # In production: created by external secret management system
+    api_key_secret_name: "path-debug-api-keys"
+
   #
   # 1. API Key auth configuration (default)
   apiKey:
