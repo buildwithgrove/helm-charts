@@ -419,6 +419,25 @@ entries:
   path:
   - apiVersion: v2
     appVersion: 0.0.16
+    created: "2025-08-13T20:18:22.27286909Z"
+    dependencies:
+    - condition: guard.enabled
+      name: guard
+      repository: https://buildwithgrove.github.io/helm-charts
+      version: 0.1.33
+    - condition: observability.enabled
+      name: watch
+      repository: https://buildwithgrove.github.io/helm-charts
+      version: 0.1.11
+    description: A Helm chart for PATH (PATH API & Toolkit Harness)
+    digest: 7bf7568ec440d234144d9d26f241a3259159784db80a342290f731af3b2d45cb
+    name: path
+    type: application
+    urls:
+    - https://github.com/buildwithgrove/helm-charts/releases/download/path-0.1.28/path-0.1.28.tgz
+    version: 0.1.28
+  - apiVersion: v2
+    appVersion: 0.0.16
     created: "2025-06-30T21:47:10.948416034Z"
     dependencies:
     - condition: guard.enabled
@@ -918,4 +937,4 @@ entries:
     urls:
     - https://buildwithgrove.github.io/helm-charts/watch-0.1.8.tgz
     version: 0.1.8
-generated: "2025-08-13T19:20:34.996833108Z"
+generated: "2025-08-13T20:18:22.273105952Z"
