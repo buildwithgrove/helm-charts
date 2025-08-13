@@ -11,8 +11,8 @@ rateLimit:
     enabled: true
   plans:
     - header: "Rl-Plan-Free"
-      requests: 5000
-      unit: Day
+      requests: 150000
+      unit: Month
 ```
 
 To test, send a request like:
@@ -60,12 +60,12 @@ A few quick notes to get you started:
 
 | Header Value   | Requests | Unit   | Example User ID |
 | -------------- | -------- | ------ | --------------- |
-| `Rl-Plan-Free` | `5000`   | Day    | `1a2b3c4d`      |
+| `Rl-Plan-Free` | `150000` | Month  | `1a2b3c4d`      |
 | `Rl-Plan-Free` | `30`     | Second | `1a2b3c4d`      |
 | `Rl-Plan-Pro`  | `1000`   | Hour   | `5e6f7g8h`      |
 
 - Each distinct user ID in the header gets its own rate bucket.
-- Example: `Rl-Plan-Free: 1a2b3c4d` is limited to 5000/day and 30/second.
+- Example: `Rl-Plan-Free: 1a2b3c4d` is limited to 150000/month and 30/second.
 
 ### Example Rate-Limited Request
 
@@ -75,7 +75,7 @@ curl http://rpc.grove.city/v1 \
   -d '{"jsonrpc":"2.0","method":"eth_blockNumber","id":1}'
 ```
 
-- User with `Rl-Plan-Free: 1a2b3c4d` can make 5000 requests/day.
+- User with `Rl-Plan-Free: 1a2b3c4d` can make 150000 requests/month.
 - Exceeding this will result in HTTP 429 responses.
 
 ### Rate Limit Response Headers
@@ -84,7 +84,7 @@ When a request is rate limited, Envoy includes the following headers in the resp
 
 ```
 X-Envoy-RateLimited: true
-X-RateLimit-Limit: 5000, 5000;w=86400
+X-RateLimit-Limit: 150000, 150000;w=2592000
 X-RateLimit-Remaining: 0
 X-RateLimit-Reset: 3600
 ```
@@ -96,7 +96,7 @@ These headers provide information about rate limits:
 - `X-RateLimit-Remaining`: Indicates how many requests remain in the current window
 - `X-RateLimit-Reset`: Indicates the number of seconds until the rate limit resets
 
-When multiple rate limits apply (e.g., 5000/day AND 30/second), the headers will display information for the window closest to its limit.
+When multiple rate limits apply (e.g., 150000/month AND 30/second), the headers will display information for the window closest to its limit.
 
 ### Setting Header Values
 
@@ -131,12 +131,12 @@ graph LR
 
 | Parameter                    | Description                                | Default          | Required |
 | ---------------------------- | ------------------------------------------ | ---------------- | -------- |
-| `rateLimit.enabled`          | Enable rate limiting                       | `true`           | ✅       |
-| `rateLimit.redis.enabled`    | Deploy Redis from this chart               | `true`           | ❌       |
-| `rateLimit.plans`            | Array of rate limit plans                  |                  | ✅       |
-| `rateLimit.plans[].header`   | Header for identifying rate limit subjects | `"Rl-Plan-Free"` | ✅       |
-| `rateLimit.plans[].requests` | Requests allowed per time unit             | `5000`           | ✅       |
-| `rateLimit.plans[].unit`     | Time unit (Second, Minute, Hour, Day)      | `Day`            | ✅       |
+| `rateLimit.enabled`          | Enable rate limiting                       | `true`           | ✅        |
+| `rateLimit.redis.enabled`    | Deploy Redis from this chart               | `true`           | ❌        |
+| `rateLimit.plans`            | Array of rate limit plans                  |                  | ✅        |
+| `rateLimit.plans[].header`   | Header for identifying rate limit subjects | `"Rl-Plan-Free"` | ✅        |
+| `rateLimit.plans[].requests` | Requests allowed per time unit             | `150000`         | ✅        |
+| `rateLimit.plans[].unit`     | Time unit (Second, Minute, Hour, Day)      | `Month`          | ✅        |
 
 ### Default Configuration
 
@@ -147,11 +147,11 @@ rateLimit:
     enabled: true
   plans:
     - header: "Rl-Plan-Free"
-      requests: 5000
-      unit: Day
+      requests: 150000
+      unit: Month
 ```
 
-- Limits each unique `Rl-Plan-Free` header value to 5000 requests/day.
+- Limits each unique `Rl-Plan-Free` header value to 150000 requests/month.
 
 ### Adding New Rate Limit Plans
 
@@ -161,26 +161,26 @@ rateLimit:
 ```yaml
 plans:
   - header: "Rl-Plan-Free"
-    requests: 5000
-    unit: Day
+    requests: 150000
+    unit: Month
   - header: "Rl-Plan-Pro"
     requests: 1000
     unit: Hour
 ```
 
-- `Rl-Plan-Free: XXX` → 5000/day
+- `Rl-Plan-Free: XXX` → 150000/month
 - `Rl-Plan-Pro: XXX` → 1000/hour
 
 ### Multiple Rate Limits per Plan
 
 - Add multiple entries with the same header for different units.
-- Example: Limit "free" users to 5000/day **AND** 30/second:
+- Example: Limit "free" users to 150000/month **AND** 30/second:
 
 ```yaml
 plans:
   - header: "Rl-Plan-Free"
-    requests: 5000
-    unit: Day
+    requests: 150000
+    unit: Month
   - header: "Rl-Plan-Free"
     requests: 30
     unit: Second
@@ -206,8 +206,8 @@ rateLimit:
     enabled: false
   plans:
     - header: "Rl-Plan-Free"
-      requests: 5000
-      unit: Day
+      requests: 150000
+      unit: Month
 
 gateway-helm:
   config:

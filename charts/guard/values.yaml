@@ -225,10 +225,10 @@ rateLimit:
   plans:
     # The headers set here must match the headers that are set on requests inside PEAS:
     # - https://github.com/buildwithgrove/path-external-auth-server/blob/main/ratelimit/ratelimit.go
-    # PLAN_FREE: 5000 requests per day
+    # PLAN_FREE: 150000 requests per month
     - header: "Rl-Plan-Free"
-      requests: 5000
-      unit: Day
+      requests: 150000
+      unit: Month
 
 # Envoy Gateway configuration
 # - Use this section to configure gateway-helm dependency

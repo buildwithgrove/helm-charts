@@ -93,7 +93,7 @@ path:
 # - Requires config file at /app/config/.config.yaml
 # - Choose one of the following options to provide this configuration:
 config:
-  # TODO_FUTURE(@HebertCL):
+  # TODO_FUTURE(@commoddity):
   # - Consider dropping the enabled field and using fromSecret/fromConfig fields if defined.
   #
   # Option 1: Use an existing Secret (recommended for security)
