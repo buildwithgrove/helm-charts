@@ -58,7 +58,7 @@ A few quick notes to get you started:
 
 ## Header-Based Rate Limiting
 
-| Header Value   | Requests | Unit   | Example User ID |
+| Header Value   | Requests | Unit   | Example User ID | **** |
 | -------------- | -------- | ------ | --------------- |
 | `Rl-Plan-Free` | `150000` | Month  | `1a2b3c4d`      |
 | `Rl-Plan-Free` | `30`     | Second | `1a2b3c4d`      |
