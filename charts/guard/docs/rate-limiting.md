@@ -62,7 +62,7 @@ A few quick notes to get you started:
 | -------------- | -------- | ------ | --------------- |
 | `Rl-Plan-Free` | `150000` | Month  | `1a2b3c4d`      |
 | `Rl-Plan-Free` | `30`     | Second | `1a2b3c4d`      |
-| `Rl-Plan-Pro`  | `1000`   | Hour   | `5e6f7g8h`      |
+| `Rl-Plan-Pro`  | `5000`   | Day    | `5e6f7g8h`      |
 
 - Each distinct user ID in the header gets its own rate bucket.
 - Example: `Rl-Plan-Free: 1a2b3c4d` is limited to 150000/month and 30/second.
@@ -93,6 +93,7 @@ These headers provide information about rate limits:
 
 - `X-Envoy-RateLimited`: Indicates the request was rate limited
 - `X-RateLimit-Limit`: Shows the request quota for the current time window
+  - `w` refers to the window size in seconds, eg `w=2592000` is 30 days
 - `X-RateLimit-Remaining`: Indicates how many requests remain in the current window
 - `X-RateLimit-Reset`: Indicates the number of seconds until the rate limit resets
 
@@ -129,14 +130,14 @@ graph LR
 - All config is in `values.yaml` under `rateLimit`.
 - Key parameters:
 
-| Parameter                    | Description                                | Default          | Required |
-| ---------------------------- | ------------------------------------------ | ---------------- | -------- |
-| `rateLimit.enabled`          | Enable rate limiting                       | `true`           | ✅        |
-| `rateLimit.redis.enabled`    | Deploy Redis from this chart               | `true`           | ❌        |
-| `rateLimit.plans`            | Array of rate limit plans                  |                  | ✅        |
-| `rateLimit.plans[].header`   | Header for identifying rate limit subjects | `"Rl-Plan-Free"` | ✅        |
-| `rateLimit.plans[].requests` | Requests allowed per time unit             | `150000`         | ✅        |
-| `rateLimit.plans[].unit`     | Time unit (Second, Minute, Hour, Day)      | `Month`          | ✅        |
+| Parameter                    | Description                                        | Default          | Required |
+| ---------------------------- | -------------------------------------------------- | ---------------- | -------- |
+| `rateLimit.enabled`          | Enable rate limiting                               | `true`           | ✅        |
+| `rateLimit.redis.enabled`    | Deploy Redis from this chart                       | `true`           | ❌        |
+| `rateLimit.plans`            | Array of rate limit plans                          |                  | ✅        |
+| `rateLimit.plans[].header`   | Header for identifying rate limit subjects         | `"Rl-Plan-Free"` | ✅        |
+| `rateLimit.plans[].requests` | Requests allowed per time unit                     | `150000`         | ✅        |
+| `rateLimit.plans[].unit`     | Time unit (Second, Minute, Hour, Day, Month, Year) | `Month`          | ✅        |
 
 ### Default Configuration
 
@@ -164,12 +165,12 @@ plans:
     requests: 150000
     unit: Month
   - header: "Rl-Plan-Pro"
-    requests: 1000
-    unit: Hour
+    requests: 5000
+    unit: Day
 ```
 
 - `Rl-Plan-Free: XXX` → 150000/month
-- `Rl-Plan-Pro: XXX` → 1000/hour
+- `Rl-Plan-Pro: XXX` → 5000/day
 
 ### Multiple Rate Limits per Plan
 
