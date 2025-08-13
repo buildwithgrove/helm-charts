@@ -66,26 +66,14 @@ spec:
         # IMPORTANT: DO NOT CHANGE THIS TO false UNLESS YOU KNOW WHAT YOU ARE DOING
         shared: true
         limit:
-          # TODO_TECHDEBT(@commoddity):
-          #   - Envoy Gateway currently only supports rate limiting in a maximum unit of `Day`
-          #   - Divide the monthly limit by 30 as a workaround
-          #
-          # When the following Issue is solved, update as follows:
-          #   - Remove the division by 30
-          #   - Update the unit to `Month`
-          #
-          # Github references:
-          #   - Issue: https://github.com/envoyproxy/gateway/issues/6019
-          #   - Pull request: https://github.com/envoyproxy/gateway/pull/4495
-          #
-          # Daily relay limit calculation:
-          #   - (limit * 1,000,000) / 30 = <daily relay limit>
+          # Monthly relay limit calculation:
+          #   - limit * 1,000,000 = <monthly relay limit>
           #   - Examples:
-          #       - Rl-User-Limit-1: ceil(1,000,000 ÷ 30) = ceil(33,333.33...) = 33,334
-          #       - Rl-User-Limit-2: ceil(2,000,000 ÷ 30) = ceil(66,666.66...) = 66,667
-          #       - Rl-User-Limit-60: ceil(60,000,000 ÷ 30) = ceil(2,000,000) = 2,000,000
-          requests: {{ ceil (div (mul $limit 1000000) 30) }}
-          unit: Day
+          #       - Rl-User-Limit-1: 1,000,000 requests per month
+          #       - Rl-User-Limit-2: 2,000,000 requests per month
+          #       - Rl-User-Limit-60: 60,000,000 requests per month
+          requests: {{ mul $limit 1000000 }}
+          unit: Month
 {{- end }}
 {{- end }}
 {{- end }}
