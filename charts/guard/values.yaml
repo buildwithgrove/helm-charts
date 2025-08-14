@@ -262,6 +262,9 @@ gateway-helm:
           - group: gateway.envoyproxy.io
             version: v1alpha1
             kind: Backend
+      extensionApis:
+        # Required to support traffic splitting to external endpoints (they are defined as "Backend")
+        enableBackend: true
 
 # Envoy Gateway configuration
 envoyGateway:
