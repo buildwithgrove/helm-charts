@@ -32,7 +32,7 @@ spec:
     grpc:
       backendRefs:
         - name: {{$name}}-peas
-          port: 10001
+          port: {{ $.Values.auth.groveLegacy.peas.port }}
 
 # Create a security policy for the header route.
 # eg. eth-header-auth-policy
@@ -52,7 +52,7 @@ spec:
     grpc:
       backendRefs:
         - name: {{$name}}-peas
-          port: 10001
+          port: {{ $.Values.auth.groveLegacy.peas.port }}
 
 {{- end }}
 
