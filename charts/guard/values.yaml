@@ -204,32 +204,6 @@ auth:
       #        ssl_root_cert.pem: |
       #          -----BEGIN CERTIFICATE-----
 
-# Rate Limit configuration
-# - Controls rate limiting for requests
-# - Redis can be deployed or use external
-# - Define all plan details below
-# - Requests are matched per-header as configured
-#
-# Envoy Gateway Documentation:
-# - https://gateway.envoyproxy.io/latest/tasks/traffic/global-rate-limit/#rate-limit-distinct-users-except-admin
-rateLimit:
-  # Set to true to enable rate limiting
-  enabled: true
-
-  # Redis deployment control
-  redis:
-    # Set to false to use external Redis
-    enabled: true
-
-  # Rate limit plans
-  plans:
-    # The headers set here must match the headers that are set on requests inside PEAS:
-    # - https://github.com/buildwithgrove/path-external-auth-server/blob/main/ratelimit/ratelimit.go
-    # PLAN_FREE: 150000 requests per month
-    - header: "Rl-Plan-Free"
-      requests: 150000
-      unit: Month
-
 # Envoy Gateway configuration
 # - Use this section to configure gateway-helm dependency
 # - Uncomment `gateway-helm` to specify config
@@ -248,14 +222,6 @@ rateLimit:
 gateway-helm:
   config:
     envoyGateway:
-      # Required to enable rate limiting via Redis backend
-      # DEV_NOTE: If redis.enabled is false, update this to point to external Redis
-      rateLimit:
-        backend:
-          type: Redis
-          redis:
-            # URL for Redis service deployed by this chart in `path` namespace (used by Envoy Gateway)
-            url: redis:6379
       # Enable Backend resources for failover functionality
       extensionManager:
         resources:

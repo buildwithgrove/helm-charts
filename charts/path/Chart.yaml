@@ -7,6 +7,7 @@ version: 0.1.29
 dependencies:
   # TODO: Remove dependencies for internal charts.
   - name: guard
+    # TODO_NEXT(@commoddity): Update GUARD version to 0.1.36 once updated GUARD chart is released.
     version: "0.1.35"
     repository: "https://buildwithgrove.github.io/helm-charts"
     condition: guard.enabled
