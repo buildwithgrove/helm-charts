@@ -3,7 +3,7 @@ appVersion: 0.0.16
 description: A Helm chart for PATH (PATH API & Toolkit Harness)
 name: path
 type: application
-version: 0.1.29
+version: 0.1.30
 dependencies:
   # TODO: Remove dependencies for internal charts.
   - name: guard
