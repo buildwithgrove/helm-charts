@@ -89,6 +89,24 @@ path:
       scheme: HTTP
   additionalLabels: {}
   additionalAnnotations: {}
+  # Environment variables for the PATH container
+  env:
+    []
+    # - name: GOMAXPROCS
+    #   value: "2"
+  # Pod-level security context (includes sysctls for kernel tuning)
+  # Note: These sysctls are considered "safe" in Kubernetes
+  podSecurityContext:
+    {}
+    # sysctls:
+    # - name: net.core.somaxconn
+    #   value: "65535"
+    # - name: net.ipv4.ip_local_port_range
+    #   value: "1024 65535"
+    # - name: net.ipv4.tcp_fin_timeout
+    #   value: "30"
+    # - name: net.ipv4.tcp_tw_reuse
+    #   value: "1"
 # PATH Configuration
 # - Requires config file at /app/config/.config.yaml
 # - Choose one of the following options to provide this configuration:
