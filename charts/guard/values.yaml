@@ -219,18 +219,21 @@ auth:
 # - Health Checking Guide: https://gateway.envoyproxy.io/latest/tasks/traffic/backend-healthchecking/
 # - Failover Guide: https://gateway.envoyproxy.io/latest/tasks/traffic/backend-failover/
 
-gateway-helm:
-  config:
-    envoyGateway:
-      # Enable Backend resources for failover functionality
-      extensionManager:
-        resources:
-          - group: gateway.envoyproxy.io
-            version: v1alpha1
-            kind: Backend
-      extensionApis:
-        # Required to support traffic splitting to external endpoints (they are defined as "Backend")
-        enableBackend: true
+# Gateway Helm configuration commented out in default values.yaml to avoid the error 
+# "cannot overwrite table with non-table (map[string]interface {})" when running PATH Localnet.
+# If required for the production deployment, this section should be set in the production values.yaml file.
+# gateway-helm:
+#   config:
+#     envoyGateway:
+#       # Enable Backend resources for failover functionality
+#       extensionManager:
+#         resources:
+#           - group: gateway.envoyproxy.io
+#             version: v1alpha1
+#             kind: Backend
+#       extensionApis:
+#         # Required to support traffic splitting to external endpoints (they are defined as "Backend")
+#         enableBackend: true
 
 # Envoy Gateway configuration
 envoyGateway:
