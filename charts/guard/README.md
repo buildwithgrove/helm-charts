@@ -17,7 +17,7 @@
 
 1. **Authentication** - Verifies API keys and manages user access
 2. **Service Routing** - Creates the appropriate `HTTPRoute` resources for the services configured in the Helm values file.
-3. **Defense Mechanisms** - Implements rate limiting and security policies
+3. **Defense Mechanisms** - Implements security policies
 
 GUARD uses Envoy Gateway as its underlying proxy technology and is deployed using Helm.
 
@@ -160,7 +160,6 @@ GUARD provides several key features for managing access to your services:
 
 3. **Defense Mechanisms**
    - Request validation
-   - Rate limiting
 
 ## Configuration
 
