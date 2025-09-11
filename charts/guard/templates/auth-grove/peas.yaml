@@ -48,6 +48,16 @@ spec:
         volumeMounts:
           - name: {{$name}}-data
             mountPath: {{ $peasConfig.mountPath }}
+          {{- range $peasConfig.secretMounts }}
+          - name: {{ .name }}
+            mountPath: {{ .mountPath }}
+            {{- if .subPath }}
+            subPath: {{ .subPath }}
+            {{- end }}
+            {{- if .readOnly }}
+            readOnly: {{ .readOnly }}
+            {{- end }}
+          {{- end }}
       volumes:
       {{- if $peasConfig.fromSecret }}
       - name: {{$name}}-data
@@ -57,6 +67,24 @@ spec:
       - name: {{$name}}-data
         configMap:
           name: peas-data
+      {{- end }}
+      {{- range $peasConfig.secretMounts }}
+      - name: {{ .name }}
+        secret:
+          secretName: {{ .secretName }}
+          {{- if .defaultMode }}
+          defaultMode: {{ .defaultMode }}
+          {{- end }}
+          {{- if .items }}
+          items:
+          {{- range .items }}
+          - key: {{ .key }}
+            path: {{ .path }}
+            {{- if .mode }}
+            mode: {{ .mode }}
+            {{- end }}
+          {{- end }}
+          {{- end }}
       {{- end }}
 ---
 apiVersion: v1
