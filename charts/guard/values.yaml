@@ -203,6 +203,21 @@ auth:
       #          -----BEGIN PRIVATE KEY-----
       #        ssl_root_cert.pem: |
       #          -----BEGIN CERTIFICATE-----
+      # Additional secrets can be mounted as volumes:
+      # secretMounts:
+      #   - name: tls-certs
+      #     secretName: peas-tls-secret
+      #     mountPath: /etc/tls
+      #     readOnly: true
+      #   - name: api-keys
+      #     secretName: api-keys-secret
+      #     mountPath: /etc/api-keys
+      #     readOnly: true
+      #     # Optional: mount specific keys from the secret
+      #     items:
+      #       - key: production.key
+      #         path: prod.key
+      #         mode: 0400
 
 # Envoy Gateway configuration
 # - Use this section to configure gateway-helm dependency
