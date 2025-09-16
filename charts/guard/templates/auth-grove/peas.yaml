@@ -34,6 +34,8 @@ spec:
       labels:
         {{- include "guard-helm.labels" $ | nindent 8 }}
         app: {{$name}}-peas
+        app.kubernetes.io/name: {{$name}}-peas
+        app.kubernetes.io/component: peas
     spec:
       containers:
       - name: path-external-auth-server
@@ -99,6 +101,10 @@ kind: Service
 metadata:
   name: {{$name}}-peas
   namespace: {{ $.Values.global.namespace }}
+  labels:
+    {{- include "guard-helm.labels" $ | nindent 4 }}
+    app.kubernetes.io/name: {{$name}}-peas
+    app.kubernetes.io/component: peas
 spec:
   selector:
     app: {{$name}}-peas
