@@ -45,6 +45,13 @@ spec:
         env: {{- toYaml $peasConfig.env | nindent 10 }}
         ports:
         - containerPort: {{ $peasConfig.port }}
+          name: grpc
+        # Metrics server port for Prometheus metrics endpoint
+        - containerPort: {{ $peasConfig.metricsPort }}
+          name: metrics
+        # Pprof server port for performance profiling endpoints  
+        - containerPort: {{ $peasConfig.pprofPort }}
+          name: pprof
         volumeMounts:
           - name: {{$name}}-data
             mountPath: {{ $peasConfig.mountPath }}
@@ -100,6 +107,16 @@ spec:
     targetPort: {{ $peasConfig.port }}
     protocol: TCP
     name: grpc
+  # Metrics server port for Prometheus metrics endpoint
+  - port: {{ $peasConfig.metricsPort }}
+    targetPort: {{ $peasConfig.metricsPort }}
+    protocol: TCP
+    name: metrics
+  # Pprof server port for performance profiling endpoints
+  - port: {{ $peasConfig.pprofPort }}
+    targetPort: {{ $peasConfig.pprofPort }}
+    protocol: TCP
+    name: pprof
 ---
 {{- if not $peasConfig.fromSecret }}
 apiVersion: v1

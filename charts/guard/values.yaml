@@ -182,7 +182,15 @@ auth:
       imageTag: "latest"
       mountPath: /app/data
       replicas: 1
+      # gRPC server port for handling auth requests from Envoy
+      # Default: 10001 (matches PORT default in PEAS env.go)
       port: 10001
+      # Metrics server port for Prometheus metrics endpoint
+      # Default: 9090 (matches METRICS_PORT default in PEAS env.go)
+      metricsPort: 9090
+      # Pprof server port for performance profiling endpoints
+      # Default: 6060 (matches PPROF_PORT default in PEAS env.go)
+      pprofPort: 6060
       env:
         # PEAS default port is 10001
         # - name: PORT
