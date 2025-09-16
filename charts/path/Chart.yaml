@@ -3,11 +3,11 @@ appVersion: 0.0.16
 description: A Helm chart for PATH (PATH API & Toolkit Harness)
 name: path
 type: application
-version: 0.1.32
+version: 0.1.33
 dependencies:
   # TODO: Remove dependencies for internal charts.
   - name: guard
-    version: "0.1.38"
+    version: "0.1.39"
     repository: "https://buildwithgrove.github.io/helm-charts"
     condition: guard.enabled
   - name: watch
