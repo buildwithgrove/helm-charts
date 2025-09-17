@@ -1,4 +1,4 @@
-{{- if .Values.auth.debug_endpoints }}
+{{- if and .Values.auth.debug_endpoints .Values.auth.debug_endpoints.enabled }}
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: HTTPRoute
 metadata:
@@ -14,22 +14,30 @@ spec:
     name: {{ .name }}
   {{- end }}
   rules:
-  # pprof endpoints - correct service name is "path-pprof"
+  {{- if .Values.auth.debug_endpoints.pprofServiceName }}
+  # pprof endpoints
   - matches:
     - path:
         type: PathPrefix
         value: /debug/pprof/
     backendRefs:
-    - name: path-pprof
+    - group: ""
+      kind: Service
+      name: {{ .Values.auth.debug_endpoints.pprofServiceName }}
       namespace: {{ .Values.global.namespace }}
-      port: 6060
+      port: {{ .Values.auth.debug_endpoints.pprofPort | default 6060 }}
+      weight: 1
+  {{- end }}
   # disqualified_endpoints served on port 3069 via main API service
   - matches:
     - path:
         type: Exact
         value: /disqualified_endpoints
     backendRefs:
-    - name: {{ .Values.global.serviceName }}
+    - group: ""
+      kind: Service
+      name: {{ .Values.global.serviceName }}
       namespace: {{ .Values.global.namespace }}
       port: {{ .Values.global.port }}
+      weight: 1
 {{- end }}

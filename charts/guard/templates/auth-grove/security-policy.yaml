@@ -31,7 +31,9 @@ spec:
   extAuth:
     grpc:
       backendRefs:
-        - name: {{$name}}-peas
+        - group: ""
+          kind: Service
+          name: {{$name}}-peas
           port: {{ $.Values.auth.groveLegacy.peas.port }}
 
 # Create a security policy for the header route.
@@ -51,7 +53,9 @@ spec:
   extAuth:
     grpc:
       backendRefs:
-        - name: {{$name}}-peas
+        - group: ""
+          kind: Service
+          name: {{$name}}-peas
           port: {{ $.Values.auth.groveLegacy.peas.port }}
 
 {{- end }}

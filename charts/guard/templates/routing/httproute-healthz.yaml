@@ -23,6 +23,7 @@ spec:
           name: {{ $.Values.healthCheck.serviceName | default $.Values.global.serviceName }}
           namespace: {{ $.Values.healthCheck.namespace | default $.Values.global.namespace }}
           port: {{ $.Values.healthCheck.port | default $.Values.global.port }}
+          weight: 1
       matches:
         # /healthz route returns the health of the PATH service.
         - path:

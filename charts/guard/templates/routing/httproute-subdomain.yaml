@@ -97,13 +97,17 @@ spec:
                 value: "{{ .serviceId }}"
         {{- else }}
         # -- STANDARD TRAFFIC ROUTING --
-        - name: {{ $.Values.global.serviceName }}
+        - group: ""
+          kind: Service
+          name: {{ $.Values.global.serviceName }}
           namespace: {{ $.Values.global.namespace }}
           port: {{ $.Values.global.port }}
           # -- CONTROLLED TRAFFIC SHIFTING --
           # If traffic splitting is enabled, set the weight for the PATH backend.
           {{- if eq $ts.enabled true }}
           weight: {{ default 0 $ts.weights.path }}
+          {{- else }}
+          weight: 1
           {{- end }}
           filters:
           - type: RequestHeaderModifier
@@ -114,7 +118,9 @@ spec:
         # -- CONTROLLED TRAFFIC SHIFTING --
         # If traffic splitting is enabled, set a second backendRef for the Middleware backend.
         {{- if eq $ts.enabled true }}
-        - name: {{ $.Values.global.shannonBetaServiceName }}
+        - group: ""
+          kind: Service
+          name: {{ $.Values.global.shannonBetaServiceName }}
           namespace: {{ $.Values.global.shannonBetaNamespace }}
           port: {{ $.Values.global.shannonBetaPort }}
           weight: {{ default 0 $ts.weights.shannonBeta }}
@@ -124,7 +130,9 @@ spec:
               set:
               - name: target-service-id
                 value: "{{ .serviceId }}"
-        - name: {{ $.Values.global.shannonMainnetServiceName }}
+        - group: ""
+          kind: Service
+          name: {{ $.Values.global.shannonMainnetServiceName }}
           namespace: {{ $.Values.global.shannonMainnetNamespace }}
           port: {{ $.Values.global.shannonMainnetPort }}
           weight: {{ default 0 $ts.weights.shannonMainnet }}

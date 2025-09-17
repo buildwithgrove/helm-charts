@@ -56,9 +56,12 @@ spec:
   rules:
   # Rule for the service ID itself (no header modification needed)
   - backendRefs:
-    - name: {{ $.Values.global.serviceName }}
+    - group: ""
+      kind: Service
+      name: {{ $.Values.global.serviceName }}
       namespace: {{ $.Values.global.namespace }}
       port: {{ $.Values.global.port }}
+      weight: 1
 
     matches:
     - path:
@@ -71,9 +74,12 @@ spec:
   # Rule for aliases (requires header modification)
   {{- if $service.aliases }}
   - backendRefs:
-    - name: {{ $.Values.global.serviceName }}
+    - group: ""
+      kind: Service
+      name: {{ $.Values.global.serviceName }}
       namespace: {{ $.Values.global.namespace }}
       port: {{ $.Values.global.port }}
+      weight: 1
     
     filters:
     # Ensure the request header "target-service-id" is set to the authoritative service ID
