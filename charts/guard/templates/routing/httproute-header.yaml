@@ -69,6 +69,7 @@ spec:
         value: /v1
       headers:
       - name: target-service-id
+        type: Exact
         value: "{{ $service.serviceId }}"
 
   # Rule for aliases (requires header modification)
@@ -100,6 +101,7 @@ spec:
         value: /v1
       headers:
       - name: target-service-id
+        type: Exact
         value: "{{ . | lower }}"
     {{- end }}
   {{- end }}
