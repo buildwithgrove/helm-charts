@@ -44,8 +44,9 @@ spec:
       {{- with $dpl.tolerations }}
       tolerations: {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with $dpl.nodeSelector }}
-      nodeSelector: {{- toYaml . | nindent 8 }}
+      {{- $nodeSelector := or $dpl.nodeSelector $.Values.nodeSelector $.Values.global.nodeSelector }}
+      {{- if $nodeSelector }}
+      nodeSelector: {{- toYaml $nodeSelector | nindent 8 }}
       {{- end }}
       {{- with $dpl.topologySpreadConstraints }}
       topologySpreadConstraints: {{- toYaml . | nindent 8 }}
